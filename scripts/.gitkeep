@@ -1,0 +1,2 @@
+# Do NOT commit blogspot-export.xml — it is listed in .gitignore.
+# Place your Blogspot XML export here as: scripts/blogspot-export.xml
