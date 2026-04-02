@@ -1,0 +1,29 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "blog": "Blog",
+    "about": "Über uns"
+  },
+  "categories": {
+    "theologie": "Theologie",
+    "apologetik": "Apologetik",
+    "geistliches-leben": "Geistliches Leben",
+    "kirchengeschichte": "Kirchengeschichte"
+  },
+  "article": {
+    "readingTime": "{minutes} Min. Lesezeit",
+    "relatedPosts": "Ähnliche Artikel",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Kopiert!"
+  },
+  "homepage": {
+    "tagline": "Soli Deo Gloria",
+    "subtitle": "Fundierte Artikel zu Bibel, Theologie und christlicher Praxis"
+  },
+  "blog": {
+    "allPosts": "Alle Artikel"
+  },
+  "meta": {
+    "siteName": "Aus der Schrift"
+  }
+}

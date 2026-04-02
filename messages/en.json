@@ -1,0 +1,29 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "about": "About"
+  },
+  "categories": {
+    "theologie": "Theology",
+    "apologetik": "Apologetics",
+    "geistliches-leben": "Spiritual Life",
+    "kirchengeschichte": "Church History"
+  },
+  "article": {
+    "readingTime": "{minutes} min read",
+    "relatedPosts": "Related Articles",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied!"
+  },
+  "homepage": {
+    "tagline": "Soli Deo Gloria",
+    "subtitle": "Well-researched articles on Bible, theology, and Christian practice"
+  },
+  "blog": {
+    "allPosts": "All Articles"
+  },
+  "meta": {
+    "siteName": "Aus der Schrift"
+  }
+}
