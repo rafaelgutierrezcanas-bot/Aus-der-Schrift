@@ -37,21 +37,28 @@ export async function Header({ locale }: HeaderProps) {
           </span>
         </Link>
 
-        {/* Category nav */}
-        <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
-          {categories.map((cat) => (
-            <Link
-              key={cat._id as string}
-              href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
-              className="text-xs px-3 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/60 transition-colors whitespace-nowrap"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              {getLocalizedCategoryTitle(cat, locale)}
-            </Link>
+        {/* Category nav — pill container */}
+        <nav className="hidden lg:flex items-center border border-border rounded-full px-1 py-1 gap-0">
+          {categories.map((cat, i) => (
+            <span key={cat._id as string} className="flex items-center">
+              <Link
+                href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
+                className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/70 transition-colors whitespace-nowrap"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {getLocalizedCategoryTitle(cat, locale)}
+              </Link>
+              {i < categories.length - 1 && (
+                <span className="w-px h-3 bg-border shrink-0" />
+              )}
+            </span>
           ))}
+          {categories.length > 0 && (
+            <span className="w-px h-3 bg-border shrink-0" />
+          )}
           <Link
             href={`/${locale}/blog`}
-            className="text-xs px-3 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/60 transition-colors"
+            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/70 transition-colors whitespace-nowrap"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {t("blog")}
