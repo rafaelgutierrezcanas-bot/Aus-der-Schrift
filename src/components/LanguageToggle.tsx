@@ -14,17 +14,27 @@ export function LanguageToggle() {
   }
 
   return (
-    <div className="flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-sans)" }}>
+    <div
+      className="flex items-center rounded-full border border-border p-0.5 text-xs"
+      style={{ fontFamily: "var(--font-sans)" }}
+    >
       <button
         onClick={() => switchLocale("de")}
-        className={`transition-colors ${locale === "de" ? "text-accent font-medium" : "text-muted hover:text-foreground"}`}
+        className={`px-2.5 py-1 rounded-full transition-colors ${
+          locale === "de"
+            ? "bg-accent text-white font-medium"
+            : "text-muted hover:text-foreground"
+        }`}
       >
         DE
       </button>
-      <span className="text-muted">/</span>
       <button
         onClick={() => switchLocale("en")}
-        className={`transition-colors ${locale === "en" ? "text-accent font-medium" : "text-muted hover:text-foreground"}`}
+        className={`px-2.5 py-1 rounded-full transition-colors ${
+          locale === "en"
+            ? "bg-accent text-white font-medium"
+            : "text-muted hover:text-foreground"
+        }`}
       >
         EN
       </button>
