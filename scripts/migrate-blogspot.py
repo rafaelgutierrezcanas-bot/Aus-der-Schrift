@@ -5,12 +5,9 @@ Migrate Blogspot XML export to Sanity.
 Usage:
   1. Export your Blogspot: Settings → Manage Blog → Back up content → Download
   2. Save the .xml file as scripts/blogspot-export.xml
-  3. Get a write token from Sanity: sanity.io → project → API → Tokens (add Editor token)
+  3. Get a write token from Sanity: sanity.io → project y5fwmpkn → API → Tokens → Add Editor token
   4. Run:
-     NEXT_PUBLIC_SANITY_PROJECT_ID=y5fwmpkn \\
-     NEXT_PUBLIC_SANITY_DATASET=production \\
-     SANITY_API_TOKEN=your_write_token \\
-     python3 scripts/migrate-blogspot.py
+     SANITY_API_TOKEN=your_write_token python3 scripts/migrate-blogspot.py
 
 Requirements: pip3 install requests beautifulsoup4 lxml
 """
@@ -30,14 +27,13 @@ except ImportError:
     sys.exit(1)
 
 # --- Config ---
-PROJECT_ID = os.environ.get("NEXT_PUBLIC_SANITY_PROJECT_ID", "y5fwmpkn")
-DATASET = os.environ.get("NEXT_PUBLIC_SANITY_DATASET", "production")
-TOKEN = os.environ.get("SANITY_API_TOKEN", "")
+PROJECT_ID  = "y5fwmpkn"
+DATASET     = "production"
+TOKEN       = os.environ.get("SANITY_API_TOKEN", "")
 API_VERSION = "2024-01-01"
 
-MUTATIONS_URL = (
-    f"https://{PROJECT_ID}.api.sanity.io/v{API_VERSION}/data/mutate/{DATASET}"
-)
+MUTATIONS_URL = f"https://{PROJECT_ID}.api.sanity.io/v{API_VERSION}/data/mutate/{DATASET}"
+QUERY_URL     = f"https://{PROJECT_ID}.api.sanity.io/v{API_VERSION}/data/query/{DATASET}"
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
     "Content-Type": "application/json",
@@ -45,9 +41,56 @@ HEADERS = {
 
 BLOGSPOT_XML = os.path.join(os.path.dirname(__file__), "blogspot-export.xml")
 
+# ── Category definitions ──────────────────────────────────────────────────────
+# Defines all categories that will be auto-created in Sanity if missing.
+CATEGORIES = [
+    {"slug": "theologie",         "titleDe": "Theologie",         "titleEn": "Theology"},
+    {"slug": "bibelauslegung",    "titleDe": "Bibelauslegung",    "titleEn": "Bible Interpretation"},
+    {"slug": "apologetik",        "titleDe": "Apologetik",        "titleEn": "Apologetics"},
+    {"slug": "kirchengeschichte", "titleDe": "Kirchengeschichte", "titleEn": "Church History"},
+    {"slug": "geistliches-leben", "titleDe": "Geistliches Leben", "titleEn": "Spiritual Life"},
+]
+
+# Maps every Blogspot label to one of the slugs above.
+LABEL_MAP: dict[str, str] = {
+    # Theologie
+    "theologie": "theologie",
+    "theology": "theologie",
+    "gottheit jesu": "theologie",
+    "taufe": "theologie",
+    "eschatologie": "theologie",
+    "soteriologie": "theologie",
+    # Bibelauslegung
+    "bibelauslegung": "bibelauslegung",
+    "bible interpretation": "bibelauslegung",
+    "exegese": "bibelauslegung",
+    "schriften": "bibelauslegung",
+    "überblick": "bibelauslegung",
+    "uberblick": "bibelauslegung",
+    # Apologetik
+    "apologetik": "apologetik",
+    "apologetics": "apologetik",
+    "bücher": "apologetik",
+    "bucher": "apologetik",
+    "books": "apologetik",
+    # Kirchengeschichte
+    "kirchengeschichte": "kirchengeschichte",
+    "church history": "kirchengeschichte",
+    "kirchenväter": "kirchengeschichte",
+    "kirchenvater": "kirchengeschichte",
+    "early church": "kirchengeschichte",
+    # Geistliches Leben
+    "geistliches leben": "geistliches-leben",
+    "spiritual life": "geistliches-leben",
+    "biographien": "geistliches-leben",
+    "produktivität": "geistliches-leben",
+    "produktivitat": "geistliches-leben",
+    "gebet": "geistliches-leben",
+    "nachfolge": "geistliches-leben",
+}
+
 
 def slugify(text: str) -> str:
-    """Convert text to URL-safe slug."""
     text = text.lower().strip()
     text = re.sub(r"[äöüß]", lambda m: {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}[m.group()], text)
     text = re.sub(r"[^\w\s-]", "", text)
@@ -57,61 +100,94 @@ def slugify(text: str) -> str:
 
 
 def html_to_portable_text(html: str) -> list[dict[str, Any]]:
-    """Convert HTML body to simplified Portable Text blocks."""
     if not html:
         return []
     soup = BeautifulSoup(html, "lxml")
     blocks: list[dict[str, Any]] = []
     block_index = 0
 
-    def make_block(style: str, text: str, marks: list[str] | None = None) -> dict[str, Any]:
+    def make_block(style: str, children: list[dict]) -> dict[str, Any]:
         nonlocal block_index
         block = {
             "_type": "block",
             "_key": f"b{block_index:04d}",
             "style": style,
-            "children": [
-                {
-                    "_type": "span",
-                    "_key": f"s{block_index:04d}",
-                    "text": text.strip(),
-                    "marks": marks or [],
-                }
-            ],
+            "children": children,
             "markDefs": [],
         }
         block_index += 1
         return block
 
-    for elem in soup.find_all(["p", "h2", "h3", "h4", "blockquote", "ul", "ol", "li"]):
+    def elem_to_children(elem) -> list[dict]:
+        """Convert an element's inline content to Portable Text spans."""
+        spans = []
+        idx = [0]
+
+        def walk(node, active_marks):
+            if isinstance(node, str):
+                text = node
+                if text.strip():
+                    spans.append({
+                        "_type": "span",
+                        "_key": f"s{idx[0]:04d}",
+                        "text": text,
+                        "marks": list(active_marks),
+                    })
+                    idx[0] += 1
+                return
+            tag = getattr(node, "name", None)
+            new_marks = list(active_marks)
+            if tag in ("strong", "b"):
+                new_marks.append("strong")
+            elif tag in ("em", "i"):
+                new_marks.append("em")
+            for child in node.children:
+                walk(child, new_marks)
+
+        walk(elem, [])
+        if not spans:
+            text = elem.get_text(separator=" ").strip()
+            if text:
+                spans.append({"_type": "span", "_key": "s0000", "text": text, "marks": []})
+        return spans
+
+    seen = set()
+
+    for elem in soup.find_all(["p", "h2", "h3", "h4", "blockquote", "li"]):
+        if id(elem) in seen:
+            continue
+        seen.add(id(elem))
+
+        if elem.find_parent("blockquote") and elem.name != "blockquote":
+            continue
+
         tag = elem.name
-        text = elem.get_text(separator=" ").strip()
-        if not text:
+        children = elem_to_children(elem)
+        if not children:
             continue
 
         if tag == "h2":
-            blocks.append(make_block("h2", text))
+            blocks.append(make_block("h2", children))
         elif tag in ("h3", "h4"):
-            blocks.append(make_block("h3", text))
+            blocks.append(make_block("h3", children))
         elif tag == "blockquote":
-            blocks.append(make_block("blockquote", text))
+            blocks.append(make_block("blockquote", children))
         elif tag == "p":
-            # Skip if it's inside a blockquote (already handled)
-            if elem.find_parent("blockquote"):
-                continue
-            if text:
-                blocks.append(make_block("normal", text))
-        elif tag in ("li",):
-            blocks.append(make_block("normal", f"• {text}"))
+            blocks.append(make_block("normal", children))
+        elif tag == "li":
+            blocks.append(make_block("normal", children))
 
     return blocks
 
 
 def parse_blogspot_xml(filepath: str) -> list[dict[str, Any]]:
-    """Parse Blogspot Atom XML and return list of post dicts."""
     if not os.path.exists(filepath):
-        print(f"Error: {filepath} not found.")
-        print("Export your Blogspot content and save as scripts/blogspot-export.xml")
+        print(f"\nError: {filepath} not found.")
+        print("Steps to export your Blogspot content:")
+        print("  1. Go to https://www.blogger.com → your blog → Settings")
+        print("  2. Scroll to 'Manage Blog' → 'Back up content'")
+        print("  3. Click 'Download' — you get a .xml file")
+        print(f"  4. Rename it to 'blogspot-export.xml' and put it in scripts/")
         sys.exit(1)
 
     tree = ET.parse(filepath)
@@ -120,7 +196,6 @@ def parse_blogspot_xml(filepath: str) -> list[dict[str, Any]]:
     posts = []
 
     for entry in root.findall("atom:entry", ns):
-        # Filter: only actual posts (not pages, comments, settings)
         kind = None
         labels = []
         for cat in entry.findall("atom:category", ns):
@@ -134,7 +209,6 @@ def parse_blogspot_xml(filepath: str) -> list[dict[str, Any]]:
         if kind != "post":
             continue
 
-        # Skip drafts
         draft_elem = entry.find(".//{http://purl.org/atom/app#}draft")
         if draft_elem is not None and draft_elem.text == "yes":
             continue
@@ -157,39 +231,59 @@ def parse_blogspot_xml(filepath: str) -> list[dict[str, Any]]:
     return posts
 
 
-def map_label_to_category_slug(label: str) -> str | None:
-    """Map Blogspot label to Sanity category slug."""
-    label_lower = label.lower()
-    mappings = {
-        "theologie": "theologie",
-        "theology": "theologie",
-        "apologetik": "apologetik",
-        "apologetics": "apologetik",
-        "geistliches leben": "geistliches-leben",
-        "spiritual life": "geistliches-leben",
-        "kirchengeschichte": "kirchengeschichte",
-        "church history": "kirchengeschichte",
-    }
-    return mappings.get(label_lower)
+def ensure_categories_exist() -> dict[str, str]:
+    """Create missing categories and return slug → _id map."""
+    # Fetch existing
+    resp = requests.get(
+        QUERY_URL,
+        params={"query": '*[_type == "category"] { _id, "slug": slug.current }'},
+        headers=HEADERS,
+        timeout=15,
+    )
+    existing: dict[str, str] = {}
+    if resp.status_code == 200:
+        for item in resp.json().get("result", []):
+            existing[item["slug"]] = item["_id"]
+
+    # Create missing
+    to_create = [c for c in CATEGORIES if c["slug"] not in existing]
+    if to_create:
+        print(f"Creating {len(to_create)} missing categories...")
+        mutations = []
+        for cat in to_create:
+            doc_id = f"category-{cat['slug']}"
+            mutations.append({
+                "createIfNotExists": {
+                    "_type": "category",
+                    "_id": doc_id,
+                    "titleDe": cat["titleDe"],
+                    "titleEn": cat["titleEn"],
+                    "slug": {"_type": "slug", "current": cat["slug"]},
+                }
+            })
+        r = requests.post(MUTATIONS_URL, headers=HEADERS, json={"mutations": mutations}, timeout=30)
+        if r.status_code == 200:
+            for cat in to_create:
+                existing[cat["slug"]] = f"category-{cat['slug']}"
+                print(f"  ✓ Created: {cat['titleDe']}")
+        else:
+            print(f"  Warning: category creation failed: {r.text[:300]}")
+
+    return existing
 
 
-def fetch_category_ids() -> dict[str, str]:
-    """Fetch existing category documents from Sanity to get their _ids."""
-    query = '*[_type == "category"] { _id, "slug": slug.current }'
-    url = f"https://{PROJECT_ID}.api.sanity.io/v{API_VERSION}/data/query/{DATASET}"
-    resp = requests.get(url, params={"query": query}, headers=HEADERS, timeout=15)
-    if resp.status_code != 200:
-        print(f"Warning: Could not fetch categories: {resp.text}")
-        return {}
-    result = resp.json().get("result", [])
-    return {item["slug"]: item["_id"] for item in result}
+def map_labels_to_category(labels: list[str]) -> str | None:
+    for label in labels:
+        cat_slug = LABEL_MAP.get(label.lower())
+        if cat_slug:
+            return cat_slug
+    return None
 
 
 def build_sanity_article(
     post: dict[str, Any],
     category_ids: dict[str, str],
 ) -> dict[str, Any]:
-    """Convert a parsed Blogspot post to a Sanity article mutation."""
     body = html_to_portable_text(post["content"])
     doc_id = f"imported-{post['slug']}"
 
@@ -203,21 +297,17 @@ def build_sanity_article(
         "language": "de",
     }
 
-    # Try to assign a category
-    for label in post["labels"]:
-        cat_slug = map_label_to_category_slug(label)
-        if cat_slug and cat_slug in category_ids:
-            article["category"] = {
-                "_type": "reference",
-                "_ref": category_ids[cat_slug],
-            }
-            break
+    cat_slug = map_labels_to_category(post["labels"])
+    if cat_slug and cat_slug in category_ids:
+        article["category"] = {
+            "_type": "reference",
+            "_ref": category_ids[cat_slug],
+        }
 
     return article
 
 
 def upload_in_batches(articles: list[dict[str, Any]], batch_size: int = 50) -> None:
-    """Upload articles to Sanity in batches."""
     total = len(articles)
     for i in range(0, total, batch_size):
         batch = articles[i : i + batch_size]
@@ -230,39 +320,51 @@ def upload_in_batches(articles: list[dict[str, Any]], batch_size: int = 50) -> N
         )
         if resp.status_code == 200:
             results = resp.json().get("results", [])
-            print(f"  Batch {i // batch_size + 1}: uploaded {len(results)} documents ✓")
+            print(f"  Batch {i // batch_size + 1}: {len(results)} Artikel hochgeladen ✓")
         else:
-            print(f"  Batch {i // batch_size + 1}: ERROR {resp.status_code}")
+            print(f"  Batch {i // batch_size + 1}: FEHLER {resp.status_code}")
             print(f"  {resp.text[:500]}")
 
 
 def main() -> None:
     if not TOKEN:
-        print("Error: SANITY_API_TOKEN is not set.")
-        print("Create an Editor token at: sanity.io → your project → API → Tokens")
+        print("\nFehler: SANITY_API_TOKEN ist nicht gesetzt.")
+        print("Token erstellen: https://sanity.io/manage → Projekt y5fwmpkn → API → Tokens → Add Editor token")
+        print("\nDann ausführen:")
+        print("  SANITY_API_TOKEN=dein_token python3 scripts/migrate-blogspot.py")
         sys.exit(1)
 
-    print(f"Migrating to project: {PROJECT_ID} / dataset: {DATASET}")
-    print(f"Parsing {BLOGSPOT_XML}...")
+    print(f"\n→ Projekt: {PROJECT_ID} / Dataset: {DATASET}")
+    print(f"→ Lese XML: {BLOGSPOT_XML}")
 
     posts = parse_blogspot_xml(BLOGSPOT_XML)
-    print(f"Found {len(posts)} posts to migrate.")
+    print(f"→ {len(posts)} Artikel gefunden.\n")
 
     if len(posts) == 0:
-        print("Nothing to migrate.")
+        print("Nichts zu migrieren.")
         return
 
-    print("Fetching existing Sanity categories...")
-    category_ids = fetch_category_ids()
-    print(f"Found {len(category_ids)} categories: {list(category_ids.keys())}")
+    print("→ Kategorien in Sanity vorbereiten...")
+    category_ids = ensure_categories_exist()
+    print(f"  Verfügbare Kategorien: {list(category_ids.keys())}\n")
 
     articles = [build_sanity_article(p, category_ids) for p in posts]
 
-    print(f"Uploading {len(articles)} articles...")
+    # Label coverage report
+    unmapped = [p for p in posts if map_labels_to_category(p["labels"]) is None]
+    if unmapped:
+        print(f"  Hinweis: {len(unmapped)} Artikel ohne zugewiesene Kategorie:")
+        for p in unmapped[:5]:
+            print(f"    - {p['title']} (Labels: {p['labels']})")
+        if len(unmapped) > 5:
+            print(f"    ... und {len(unmapped) - 5} weitere")
+        print()
+
+    print(f"→ Lade {len(articles)} Artikel hoch...")
     upload_in_batches(articles)
 
-    print("\nMigration complete.")
-    print("Open /studio to review imported articles and add excerpts/featured images.")
+    print("\n✓ Migration abgeschlossen.")
+    print("  Öffne /studio um die importierten Artikel zu prüfen und Bilder hinzuzufügen.")
 
 
 if __name__ == "__main__":
