@@ -20,7 +20,7 @@ export async function Header({ locale }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 z-50 bg-background shadow-sm border-b border-border">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
 
         {/* Logo */}
@@ -43,7 +43,7 @@ export async function Header({ locale }: HeaderProps) {
             <span key={cat._id as string} className="flex items-center">
               <Link
                 href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
-                className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/70 transition-colors whitespace-nowrap"
+                className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 {getLocalizedCategoryTitle(cat, locale)}
@@ -58,7 +58,7 @@ export async function Header({ locale }: HeaderProps) {
           )}
           <Link
             href={`/${locale}/blog`}
-            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-border/70 transition-colors whitespace-nowrap"
+            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {t("blog")}

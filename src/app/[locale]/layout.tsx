@@ -19,48 +19,40 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <Header locale={locale} />
       <main className="min-h-screen">{children}</main>
-      <footer className="mt-24 border-t border-border bg-background">
-  <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <footer className="border-t border-border">
+  {/* Main footer */}
+  <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
 
-    {/* Col 1: Logo + tagline */}
+    {/* Col 1: Brand + mission */}
     <div>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         <span className="text-accent">✦</span>
-        <span
-          className="text-lg font-semibold"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
+        <span className="text-lg font-semibold" style={{ fontFamily: "var(--font-serif)" }}>
           Aus der Schrift
         </span>
       </div>
-      <p
-        className="text-sm text-muted leading-relaxed"
-        style={{ fontFamily: "var(--font-body-serif)" }}
-      >
-        Fundierte Theologie aus der Heiligen Schrift.
+      <p className="text-sm text-muted leading-relaxed mb-4" style={{ fontFamily: "var(--font-body-serif)" }}>
+        {locale === "de"
+          ? "Fundierte Theologie, Bibelauslegung und Kirchengeschichte — aus der Heiligen Schrift."
+          : "Well-researched theology, biblical exegesis and church history — from Holy Scripture."}
       </p>
-      <p
-        className="mt-4 text-xs text-muted italic"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
+      <p className="text-xs text-muted/60 italic" style={{ fontFamily: "var(--font-sans)" }}>
         Soli Deo Gloria
       </p>
     </div>
 
-    {/* Col 2: Kategorien */}
+    {/* Col 2: Themen */}
     <div>
-      <p
-        className="text-xs uppercase tracking-widest text-muted mb-4"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        Kategorien
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent mb-5" style={{ fontFamily: "var(--font-sans)" }}>
+        {locale === "de" ? "Themen" : "Topics"}
       </p>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {[
-          { label: "Theologie", slug: "theologie" },
-          { label: "Apologetik", slug: "apologetik" },
-          { label: "Kirchengeschichte", slug: "kirchengeschichte" },
-          { label: "Geistliches Leben", slug: "geistliches-leben" },
+          { de: "Theologie", en: "Theology", slug: "theologie" },
+          { de: "Bibelauslegung", en: "Bible Interpretation", slug: "bibelauslegung" },
+          { de: "Apologetik", en: "Apologetics", slug: "apologetik" },
+          { de: "Kirchengeschichte", en: "Church History", slug: "kirchengeschichte" },
+          { de: "Geistliches Leben", en: "Spiritual Life", slug: "geistliches-leben" },
         ].map((cat) => (
           <li key={cat.slug}>
             <a
@@ -68,23 +60,21 @@ export default async function LocaleLayout({
               className="text-sm text-muted hover:text-accent transition-colors"
               style={{ fontFamily: "var(--font-sans)" }}
             >
-              {cat.label}
+              {locale === "de" ? cat.de : cat.en}
             </a>
           </li>
         ))}
       </ul>
     </div>
 
-    {/* Col 3: Blog links */}
+    {/* Col 3: Navigation */}
     <div>
-      <p
-        className="text-xs uppercase tracking-widest text-muted mb-4"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        Blog
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent mb-5" style={{ fontFamily: "var(--font-sans)" }}>
+        Navigation
       </p>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {[
+          { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },
           { label: locale === "de" ? "Alle Artikel" : "All Articles", href: `/${locale}/blog` },
           { label: locale === "de" ? "Über uns" : "About", href: `/${locale}/uber-uns` },
         ].map((link) => (
@@ -103,13 +93,15 @@ export default async function LocaleLayout({
 
   </div>
 
-  {/* Bottom bar */}
+  {/* Colophon bottom bar */}
   <div className="border-t border-border">
-    <div
-      className="max-w-6xl mx-auto px-6 py-4 text-center text-xs text-muted"
-      style={{ fontFamily: "var(--font-sans)" }}
-    >
-      © {new Date().getFullYear()} Aus der Schrift · Soli Deo Gloria
+    <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+        © {new Date().getFullYear()} Aus der Schrift
+      </p>
+      <p className="text-[11px] text-muted/70 italic" style={{ fontFamily: "var(--font-body-serif)" }}>
+        „Dein Wort ist meines Fußes Leuchte und ein Licht auf meinem Wege." — Ps 119,105
+      </p>
     </div>
   </div>
 </footer>
