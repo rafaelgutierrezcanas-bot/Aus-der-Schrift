@@ -7,6 +7,7 @@ import { urlFor } from "@/sanity/image";
 import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 60;
@@ -42,6 +43,7 @@ export default async function ArticlePage({
     : article.bodyDe) as unknown[];
   const category = article.category as Record<string, unknown> | null;
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
+  const categorySlug = (category?.slug as { current: string })?.current;
 
   let related: Record<string, unknown>[] = [];
   try {
@@ -62,12 +64,22 @@ export default async function ArticlePage({
       <header className="max-w-prose mx-auto mb-12">
         <div className="flex items-center flex-wrap gap-3 mb-6">
           {categoryTitle && (
-            <span
-              className="text-xs font-medium text-accent uppercase tracking-wider"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              {categoryTitle}
-            </span>
+            categorySlug ? (
+              <Link
+                href={`/${locale}/kategorien/${categorySlug}`}
+                className="text-xs font-medium text-accent uppercase tracking-wider hover:underline"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {categoryTitle}
+              </Link>
+            ) : (
+              <span
+                className="text-xs font-medium text-accent uppercase tracking-wider"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {categoryTitle}
+              </span>
+            )
           )}
           {!!article.publishedAt && (
             <span

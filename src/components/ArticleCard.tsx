@@ -17,15 +17,36 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   const excerpt = getLocalizedExcerpt(article, locale);
   const category = article.category as Record<string, unknown> | null;
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
+  const categorySlug = (category?.slug as { current: string })?.current;
   const slug = (article.slug as { current: string })?.current;
   const publishedAt = article.publishedAt as string | undefined;
   const hasImage = !!article.featuredImage;
+  const articleHref = `/${locale}/blog/${slug}`;
+  const categoryHref = categorySlug ? `/${locale}/kategorien/${categorySlug}` : null;
+
+  const CategoryLabel = () =>
+    categoryTitle ? (
+      categoryHref ? (
+        <Link
+          href={categoryHref}
+          className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent hover:underline"
+          style={{ fontFamily: "var(--font-sans)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {categoryTitle}
+        </Link>
+      ) : (
+        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+          {categoryTitle}
+        </span>
+      )
+    ) : null;
 
   if (horizontal) {
     return (
       <article className="group flex gap-6 py-6 border-b border-border">
         {hasImage && (
-          <Link href={`/${locale}/blog/${slug}`} className="shrink-0">
+          <Link href={articleHref} className="shrink-0">
             <div className="w-32 h-24 overflow-hidden rounded-sm">
               <Image
                 src={urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(300).url()}
@@ -39,18 +60,14 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            {categoryTitle && (
-              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
-                {categoryTitle}
-              </span>
-            )}
+            <CategoryLabel />
             {publishedAt && (
               <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
                 {formatDate(publishedAt, locale)}
               </span>
             )}
           </div>
-          <Link href={`/${locale}/blog/${slug}`}>
+          <Link href={articleHref}>
             <h3 className="font-semibold leading-snug mb-1 group-hover:text-accent transition-colors text-base" style={{ fontFamily: "var(--font-serif)" }}>
               {title}
             </h3>
@@ -63,8 +80,8 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   if (featured) {
     return (
       <article className="group">
-        <Link href={`/${locale}/blog/${slug}`}>
-          {hasImage && (
+        {hasImage && (
+          <Link href={articleHref}>
             <div className="aspect-[16/7] overflow-hidden rounded-sm mb-5">
               <Image
                 src={urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(1400).url()}
@@ -74,19 +91,17 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
                 className="object-cover w-full h-full group-hover:scale-[1.02] transition-transform duration-700"
               />
             </div>
+          </Link>
+        )}
+        <div className="flex items-center gap-3 mb-3">
+          <CategoryLabel />
+          {publishedAt && (
+            <span className="text-xs text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+              {formatDate(publishedAt, locale)}
+            </span>
           )}
-          <div className="flex items-center gap-3 mb-3">
-            {categoryTitle && (
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
-                {categoryTitle}
-              </span>
-            )}
-            {publishedAt && (
-              <span className="text-xs text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                {formatDate(publishedAt, locale)}
-              </span>
-            )}
-          </div>
+        </div>
+        <Link href={articleHref}>
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-3 group-hover:text-accent transition-colors" style={{ fontFamily: "var(--font-serif)" }}>
             {title}
           </h2>
@@ -103,8 +118,8 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   // Default card
   return (
     <article className="group border border-border rounded-sm bg-surface/40 hover:border-accent/40 transition-colors">
-      <Link href={`/${locale}/blog/${slug}`}>
-        {hasImage && (
+      {hasImage && (
+        <Link href={articleHref}>
           <div className="aspect-[16/9] overflow-hidden rounded-t-sm">
             <Image
               src={urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(800).url()}
@@ -114,20 +129,18 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
               className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
             />
           </div>
-        )}
-        <div className="p-5">
-          <div className="flex items-center gap-3 mb-3">
-            {categoryTitle && (
-              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
-                {categoryTitle}
-              </span>
-            )}
-            {publishedAt && (
-              <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                {formatDate(publishedAt, locale)}
-              </span>
-            )}
-          </div>
+        </Link>
+      )}
+      <div className="p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <CategoryLabel />
+          {publishedAt && (
+            <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+              {formatDate(publishedAt, locale)}
+            </span>
+          )}
+        </div>
+        <Link href={articleHref}>
           <h3 className="font-semibold leading-snug mb-2 group-hover:text-accent transition-colors" style={{ fontFamily: "var(--font-serif)" }}>
             {title}
           </h3>
@@ -136,8 +149,8 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
               {excerpt}
             </p>
           )}
-        </div>
-      </Link>
+        </Link>
+      </div>
     </article>
   );
 }
