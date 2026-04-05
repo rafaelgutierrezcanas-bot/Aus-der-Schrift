@@ -11,11 +11,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
     const slugs = await client.fetch(allArticleSlugsQuery);
-    return (slugs as Array<{ slug: string }>).map(({ slug }) => ({ slug }));
+    const locales = ["de", "en"];
+    return locales.flatMap((locale) =>
+      (slugs as Array<{ slug: string }>).map(({ slug }) => ({ locale, slug }))
+    );
   } catch {
     return [];
   }

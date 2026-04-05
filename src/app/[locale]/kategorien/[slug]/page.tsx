@@ -5,13 +5,18 @@ import { getLocalizedCategoryTitle } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
     const cats = await client.fetch(allCategoriesQuery);
-    return (cats as Array<{ slug: { current: string } }>).map((c) => ({
-      slug: c.slug.current,
-    }));
+    const locales = ["de", "en"];
+    return locales.flatMap((locale) =>
+      (cats as Array<{ slug: { current: string } }>).map((c) => ({
+        locale,
+        slug: c.slug.current,
+      }))
+    );
   } catch {
     return [];
   }
