@@ -100,7 +100,9 @@ export default async function LocaleLayout({
         © {new Date().getFullYear()} Aus der Schrift
       </p>
       <p className="text-[11px] text-muted/70 italic" style={{ fontFamily: "var(--font-body-serif)" }}>
-        „Dein Wort ist meines Fußes Leuchte und ein Licht auf meinem Wege." — Ps 119,105
+        {locale === "de"
+          ? "\u201eDein Wort ist meines Fu\u00dfes Leuchte und ein Licht auf meinem Wege.\u201c \u2014 Ps 119,105"
+          : "\u201cYour word is a lamp to my feet and a light to my path.\u201d \u2014 Ps 119:105"}
       </p>
     </div>
   </div>
