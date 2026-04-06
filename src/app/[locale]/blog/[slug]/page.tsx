@@ -9,6 +9,7 @@ import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -64,6 +65,7 @@ export default async function ArticlePage({
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      <ReadingProgressBar />
       {/* Article Header */}
       <header className="max-w-prose mx-auto mb-12">
         <div className="flex items-center flex-wrap gap-3 mb-6">
