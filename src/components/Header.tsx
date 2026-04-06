@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LanguageToggle } from "./LanguageToggle";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 interface HeaderProps {
   locale: string;
@@ -112,6 +113,7 @@ export function Header({ locale }: HeaderProps) {
           >
             Kontakt
           </Link>
+          <DarkModeToggle />
           <LanguageToggle />
         </div>
 
