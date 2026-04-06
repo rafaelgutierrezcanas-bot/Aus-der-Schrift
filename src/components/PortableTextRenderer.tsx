@@ -4,6 +4,11 @@ import { BibleVerse } from "./BibleVerse";
 import Image from "next/image";
 import { urlFor } from "@/sanity/image";
 
+function firstSpanText(value: unknown): string {
+  const v = value as { children?: Array<{ text?: string }> };
+  return v?.children?.[0]?.text ?? "";
+}
+
 const components: PortableTextComponents = {
   types: {
     image: ({ value }: { value: Record<string, unknown> }) => (
@@ -56,11 +61,57 @@ const components: PortableTextComponents = {
         {children}
       </h3>
     ),
-    blockquote: ({ children }) => (
-      <blockquote className="pl-6 border-l-2 border-border my-6 italic text-muted">
-        {children}
-      </blockquote>
-    ),
+
+    blockquote: ({ children, value }) => {
+      const ft = firstSpanText(value);
+
+      // ❓ Question callout
+      if (ft.startsWith("❓") || ft.startsWith("❔")) {
+        return (
+          <div
+            className="not-prose my-7 rounded-r-md border-l-[3px] border-accent bg-[var(--color-surface)] px-5 py-4"
+            style={{ fontFamily: "var(--font-body-serif)" }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+              Frage
+            </p>
+            <p className="italic leading-relaxed text-[1rem] text-foreground">
+              {children}
+            </p>
+          </div>
+        );
+      }
+
+      // 📌 Explanation / definition callout
+      if (ft.startsWith("📌")) {
+        return (
+          <div
+            className="not-prose my-7 rounded-sm border border-border bg-[var(--color-surface)] px-5 py-4"
+            style={{ fontFamily: "var(--font-body-serif)" }}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+              Erklärung
+            </p>
+            <div className="text-[0.9375rem] leading-relaxed text-foreground">
+              {children}
+            </div>
+          </div>
+        );
+      }
+
+      // Regular quoted blockquote
+      return (
+        <blockquote
+          className="not-prose my-7 border-l-2 border-border pl-5 py-1"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          <div className="text-[1rem] italic leading-relaxed text-muted">
+            {children}
+          </div>
+        </blockquote>
+      );
+    },
+
     normal: ({ children }) => (
       <p
         className="leading-relaxed mb-5 text-[1.0625rem]"
