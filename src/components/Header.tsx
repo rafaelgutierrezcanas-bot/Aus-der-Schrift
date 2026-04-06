@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LanguageToggle } from "./LanguageToggle";
 import { DarkModeToggle } from "./DarkModeToggle";
+import { TheologikLogo } from "./TheologikLogo";
 
 interface HeaderProps {
   locale: string;
@@ -21,15 +22,10 @@ export function Header({ locale }: HeaderProps) {
         {/* Logo */}
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-2 shrink-0 hover:text-accent transition-colors"
+          className="shrink-0 hover:opacity-75 transition-opacity"
+          aria-label="Theologik – Startseite"
         >
-          <span className="text-accent text-lg leading-none">✦</span>
-          <span
-            className="text-lg font-semibold tracking-tight"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
-            Aus der Schrift
-          </span>
+          <TheologikLogo className="h-7 w-auto text-foreground" />
         </Link>
 
         {/* Category nav — pill container */}

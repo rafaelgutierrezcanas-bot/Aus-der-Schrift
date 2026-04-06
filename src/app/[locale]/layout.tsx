@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/Header";
+import { TheologikLogo } from "@/components/TheologikLogo";
 
 export default async function LocaleLayout({
   children,
@@ -25,11 +26,8 @@ export default async function LocaleLayout({
 
     {/* Col 1: Brand + mission */}
     <div>
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-accent">✦</span>
-        <span className="text-lg font-semibold" style={{ fontFamily: "var(--font-serif)" }}>
-          Aus der Schrift
-        </span>
+      <div className="mb-4">
+        <TheologikLogo className="h-6 w-auto text-foreground" />
       </div>
       <p className="text-sm text-muted leading-relaxed mb-4" style={{ fontFamily: "var(--font-body-serif)" }}>
         {locale === "de"
@@ -97,7 +95,7 @@ export default async function LocaleLayout({
   <div className="border-t border-border">
     <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
       <p className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-        © {new Date().getFullYear()} Aus der Schrift
+        © {new Date().getFullYear()} Theologik
       </p>
       <p className="text-[11px] text-muted/70 italic" style={{ fontFamily: "var(--font-body-serif)" }}>
         {locale === "de"

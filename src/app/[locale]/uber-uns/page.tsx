@@ -11,13 +11,13 @@ export default async function AboutPage({
         className="text-3xl font-bold mb-8"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        {locale === "de" ? "Über Aus der Schrift" : "About Aus der Schrift"}
+        {locale === "de" ? "Über Theologik" : "About Theologik"}
       </h1>
       <div className="space-y-5 text-[1.0625rem] leading-relaxed" style={{ fontFamily: "var(--font-body-serif)" }}>
         {locale === "de" ? (
           <>
             <p>
-              <em>Aus der Schrift</em> ist ein theologischer Blog, der fundierte Artikel zu
+              <em>Theologik</em> ist ein theologischer Blog, der fundierte Artikel zu
               Bibelauslegung, Kirchengeschichte, Apologetik und geistlichem Leben veröffentlicht.
             </p>
             <p>
@@ -29,7 +29,7 @@ export default async function AboutPage({
         ) : (
           <>
             <p>
-              <em>Aus der Schrift</em> (From Scripture) is a theological blog publishing
+              <em>Theologik</em> is a theological blog publishing
               well-researched articles on Bible interpretation, church history, apologetics,
               and spiritual life.
             </p>

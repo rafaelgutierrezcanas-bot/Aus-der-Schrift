@@ -18,8 +18,8 @@ export default async function ZuMeinerPersonPage({
         style={{ fontFamily: "var(--font-serif)" }}
       >
         {locale === "de"
-          ? <>Herzlich willkommen auf <em>Aus der Schrift</em>!</>
-          : <>Welcome to <em>Aus der Schrift</em>!</>}
+          ? <>Herzlich willkommen bei <em>Theologik</em>!</>
+          : <>Welcome to <em>Theologik</em>!</>}
       </h1>
       <div
         className="space-y-5 text-[1.0625rem] leading-relaxed"
