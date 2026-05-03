@@ -16,6 +16,7 @@ export default function NewArticlePage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const [titleDe, setTitleDe] = useState("");
   const [titleEn, setTitleEn] = useState("");
@@ -44,27 +45,32 @@ export default function NewArticlePage() {
 
   async function handleSave(publish: boolean) {
     setSaving(true);
-    const doc: Record<string, unknown> = {
-      titleDe, titleEn,
-      slug: { _type: "slug", current: slug },
-      language,
-      publishedAt: new Date(publishedAt).toISOString(),
-      excerptDe, excerptEn,
-      bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
-      bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
-    };
-    if (categoryId) doc.category = { _type: "reference", _ref: categoryId };
+    setError("");
+    try {
+      const doc: Record<string, unknown> = {
+        titleDe, titleEn,
+        slug: { _type: "slug", current: slug },
+        language,
+        publishedAt: new Date(publishedAt).toISOString(),
+        excerptDe, excerptEn,
+        bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
+        bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+      };
+      if (categoryId) doc.category = { _type: "reference", _ref: categoryId };
 
-    const res = await fetch("/api/admin/articles", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(doc),
-    });
+      const res = await fetch("/api/admin/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(doc),
+      });
 
-    if (res.ok) {
+      if (!res.ok) throw new Error("Speichern fehlgeschlagen");
       router.push("/admin");
+    } catch {
+      setError("Fehler beim Speichern. Bitte erneut versuchen.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   const inputClass = "w-full border border-stone-200 rounded-lg px-4 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 bg-white";
@@ -83,6 +89,8 @@ export default function NewArticlePage() {
           </button>
         </div>
       </div>
+
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="bg-white rounded-xl border border-stone-200 p-6 grid grid-cols-2 gap-4">
         <div>

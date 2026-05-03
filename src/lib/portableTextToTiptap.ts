@@ -27,18 +27,29 @@ function convertSpans(children: PTSpan[] = []) {
 export function portableTextToTiptap(blocks: PTBlock[]) {
   const content: unknown[] = [];
 
-  for (const block of blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+
     if (block._type === "block") {
-      if (block.listItem === "bullet") {
-        content.push({
-          type: "bulletList",
-          content: [{ type: "listItem", content: [{ type: "paragraph", content: convertSpans(block.children) }] }],
-        });
-      } else if (block.listItem === "number") {
-        content.push({
-          type: "orderedList",
-          content: [{ type: "listItem", content: [{ type: "paragraph", content: convertSpans(block.children) }] }],
-        });
+      if (block.listItem === "bullet" || block.listItem === "number") {
+        const listType = block.listItem === "bullet" ? "bulletList" : "orderedList";
+        const items = [];
+
+        // Collect all consecutive list items of the same type
+        while (
+          i < blocks.length &&
+          blocks[i]._type === "block" &&
+          blocks[i].listItem === block.listItem
+        ) {
+          items.push({
+            type: "listItem",
+            content: [{ type: "paragraph", content: convertSpans(blocks[i].children) }],
+          });
+          i++;
+        }
+        i--; // Back up one since the for loop will increment
+
+        content.push({ type: listType, content: items });
       } else if (block.style === "blockquote") {
         content.push({
           type: "blockquote",
