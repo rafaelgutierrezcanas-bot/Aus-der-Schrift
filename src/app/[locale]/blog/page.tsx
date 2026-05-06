@@ -4,8 +4,37 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { getLocalizedCategoryTitle } from "@/lib/utils";
+import Script from "next/script";
+import type { Metadata } from "next";
+import { absoluteUrl } from "@/lib/site";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/blog",
+    deTitle: "Blog zu Theologie, Bibelauslegung und Kirchengeschichte",
+    enTitle: "Blog on Theology, Biblical Interpretation, and Church History",
+    deDescription:
+      "Alle Artikel auf Theologik: fundierte Beiträge zu Theologie, Bibelauslegung, Kirchengeschichte, Apologetik und geistlichem Leben.",
+    enDescription:
+      "All articles on Theologik: well-researched posts on theology, biblical interpretation, church history, apologetics, and spiritual life.",
+    keywords: [
+      "Theologik Blog",
+      "Theologie Blog",
+      "Bibelauslegung Blog",
+      "Kirchengeschichte Blog",
+    ],
+  });
+}
 
 export default async function BlogPage({
   params,
@@ -26,8 +55,30 @@ export default async function BlogPage({
     // empty state
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Theologik",
+    url: absoluteUrl(`/${locale}/blog`),
+    inLanguage: locale === "de" ? "de-DE" : "en-US",
+    blogPost: articles.slice(0, 20).map((article) => ({
+      "@type": "BlogPosting",
+      headline:
+        ((locale === "en" && article.titleEn ? article.titleEn : article.titleDe) ||
+          article.titleEn ||
+          article.titleDe) as string,
+      url: absoluteUrl(`/${locale}/blog/${(article.slug as { current: string }).current}`),
+      datePublished: article.publishedAt,
+    })),
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      <Script
+        id={`schema-blog-index-${locale}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <h1
         className="text-3xl font-bold mb-8"
         style={{ fontFamily: "var(--font-serif)" }}

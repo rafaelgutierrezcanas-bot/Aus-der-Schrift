@@ -3,6 +3,9 @@ import { articlesByCategoryQuery, allCategoriesQuery } from "@/sanity/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getLocalizedCategoryTitle } from "@/lib/utils";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Script from "next/script";
+import { absoluteUrl, getLocaleAlternates, localePath } from "@/lib/site";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -19,6 +22,64 @@ export async function generateStaticParams() {
     );
   } catch {
     return [];
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+
+  try {
+    const categories = await client.fetch(allCategoriesQuery);
+    const category = (categories as Array<Record<string, unknown>>).find(
+      (item) => ((item.slug as { current: string })?.current === slug)
+    );
+
+    if (!category) {
+      return {
+        title: locale === "de" ? "Kategorie nicht gefunden" : "Category not found",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    const title = getLocalizedCategoryTitle(category, locale);
+    const description =
+      locale === "en" && category.descriptionEn
+        ? (category.descriptionEn as string)
+        : ((category.descriptionDe || category.descriptionEn) as string | undefined) ||
+          (locale === "de"
+            ? `Artikel in der Kategorie ${title} auf Theologik.`
+            : `Articles in the ${title} category on Theologik.`);
+    const path = localePath(locale, `/kategorien/${slug}`);
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: path,
+        ...getLocaleAlternates(`/kategorien/${slug}`),
+      },
+      openGraph: {
+        type: "website",
+        title,
+        description,
+        url: absoluteUrl(path),
+        locale: locale === "de" ? "de_DE" : "en_US",
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+      },
+    };
+  } catch {
+    return {};
   }
 }
 
@@ -44,9 +105,22 @@ export default async function CategoryPage({
     (c) => (c.slug as { current: string }).current === slug
   );
   if (!category) notFound();
+  const categoryTitle = getLocalizedCategoryTitle(category, locale);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: categoryTitle,
+    url: absoluteUrl(`/${locale}/kategorien/${slug}`),
+    inLanguage: locale === "de" ? "de-DE" : "en-US",
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      <Script
+        id={`schema-category-${locale}-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <p
         className="text-xs uppercase tracking-widest text-accent mb-2"
         style={{ fontFamily: "var(--font-sans)" }}
@@ -57,7 +131,7 @@ export default async function CategoryPage({
         className="text-3xl font-bold mb-12"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        {getLocalizedCategoryTitle(category, locale)}
+        {categoryTitle}
       </h1>
       {articles.length === 0 && (
         <p className="text-muted" style={{ fontFamily: "var(--font-sans)" }}>

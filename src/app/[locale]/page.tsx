@@ -3,8 +3,38 @@ import { allArticlesQuery } from "@/sanity/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import Script from "next/script";
+import type { Metadata } from "next";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+
+  return buildLocalizedMetadata({
+    locale,
+    deTitle: "Theologie aus der Schrift",
+    enTitle: "Theology from Scripture",
+    deDescription:
+      "Theologik veröffentlicht fundierte Artikel zu Theologie, Bibelauslegung, Kirchengeschichte, Apologetik und geistlichem Leben.",
+    enDescription:
+      "Theologik publishes well-researched articles on theology, biblical interpretation, church history, apologetics, and spiritual life.",
+    keywords: [
+      "Theologik",
+      "Theologie",
+      "Bibelauslegung",
+      "Kirchengeschichte",
+      "Apologetik",
+      "theologischer Blog",
+    ],
+  });
+}
 
 export default async function HomePage({
   params,
@@ -23,9 +53,42 @@ export default async function HomePage({
 
   const featured = articles.slice(0, 4);
   const latest = articles.slice(4, 10);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": absoluteUrl("/#organization"),
+        name: SITE_NAME,
+        url: absoluteUrl(`/${locale}`),
+      },
+      {
+        "@type": "WebSite",
+        "@id": absoluteUrl("/#website"),
+        name: SITE_NAME,
+        url: absoluteUrl(`/${locale}`),
+        inLanguage: locale === "de" ? "de-DE" : "en-US",
+        publisher: {
+          "@id": absoluteUrl("/#organization"),
+        },
+      },
+      {
+        "@type": "Blog",
+        "@id": absoluteUrl(`/${locale}/blog#blog`),
+        name: "Theologik Blog",
+        url: absoluteUrl(`/${locale}/blog`),
+        inLanguage: locale === "de" ? "de-DE" : "en-US",
+      },
+    ],
+  };
 
   return (
     <div>
+      <Script
+        id={`schema-home-${locale}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── Hero ── */}
       <section className="border-b border-border">

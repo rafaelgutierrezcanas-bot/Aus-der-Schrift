@@ -4,12 +4,15 @@ import { PortableTextRenderer } from "@/components/PortableTextRenderer";
 import { TableOfContents } from "@/components/TableOfContents";
 import { ArticleCard } from "@/components/ArticleCard";
 import { urlFor } from "@/sanity/image";
-import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle } from "@/lib/utils";
+import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle, getLocalizedExcerpt, estimateReadingTime } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReadingProgressBar } from "@/components/ReadingProgressBar";
+import type { Metadata } from "next";
+import Script from "next/script";
+import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -23,6 +26,78 @@ export async function generateStaticParams() {
     );
   } catch {
     return [];
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+
+  try {
+    const article = await client.fetch(articleBySlugQuery, { slug });
+    if (!article) {
+      return {
+        title: "Artikel nicht gefunden",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    const title = getLocalizedTitle(article, locale);
+    const description =
+      getLocalizedExcerpt(article, locale) ||
+      (locale === "de"
+        ? "Artikel auf Theologik zu Theologie, Bibelauslegung und Kirchengeschichte."
+        : "Article on Theologik about theology, biblical interpretation, and church history.");
+    const imageUrl = article.featuredImage
+      ? urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(1200).height(630).url()
+      : undefined;
+    const path = localePath(locale, `/blog/${slug}`);
+
+    return {
+      title,
+      description,
+      keywords: [
+        title,
+        "Theologik",
+        "Theologie",
+        "Bibelauslegung",
+        "Kirchengeschichte",
+      ],
+      alternates: {
+        canonical: path,
+        ...getLocaleAlternates(`/blog/${slug}`),
+      },
+      openGraph: {
+        type: "article",
+        title,
+        description,
+        url: absoluteUrl(path),
+        siteName: SITE_NAME,
+        locale: locale === "de" ? "de_DE" : "en_US",
+        publishedTime: article.publishedAt as string | undefined,
+        images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: imageUrl ? [imageUrl] : undefined,
+      },
+    };
+  } catch {
+    return {
+      title: "Artikel nicht gefunden",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
   }
 }
 
@@ -46,9 +121,14 @@ export default async function ArticlePage({
   const body = (locale === "en" && article.bodyEn
     ? article.bodyEn
     : article.bodyDe) as unknown[];
+  const excerpt = getLocalizedExcerpt(article, locale);
   const category = article.category as Record<string, unknown> | null;
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
   const categorySlug = (category?.slug as { current: string })?.current;
+  const imageUrl = article.featuredImage
+    ? urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(1200).height(675).url()
+    : undefined;
+  const readingTime = estimateReadingTime(body || []);
 
   let related: Record<string, unknown>[] = [];
   try {
@@ -63,8 +143,68 @@ export default async function ArticlePage({
     related = [];
   }
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description: excerpt || title,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    mainEntityOfPage: absoluteUrl(`/${locale}/blog/${slug}`),
+    inLanguage: locale === "de" ? "de-DE" : "en-US",
+    timeRequired: `PT${readingTime}M`,
+    articleSection: categoryTitle || undefined,
+    author: (article.author as Record<string, unknown> | null)?.name
+      ? {
+          "@type": "Person",
+          name: (article.author as Record<string, unknown>).name,
+        }
+      : undefined,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: absoluteUrl(),
+    },
+    image: imageUrl ? [imageUrl] : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: locale === "de" ? "Startseite" : "Home",
+        item: absoluteUrl(`/${locale}`),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: absoluteUrl(`/${locale}/blog`),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+        item: absoluteUrl(`/${locale}/blog/${slug}`),
+      },
+    ],
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
+      <Script
+        id={`schema-article-${locale}-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <Script
+        id={`schema-breadcrumb-${locale}-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <ReadingProgressBar />
       {/* Article Header */}
       <header className="max-w-prose mx-auto mb-12">
