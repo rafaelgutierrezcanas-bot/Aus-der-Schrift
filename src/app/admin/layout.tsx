@@ -1,7 +1,15 @@
+import { headers } from "next/headers";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers();
+  const pathname = h.get("x-pathname") ?? "";
+
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-background)] flex">
       <AdminNav />

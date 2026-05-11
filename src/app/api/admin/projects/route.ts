@@ -16,20 +16,12 @@ export async function GET() {
   const denied = await requireAuth();
   if (denied) return denied;
 
-  const articles = await client.fetch(`
-    *[_type == "article"] | order(publishedAt desc) {
-      _id,
-      titleDe,
-      titleEn,
-      slug,
-      publishedAt,
-      language,
-      status,
-      "category": category->{ _id, titleDe, slug },
-      "project": project->{ _id, title }
+  const projects = await client.fetch(`
+    *[_type == "project"] | order(title asc) {
+      _id, title, description, slug
     }
   `);
-  return NextResponse.json(articles);
+  return NextResponse.json(projects);
 }
 
 export async function POST(request: NextRequest) {
@@ -37,6 +29,6 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   const body = await request.json();
-  const doc = await writeClient.create({ _type: "article", ...body });
+  const doc = await writeClient.create({ _type: "project", ...body });
   return NextResponse.json(doc, { status: 201 });
 }

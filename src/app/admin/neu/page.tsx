@@ -11,10 +11,15 @@ interface Category {
   titleDe: string;
   slug: { current: string };
 }
+interface Project {
+  _id: string;
+  title: string;
+}
 
 export default function NewArticlePage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,6 +27,7 @@ export default function NewArticlePage() {
   const [titleEn, setTitleEn] = useState("");
   const [slug, setSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [projectId, setProjectId] = useState("");
   const [language, setLanguage] = useState("de");
   const [status, setStatus] = useState("draft");
   const [publishedAt, setPublishedAt] = useState(new Date().toISOString().slice(0, 16));
@@ -31,7 +37,13 @@ export default function NewArticlePage() {
   const [bodyEn, setBodyEn] = useState<object | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/categories").then((r) => r.json()).then(setCategories);
+    Promise.all([
+      fetch("/api/admin/categories").then((r) => r.json()),
+      fetch("/api/admin/projects").then((r) => r.json()),
+    ]).then(([cats, projs]) => {
+      setCategories(cats);
+      setProjects(projs);
+    });
   }, []);
 
   useEffect(() => {
@@ -59,6 +71,7 @@ export default function NewArticlePage() {
         bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
       };
       if (categoryId) doc.category = { _type: "reference", _ref: categoryId };
+      if (projectId) doc.project = { _type: "reference", _ref: projectId };
 
       const res = await fetch("/api/admin/articles", {
         method: "POST",
@@ -75,18 +88,18 @@ export default function NewArticlePage() {
     }
   }
 
-  const inputClass = "w-full border border-stone-200 rounded-lg px-4 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 bg-white";
-  const labelClass = "block text-sm font-medium text-stone-600 mb-1.5";
+  const inputClass = "w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-[var(--color-foreground)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-sm";
+  const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-1.5";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-stone-800">Neuer Artikel</h1>
+        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Neuer Artikel</h1>
         <div className="flex gap-3">
-          <button onClick={() => handleSave(false)} disabled={saving} className="border border-stone-300 text-stone-700 rounded-lg px-4 py-2 text-sm hover:bg-stone-100 transition-colors">
+          <button onClick={() => handleSave(false)} disabled={saving} className="text-sm px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-accent)] transition-colors" style={{ fontFamily: "var(--font-sans)" }}>
             {saving ? "Speichert..." : "Entwurf speichern"}
           </button>
-          <button onClick={() => handleSave(true)} disabled={saving} className="bg-stone-800 text-white rounded-lg px-4 py-2 text-sm hover:bg-stone-700 transition-colors">
+          <button onClick={() => handleSave(true)} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity" style={{ fontFamily: "var(--font-sans)" }}>
             Publizieren
           </button>
         </div>
@@ -94,7 +107,7 @@ export default function NewArticlePage() {
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      <div className="bg-white rounded-xl border border-stone-200 p-6 grid grid-cols-2 gap-4">
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 grid grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Titel (DE)</label>
           <input value={titleDe} onChange={(e) => setTitleDe(e.target.value)} className={inputClass} />
@@ -108,8 +121,8 @@ export default function NewArticlePage() {
           <input value={slug} onChange={(e) => setSlug(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Kategorie</label>
-          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputClass}>
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Kategorie</label>
+          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
             <option value="">— Keine —</option>
             {categories.map((c) => (
               <option key={c._id} value={c._id}>{c.titleDe}</option>
@@ -117,20 +130,25 @@ export default function NewArticlePage() {
           </select>
         </div>
         <div>
-          <label className={labelClass}>Sprache</label>
-          <select value={language} onChange={(e) => setLanguage(e.target.value)} className={inputClass}>
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Projekt / Reihe</label>
+          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+            <option value="">— Kein Projekt —</option>
+            {projects.map((p) => (
+              <option key={p._id} value={p._id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Sprache</label>
+          <select value={language} onChange={(e) => setLanguage(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
             <option value="de">Nur Deutsch</option>
             <option value="en">Only English</option>
             <option value="both">Beide / Both</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm"
-          >
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Status</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
             <option value="idea">Idee</option>
             <option value="draft">Entwurf</option>
             <option value="ready">Bereit</option>
@@ -154,14 +172,14 @@ export default function NewArticlePage() {
 
       {(language === "de" || language === "both") && (
         <div>
-          <h2 className="text-lg font-medium text-stone-700 mb-3">Inhalt (DE)</h2>
+          <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
           <TiptapEditor content={bodyDe} onChange={setBodyDe} placeholder="Schreibe auf Deutsch..." />
         </div>
       )}
 
       {(language === "en" || language === "both") && (
         <div>
-          <h2 className="text-lg font-medium text-stone-700 mb-3">Content (EN)</h2>
+          <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Content (EN)</h2>
           <TiptapEditor content={bodyEn} onChange={setBodyEn} placeholder="Write in English..." />
         </div>
       )}

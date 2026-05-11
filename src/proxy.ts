@@ -9,14 +9,17 @@ export function proxy(request: NextRequest) {
 
   // Admin auth: skip login page and auth API
   if (pathname.startsWith("/admin")) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+
     if (pathname === "/admin/login" || pathname.startsWith("/api/admin/auth")) {
-      return NextResponse.next();
+      return NextResponse.next({ request: { headers: requestHeaders } });
     }
     const auth = request.cookies.get("admin_auth");
     if (!auth || auth.value !== process.env.ADMIN_SECRET) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   // i18n proxy for all other routes

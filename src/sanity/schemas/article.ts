@@ -105,6 +105,18 @@ export default defineType({
       initialValue: "draft",
       validation: (r) => r.required(),
     }),
+    defineField({
+      name: "project",
+      title: "Projekt / Reihe",
+      type: "reference",
+      to: [{ type: "project" }],
+    }),
+    defineField({
+      name: "sources",
+      title: "Quellen",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "source" }] }],
+    }),
   ],
   preview: {
     select: { title: "titleDe", media: "featuredImage" },

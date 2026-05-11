@@ -22,20 +22,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-sm w-full max-w-sm space-y-4">
-        <h1 className="text-xl font-semibold text-stone-800">Admin Login</h1>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Passwort"
-          className="w-full border border-stone-200 rounded-lg px-4 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400"
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
+      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-5">
+        <div className="text-center mb-8">
+          <span className="font-serif text-xl text-[var(--color-foreground)] opacity-70 tracking-wide">Theologik</span>
+        </div>
+        <div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Passwort"
+            autoFocus
+            className="w-full border border-[var(--color-border)] rounded-lg px-4 py-3 text-[var(--color-foreground)] bg-[var(--color-surface)] placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-sm"
+            style={{ fontFamily: "var(--font-sans)" }}
+          />
+        </div>
+        {error && (
+          <p className="text-red-500 text-xs text-center" style={{ fontFamily: "var(--font-sans)" }}>
+            {error}
+          </p>
+        )}
         <button
           type="submit"
-          className="w-full bg-stone-800 text-white rounded-lg px-4 py-2 hover:bg-stone-700 transition-colors"
+          className="w-full bg-[var(--color-foreground)] text-[var(--color-background)] rounded-lg px-4 py-3 text-sm hover:opacity-80 transition-opacity"
+          style={{ fontFamily: "var(--font-sans)" }}
         >
           Einloggen
         </button>

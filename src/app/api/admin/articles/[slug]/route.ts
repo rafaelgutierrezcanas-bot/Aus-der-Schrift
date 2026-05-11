@@ -25,13 +25,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       slug,
       publishedAt,
       language,
+      status,
       excerptDe,
       excerptEn,
       featuredImage,
       bodyDe,
       bodyEn,
       "category": category->{ _id, titleDe, slug },
-      "author": author->{ _id, name }
+      "author": author->{ _id, name },
+      "project": project->{ _id, title },
+      "sources": sources[]->{ _id, title, authors, year, type }
     }
   `, { slug });
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });

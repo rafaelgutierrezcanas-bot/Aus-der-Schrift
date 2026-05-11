@@ -37,9 +37,9 @@ export default async function AdminDashboard() {
   ];
 
   const quickActions = [
-    { label: "Neuer Artikel", href: "/admin/neu", icon: "✍️" },
-    { label: "Neue Quelle", href: "/admin/quellen/neu", icon: "📚" },
-    { label: "Neue Idee", href: "/admin/ideen/neu", icon: "💡" },
+    { label: "Neuer Artikel", href: "/admin/neu" },
+    { label: "Neue Quelle", href: "/admin/quellen/neu" },
+    { label: "Neue Idee", href: "/admin/ideen/neu" },
   ];
 
   return (
@@ -68,10 +68,9 @@ export default async function AdminDashboard() {
             <Link
               key={a.label}
               href={a.href}
-              className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+              className="text-sm px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
               style={{ fontFamily: "var(--font-sans)" }}
             >
-              <span>{a.icon}</span>
               {a.label}
             </Link>
           ))}
