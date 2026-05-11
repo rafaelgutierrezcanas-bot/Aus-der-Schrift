@@ -13,6 +13,7 @@ export default defineType({
         list: [
           { title: "Buch", value: "book" },
           { title: "Zeitschriftenartikel", value: "journal" },
+          { title: "Dissertation / Hochschulschrift", value: "dissertation" },
           { title: "Website", value: "website" },
           { title: "Bibelausgabe", value: "bible" },
         ],

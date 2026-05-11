@@ -54,6 +54,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   );
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const updated = await writeClient.patch(article._id).set(body).commit();
+  // Separate null values (must use unset) from regular values
+  const toSet: Record<string, unknown> = {};
+  const toUnset: string[] = [];
+  for (const [key, value] of Object.entries(body)) {
+    if (value === null || value === undefined) toUnset.push(key);
+    else toSet[key] = value;
+  }
+  let op = writeClient.patch(article._id).set(toSet);
+  if (toUnset.length > 0) op = op.unset(toUnset);
+  const updated = await op.commit();
   return NextResponse.json(updated);
 }

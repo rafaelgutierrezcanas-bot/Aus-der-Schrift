@@ -72,6 +72,7 @@ export default function QuelleEditPage() {
           <select value={form.type} onChange={(e) => set("type", e.target.value)} className={inputClass}>
             <option value="book">Buch</option>
             <option value="journal">Zeitschriftenartikel</option>
+            <option value="dissertation">Dissertation / Hochschulschrift</option>
             <option value="website">Website</option>
             <option value="bible">Bibelausgabe</option>
           </select>

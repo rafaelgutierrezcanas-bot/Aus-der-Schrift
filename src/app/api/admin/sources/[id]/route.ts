@@ -20,7 +20,11 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const doc = await writeClient.patch(id).set(body).commit();
+  // Strip empty strings — Sanity url fields reject them
+  const cleaned = Object.fromEntries(
+    Object.entries(body).filter(([, v]) => v !== "" && v !== null && v !== undefined)
+  );
+  const doc = await writeClient.patch(id).set(cleaned).commit();
   return NextResponse.json(doc);
 }
 

@@ -29,6 +29,10 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   const body = await request.json();
-  const doc = await writeClient.create({ _type: "source", ...body });
+  // Strip empty strings — Sanity url fields reject them
+  const cleaned = Object.fromEntries(
+    Object.entries(body).filter(([, v]) => v !== "" && v !== null && v !== undefined)
+  );
+  const doc = await writeClient.create({ _type: "source", ...cleaned });
   return NextResponse.json(doc, { status: 201 });
 }

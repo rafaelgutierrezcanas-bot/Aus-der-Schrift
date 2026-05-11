@@ -14,10 +14,10 @@ interface Source {
 }
 
 const TYPE_ICON: Record<string, string> = {
-  book: "📖", journal: "📄", website: "🌐", bible: "✝️",
+  book: "📖", journal: "📄", dissertation: "🎓", website: "🌐", bible: "✝️",
 };
 const TYPE_LABEL: Record<string, string> = {
-  book: "Buch", journal: "Artikel", website: "Website", bible: "Bibel",
+  book: "Buch", journal: "Artikel", dissertation: "Dissertation", website: "Website", bible: "Bibel",
 };
 
 export default function QuellenPage() {
