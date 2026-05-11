@@ -88,6 +88,23 @@ export default defineType({
       initialValue: "de",
       validation: (r) => r.required(),
     }),
+    defineField({
+      name: "status",
+      title: "Status",
+      type: "string",
+      options: {
+        list: [
+          { title: "Idee", value: "idea" },
+          { title: "Entwurf", value: "draft" },
+          { title: "Bereit", value: "ready" },
+          { title: "Veröffentlicht", value: "published" },
+          { title: "Archiviert", value: "archived" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "draft",
+      validation: (r) => r.required(),
+    }),
   ],
   preview: {
     select: { title: "titleDe", media: "featuredImage" },
