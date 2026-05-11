@@ -1,20 +1,16 @@
-import Link from "next/link";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-stone-50">
-      <header className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-        <Link href="/admin" className="text-lg font-semibold text-stone-800">
-          ✍️ aus-der-schrift Admin
-        </Link>
-        <Link
-          href="/admin/neu"
-          className="bg-stone-800 text-white text-sm rounded-lg px-4 py-2 hover:bg-stone-700 transition-colors"
-        >
-          + Neuer Artikel
-        </Link>
-      </header>
-      <main className="max-w-4xl mx-auto px-6 py-8">{children}</main>
+    <div className="min-h-screen bg-[var(--color-background)] flex">
+      <AdminNav />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <main className="flex-1 px-6 py-8 pb-24 md:pb-8 max-w-4xl w-full mx-auto">
+          {children}
+        </main>
+      </div>
+      <AdminMobileNav />
     </div>
   );
 }
