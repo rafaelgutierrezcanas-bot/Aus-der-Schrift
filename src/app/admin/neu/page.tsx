@@ -23,6 +23,7 @@ export default function NewArticlePage() {
   const [slug, setSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [language, setLanguage] = useState("de");
+  const [status, setStatus] = useState("draft");
   const [publishedAt, setPublishedAt] = useState(new Date().toISOString().slice(0, 16));
   const [excerptDe, setExcerptDe] = useState("");
   const [excerptEn, setExcerptEn] = useState("");
@@ -51,6 +52,7 @@ export default function NewArticlePage() {
         titleDe, titleEn,
         slug: { _type: "slug", current: slug },
         language,
+        status,
         publishedAt: new Date(publishedAt).toISOString(),
         excerptDe, excerptEn,
         bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
@@ -120,6 +122,20 @@ export default function NewArticlePage() {
             <option value="de">Nur Deutsch</option>
             <option value="en">Only English</option>
             <option value="both">Beide / Both</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="idea">Idee</option>
+            <option value="draft">Entwurf</option>
+            <option value="ready">Bereit</option>
+            <option value="published">Veröffentlicht</option>
+            <option value="archived">Archiviert</option>
           </select>
         </div>
         <div>

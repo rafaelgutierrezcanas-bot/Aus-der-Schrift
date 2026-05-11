@@ -26,6 +26,7 @@ export default function EditArticlePage() {
   const [titleEn, setTitleEn] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [language, setLanguage] = useState("de");
+  const [status, setStatus] = useState("draft");
   const [publishedAt, setPublishedAt] = useState("");
   const [excerptDe, setExcerptDe] = useState("");
   const [excerptEn, setExcerptEn] = useState("");
@@ -40,6 +41,7 @@ export default function EditArticlePage() {
       setTitleDe(article.titleDe ?? "");
       setTitleEn(article.titleEn ?? "");
       setLanguage(article.language ?? "de");
+      setStatus(article.status ?? "draft");
       setPublishedAt(article.publishedAt?.slice(0, 16) ?? "");
       setExcerptDe(article.excerptDe ?? "");
       setExcerptEn(article.excerptEn ?? "");
@@ -56,7 +58,7 @@ export default function EditArticlePage() {
     setError("");
     try {
       const patch: Record<string, unknown> = {
-        titleDe, titleEn, language,
+        titleDe, titleEn, language, status,
         publishedAt: new Date(publishedAt).toISOString(),
         excerptDe, excerptEn,
         bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
@@ -117,6 +119,20 @@ export default function EditArticlePage() {
             <option value="de">Nur Deutsch</option>
             <option value="en">Only English</option>
             <option value="both">Beide / Both</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="idea">Idee</option>
+            <option value="draft">Entwurf</option>
+            <option value="ready">Bereit</option>
+            <option value="published">Veröffentlicht</option>
+            <option value="archived">Archiviert</option>
           </select>
         </div>
         <div>

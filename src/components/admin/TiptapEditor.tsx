@@ -18,6 +18,7 @@ export default function TiptapEditor({ content, onChange, placeholder }: Props) 
       BibleVerseExtension,
       Placeholder.configure({ placeholder: placeholder ?? "Schreibe hier..." }),
     ],
+    immediatelyRender: false,
     content: content ?? undefined,
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON());
@@ -35,6 +36,21 @@ export default function TiptapEditor({ content, onChange, placeholder }: Props) 
     <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
       <EditorToolbar editor={editor} />
       <EditorContent editor={editor} />
+      {editor && (
+        <div className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
+          {(() => {
+            const text = editor.getText();
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const minutes = Math.max(1, Math.ceil(words / 200));
+            return (
+              <>
+                <span>{words} Wörter</span>
+                <span>~{minutes} Min. Lesezeit</span>
+              </>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }
