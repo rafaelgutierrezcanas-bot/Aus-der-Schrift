@@ -27,6 +27,14 @@ function convertInline(node: TipTapNode) {
       marks: convertMarks(node.marks).map((m) => (m as { _type: string })._type),
     };
   }
+  if (node.type === "footnote") {
+    return {
+      _type: "footnote",
+      _key: crypto.randomUUID(),
+      sourceId: node.attrs?.sourceId ?? null,
+      text: node.attrs?.text ?? "",
+    };
+  }
   return null;
 }
 

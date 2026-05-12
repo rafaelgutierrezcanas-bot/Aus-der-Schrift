@@ -18,6 +18,13 @@
   --max-width-prose: 68ch;
 }
 
+/* Standardized headings in editor */
+.ProseMirror h2,
+.ProseMirror h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @layer base {
   body {
     background-color: var(--color-background);

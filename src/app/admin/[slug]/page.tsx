@@ -212,14 +212,24 @@ export default function EditArticlePage() {
       {(language === "de" || language === "both") && (
         <div>
           <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
-          <TiptapEditor content={bodyDe} onChange={setBodyDe} placeholder="Schreibe auf Deutsch..." />
+          <TiptapEditor
+            content={bodyDe}
+            onChange={setBodyDe}
+            placeholder="Schreibe auf Deutsch..."
+            sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+          />
         </div>
       )}
 
       {(language === "en" || language === "both") && (
         <div>
           <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Content (EN)</h2>
-          <TiptapEditor content={bodyEn} onChange={setBodyEn} placeholder="Write in English..." />
+          <TiptapEditor
+            content={bodyEn}
+            onChange={setBodyEn}
+            placeholder="Write in English..."
+            sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+          />
         </div>
       )}
     </div>

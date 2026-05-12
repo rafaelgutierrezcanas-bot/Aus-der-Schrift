@@ -1,4 +1,4 @@
-type PTSpan = { _type: "span"; text: string; marks?: string[] };
+type PTSpan = { _type: "span" | "footnote"; text: string; marks?: string[]; sourceId?: string };
 type PTBlock = {
   _type: string;
   style?: string;
@@ -13,15 +13,26 @@ type PTBlock = {
 };
 
 function convertSpans(children: PTSpan[] = []) {
-  return children.map((span) => ({
-    type: "text",
-    text: span.text,
-    marks: (span.marks ?? []).map((m) => {
-      if (m === "strong") return { type: "bold" };
-      if (m === "em") return { type: "italic" };
-      return { type: m };
-    }),
-  }));
+  return children.map((span) => {
+    if (span._type === "footnote") {
+      return {
+        type: "footnote",
+        attrs: {
+          sourceId: (span as any).sourceId ?? null,
+          text: (span as any).text ?? "",
+        },
+      };
+    }
+    return {
+      type: "text",
+      text: span.text,
+      marks: (span.marks ?? []).map((m) => {
+        if (m === "strong") return { type: "bold" };
+        if (m === "em") return { type: "italic" };
+        return { type: m };
+      }),
+    };
+  });
 }
 
 export function portableTextToTiptap(blocks: PTBlock[]) {
