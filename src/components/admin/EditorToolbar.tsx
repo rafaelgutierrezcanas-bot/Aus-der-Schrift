@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Editor } from "@tiptap/react";
 import type { Source } from "./TiptapEditor";
 
@@ -15,19 +15,37 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
   const [sourcePages, setSourcePages] = useState("");
   const [customText, setCustomText] = useState("");
+  const [pickerPos, setPickerPos] = useState<{ top: number; right: number } | null>(null);
+  const footnoteButtonRef = useRef<HTMLButtonElement>(null);
 
-  function openPicker() {
-    setShowFootnotePicker((v) => !v);
+  const openPicker = useCallback(() => {
+    if (footnoteButtonRef.current) {
+      const rect = footnoteButtonRef.current.getBoundingClientRect();
+      setPickerPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    }
+    setShowFootnotePicker(true);
     setSelectedSource(null);
     setSourcePages("");
     setCustomText("");
-  }
+  }, []);
 
   function closePicker() {
     setShowFootnotePicker(false);
     setSelectedSource(null);
     setSourcePages("");
   }
+
+  // Keyboard shortcut: Cmd/Ctrl + Shift + F
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        openPicker();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [openPicker]);
 
   function addBibleVerse() {
     editor.chain().focus().insertContent({
@@ -91,23 +109,28 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
           <button
             onClick={onLektorat}
             disabled={lektoratLoading}
-            className={btn(false) + (lektoratLoading ? " opacity-50 cursor-not-allowed" : "")}
+            title="KI-Lektorat starten"
+            className={`px-3 py-1.5 rounded text-sm font-semibold transition-colors border ${
+              lektoratLoading
+                ? "bg-amber-50 text-amber-400 border-amber-200 cursor-not-allowed"
+                : "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"
+            }`}
           >
-            {lektoratLoading ? "Prüft…" : "Lektorat"}
+            {lektoratLoading ? "Prüft…" : "✦ Lektorat"}
           </button>
         )}
         <div className="w-px bg-stone-200 mx-1" />
         <div className="relative">
-          <button onClick={openPicker} className={btn(showFootnotePicker)}>
+          <button ref={footnoteButtonRef} onClick={openPicker} className={btn(showFootnotePicker)} title="Fußnote einfügen (⌘⇧F)">
             ¹ Fußnote
           </button>
 
-          {showFootnotePicker && (
+          {showFootnotePicker && pickerPos && (
             <>
               <div className="fixed inset-0 z-40" onClick={closePicker} />
               <div
-                className="absolute right-0 top-full mt-1 bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50"
-                style={{ fontFamily: "var(--font-sans)", minWidth: "360px" }}
+                className="fixed bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50"
+                style={{ fontFamily: "var(--font-sans)", minWidth: "360px", top: pickerPos.top, right: pickerPos.right }}
               >
                 {/* Step 2: page input for selected source */}
                 {selectedSource ? (
@@ -148,7 +171,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
                     {/* Step 1: source list */}
                     {sources.length > 0 && (
                       <>
-                        <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Aus Quellen</p>
+                        <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Aus Quellen <span className="normal-case font-normal ml-1 opacity-60">⌘⇧F zum Öffnen</span></p>
                         <div className="space-y-0.5 max-h-52 overflow-y-auto mb-3">
                           {sources.map((s) => (
                             <button
