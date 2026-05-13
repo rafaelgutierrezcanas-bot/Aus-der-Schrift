@@ -113,6 +113,13 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={btn(editor.isActive("orderedList"))}>1. Liste</button>
         <div className="w-px bg-stone-200 mx-1" />
         <button onClick={addBibleVerse} className={btn(false)}>📖 Bibelvers</button>
+        <button
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          className={btn(editor.isActive("blockquote"))}
+          title="Zitat-Box (markierten Text umschließen oder neue einfügen)"
+        >
+          ❝ Zitat
+        </button>
         <button onClick={addExplanationBox} className={btn(false)}>📌 Erklärung</button>
         <button onClick={addQuestionBox} className={btn(false)}>❓ Frage</button>
         <div className="w-px bg-stone-200 mx-1" />
