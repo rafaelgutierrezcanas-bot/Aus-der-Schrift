@@ -11,6 +11,14 @@ function firstSpanText(value: unknown): string {
 
 const components: PortableTextComponents = {
   types: {
+    footnote: ({ value }: { value: Record<string, unknown> }) => {
+      const n = (value._fnIndex as number | undefined) ?? "?";
+      return (
+        <sup className="text-accent font-medium text-xs leading-none" style={{ fontFamily: "var(--font-sans)" }}>
+          [{n}]
+        </sup>
+      );
+    },
     image: ({ value }: { value: Record<string, unknown> }) => (
       <figure className="my-8 not-prose">
         <Image

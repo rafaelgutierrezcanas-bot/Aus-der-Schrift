@@ -30,7 +30,8 @@ export const articleBySlugQuery = groq`
     language,
     featuredImage,
     "category": category->{ titleDe, titleEn, slug },
-    "author": author->{ name, bio, image }
+    "author": author->{ name, bio, image },
+    "sources": sources[]->{ _id, title, authors, year, type, publisher, pages }
   }
 `;
 

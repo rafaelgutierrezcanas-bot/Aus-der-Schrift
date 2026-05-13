@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
-import type { Source } from "./TiptapEditor";
-import { formatChicago } from "./TiptapEditor";
+import type { Source } from "@/lib/formatChicago";
+import { formatChicago } from "@/lib/formatChicago";
 
 interface Quote {
   id: string;

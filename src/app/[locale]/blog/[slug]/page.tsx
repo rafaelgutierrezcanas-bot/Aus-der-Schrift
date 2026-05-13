@@ -13,9 +13,40 @@ import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
+import { formatChicago, type Source } from "@/lib/formatChicago";
 
 export const revalidate = 60;
 export const dynamicParams = true;
+
+interface FootnoteNode {
+  _type: "footnote";
+  _key: string;
+  sourceId?: string | null;
+  text?: string;
+  pages?: string;
+  _fnIndex?: number;
+}
+
+function annotateFootnotes(body: unknown[]): { annotated: unknown[]; footnotes: FootnoteNode[] } {
+  let count = 0;
+  const footnotes: FootnoteNode[] = [];
+  const annotated = (body as Record<string, unknown>[]).map((block) => {
+    if (block._type === "block" && Array.isArray(block.children)) {
+      const children = (block.children as Record<string, unknown>[]).map((child) => {
+        if (child._type === "footnote") {
+          count++;
+          const fn = { ...child, _fnIndex: count } as FootnoteNode;
+          footnotes.push(fn);
+          return fn;
+        }
+        return child;
+      });
+      return { ...block, children };
+    }
+    return block;
+  });
+  return { annotated, footnotes };
+}
 
 export async function generateStaticParams() {
   try {
@@ -118,9 +149,13 @@ export default async function ArticlePage({
 
   const t = await getTranslations("article");
   const title = getLocalizedTitle(article, locale);
-  const body = (locale === "en" && article.bodyEn
+  const rawBody = (locale === "en" && article.bodyEn
     ? article.bodyEn
     : article.bodyDe) as unknown[];
+  const { annotated: body, footnotes } = annotateFootnotes(rawBody ?? []);
+  const sourcesMap = new Map<string, Source>(
+    ((article.sources ?? []) as Source[]).map((s) => [s._id, s])
+  );
   const excerpt = getLocalizedExcerpt(article, locale);
   const category = article.category as Record<string, unknown> | null;
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
@@ -275,6 +310,29 @@ export default async function ArticlePage({
           />
         )}
       </div>
+
+      {/* Footnotes */}
+      {footnotes.length > 0 && (
+        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-4" style={{ fontFamily: "var(--font-sans)" }}>
+            {locale === "de" ? "Fußnoten" : "Footnotes"}
+          </p>
+          <ol className="space-y-2">
+            {footnotes.map((fn) => {
+              const src = fn.sourceId ? sourcesMap.get(fn.sourceId) : null;
+              const citation = src ? formatChicago(src, fn.pages) : (fn.text || "—");
+              return (
+                <li key={fn._key} className="flex gap-3 text-sm text-muted leading-relaxed">
+                  <span className="shrink-0 text-accent font-medium" style={{ fontFamily: "var(--font-sans)" }}>
+                    [{fn._fnIndex}]
+                  </span>
+                  <span style={{ fontFamily: "var(--font-sans)" }}>{citation}</span>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )}
 
       {/* Related Posts */}
       {related.length > 0 && (

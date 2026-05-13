@@ -303,20 +303,55 @@ export default function EditArticlePage() {
       <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
         <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Titelbild</h2>
         {featuredImage ? (
-          <div className="relative inline-block">
-            <img
-              src={urlFor(featuredImage as Parameters<typeof urlFor>[0]).width(600).height(338).fit("crop").url()}
-              alt="Titelbild Vorschau"
-              className="rounded-lg w-full max-w-sm h-auto block"
-            />
-            <button
-              type="button"
-              onClick={handleImageRemove}
-              className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
-              title="Bild entfernen"
+          <div className="space-y-2">
+            <div
+              className="relative inline-block cursor-crosshair rounded-lg overflow-hidden max-w-sm w-full"
+              title="Klicken um Fokuspunkt zu setzen"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                const updated = {
+                  ...(featuredImage as Record<string, unknown>),
+                  hotspot: { x, y, width: 0.2, height: 0.2 },
+                  crop: { left: 0, top: 0, right: 0, bottom: 0 },
+                };
+                setFeaturedImage(updated);
+                fetch(`/api/admin/articles/${slug}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ featuredImage: updated }),
+                });
+              }}
             >
-              ×
-            </button>
+              <img
+                src={urlFor(featuredImage as Parameters<typeof urlFor>[0]).width(600).height(338).fit("crop").url()}
+                alt="Titelbild Vorschau"
+                className="w-full h-auto block"
+              />
+              {/* Hotspot dot */}
+              {(() => {
+                const hs = (featuredImage as Record<string, unknown>).hotspot as { x: number; y: number } | undefined;
+                if (!hs) return null;
+                return (
+                  <div
+                    className="absolute w-5 h-5 rounded-full border-2 border-white shadow-md bg-accent/70 pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                    style={{ left: `${hs.x * 100}%`, top: `${hs.y * 100}%` }}
+                  />
+                );
+              })()}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleImageRemove(); }}
+                className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
+                title="Bild entfernen"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
+              Klicke auf das Bild um den Fokuspunkt zu setzen — dieser bestimmt welcher Bereich beim Zuschneiden sichtbar bleibt.
+            </p>
           </div>
         ) : (
           <label
