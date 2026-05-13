@@ -177,11 +177,21 @@ export default function EditArticlePage() {
 
   async function handleImageRemove() {
     setFeaturedImage(null);
-    await fetch(`/api/admin/articles/${slug}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ featuredImage: null }),
-    });
+    setImageError("");
+    try {
+      const res = await fetch(`/api/admin/articles/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featuredImage: null }),
+      });
+      if (!res.ok) {
+        // Revert optimistic update on failure
+        const data = await res.json().catch(() => ({}));
+        setImageError(data.error ?? "Bild konnte nicht entfernt werden");
+      }
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Bild konnte nicht entfernt werden");
+    }
   }
 
   const inputClass = "w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-[var(--color-foreground)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-sm";
@@ -300,6 +310,7 @@ export default function EditArticlePage() {
               className="rounded-lg w-full max-w-sm h-auto block"
             />
             <button
+              type="button"
               onClick={handleImageRemove}
               className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
               title="Bild entfernen"
@@ -309,10 +320,10 @@ export default function EditArticlePage() {
           </div>
         ) : (
           <label
-            className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
+            className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 transition-colors ${
               imageUploading
                 ? "border-stone-200 bg-stone-50 cursor-not-allowed"
-                : "border-stone-200 hover:border-stone-400"
+                : "border-stone-200 hover:border-stone-400 cursor-pointer"
             }`}
             style={{ fontFamily: "var(--font-sans)" }}
           >
