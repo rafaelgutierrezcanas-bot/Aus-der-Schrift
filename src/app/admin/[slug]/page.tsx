@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
 import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
 import type { Source } from "@/components/admin/TiptapEditor";
+import { urlFor } from "@/sanity/image";
 
 const TiptapEditor = dynamic(() => import("@/components/admin/TiptapEditor"), { ssr: false });
 
@@ -44,6 +45,9 @@ export default function EditArticlePage() {
   const [excerptEn, setExcerptEn] = useState("");
   const [bodyDe, setBodyDe] = useState<object | null>(null);
   const [bodyEn, setBodyEn] = useState<object | null>(null);
+  const [featuredImage, setFeaturedImage] = useState<object | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -64,6 +68,7 @@ export default function EditArticlePage() {
       setSelectedSourceIds((article.sources ?? []).map((s: Source) => s._id));
       if (article.bodyDe) setBodyDe(portableTextToTiptap(article.bodyDe));
       if (article.bodyEn) setBodyEn(portableTextToTiptap(article.bodyEn));
+      setFeaturedImage(article.featuredImage ?? null);
       setCategories(cats);
       setProjects(projs);
       setAllSources(srcs);
@@ -88,13 +93,14 @@ export default function EditArticlePage() {
       bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
       bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
+      featuredImage: featuredImage ?? null,
     };
     if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
     else patch.category = null;
     if (projectId) patch.project = { _type: "reference", _ref: projectId };
     else patch.project = null;
     return patch;
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage]);
 
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -114,7 +120,7 @@ export default function EditArticlePage() {
       }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage]);
 
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
@@ -139,6 +145,43 @@ export default function EditArticlePage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    setImageError("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setImageError(data.error ?? "Upload fehlgeschlagen");
+        return;
+      }
+      setFeaturedImage(data);
+      await fetch(`/api/admin/articles/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featuredImage: data }),
+      });
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Upload fehlgeschlagen");
+    } finally {
+      setImageUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleImageRemove() {
+    setFeaturedImage(null);
+    await fetch(`/api/admin/articles/${slug}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ featuredImage: null }),
+    });
   }
 
   const inputClass = "w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-[var(--color-foreground)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-sm";
@@ -245,6 +288,56 @@ export default function EditArticlePage() {
           </div>
         </div>
       )}
+
+      {/* Titelbild */}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
+        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Titelbild</h2>
+        {featuredImage ? (
+          <div className="relative inline-block">
+            <img
+              src={urlFor(featuredImage as Parameters<typeof urlFor>[0]).width(600).height(338).fit("crop").url()}
+              alt="Titelbild Vorschau"
+              className="rounded-lg w-full max-w-sm h-auto block"
+            />
+            <button
+              onClick={handleImageRemove}
+              className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
+              title="Bild entfernen"
+            >
+              ×
+            </button>
+          </div>
+        ) : (
+          <label
+            className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
+              imageUploading
+                ? "border-stone-200 bg-stone-50 cursor-not-allowed"
+                : "border-stone-200 hover:border-stone-400"
+            }`}
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {imageUploading ? (
+              <span className="text-sm text-stone-400">Lädt hoch…</span>
+            ) : (
+              <>
+                <span className="text-2xl">🖼️</span>
+                <span className="text-sm text-stone-500">Bild auswählen</span>
+                <span className="text-xs text-stone-400">JPG, PNG, WebP</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={imageUploading}
+              onChange={handleImageUpload}
+            />
+          </label>
+        )}
+        {imageError && (
+          <p className="mt-2 text-sm text-red-500" style={{ fontFamily: "var(--font-sans)" }}>{imageError}</p>
+        )}
+      </div>
 
       {(language === "de" || language === "both") && (
         <div>
