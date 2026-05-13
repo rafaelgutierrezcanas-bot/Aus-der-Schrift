@@ -35,17 +35,28 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     setSourcePages("");
   }
 
-  // Keyboard shortcut: Cmd/Ctrl + Shift + F
+  // Keyboard shortcut: Cmd/Ctrl + F — capture phase so we intercept before browser find
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "f") {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "f") {
         e.preventDefault();
-        openPicker();
+        e.stopPropagation();
+        setShowFootnotePicker((current) => {
+          if (current) return false;
+          if (footnoteButtonRef.current) {
+            const rect = footnoteButtonRef.current.getBoundingClientRect();
+            setPickerPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+          }
+          setSelectedSource(null);
+          setSourcePages("");
+          setCustomText("");
+          return true;
+        });
       }
     }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [openPicker]);
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, []);
 
   function addBibleVerse() {
     editor.chain().focus().insertContent({
@@ -121,7 +132,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         )}
         <div className="w-px bg-stone-200 mx-1" />
         <div className="relative">
-          <button ref={footnoteButtonRef} onClick={openPicker} className={btn(showFootnotePicker)} title="Fußnote einfügen (⌘⇧F)">
+          <button ref={footnoteButtonRef} onClick={openPicker} className={btn(showFootnotePicker)} title="Fußnote einfügen (⌘F)">
             ¹ Fußnote
           </button>
 
@@ -171,7 +182,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
                     {/* Step 1: source list */}
                     {sources.length > 0 && (
                       <>
-                        <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Aus Quellen <span className="normal-case font-normal ml-1 opacity-60">⌘⇧F zum Öffnen</span></p>
+                        <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Aus Quellen <span className="normal-case font-normal ml-1 opacity-60">⌘F zum Öffnen/Schließen</span></p>
                         <div className="space-y-0.5 max-h-52 overflow-y-auto mb-3">
                           {sources.map((s) => (
                             <button
