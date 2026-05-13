@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
-      max_tokens: 2048,
+      max_tokens: 8192,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: text }],
     }),
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("Lektorat JSON parse error. Raw response:", raw);
+    console.error("Lektorat JSON parse error. Raw response:", raw.slice(0, 300));
     return NextResponse.json(
       { error: "Antwort konnte nicht verarbeitet werden", raw: raw.slice(0, 300) },
       { status: 500 }
