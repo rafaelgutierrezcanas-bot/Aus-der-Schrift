@@ -6,9 +6,11 @@ import type { Source } from "./TiptapEditor";
 interface Props {
   editor: Editor;
   sources?: Source[];
+  onLektorat?: () => void;
+  lektoratLoading?: boolean;
 }
 
-export default function EditorToolbar({ editor, sources = [] }: Props) {
+export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading }: Props) {
   const [showFootnotePicker, setShowFootnotePicker] = useState(false);
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
   const [sourcePages, setSourcePages] = useState("");
@@ -84,6 +86,16 @@ export default function EditorToolbar({ editor, sources = [] }: Props) {
         <button onClick={addBibleVerse} className={btn(false)}>📖 Bibelvers</button>
         <button onClick={addExplanationBox} className={btn(false)}>📌 Erklärung</button>
         <button onClick={addQuestionBox} className={btn(false)}>❓ Frage</button>
+        <div className="w-px bg-stone-200 mx-1" />
+        {onLektorat && (
+          <button
+            onClick={onLektorat}
+            disabled={lektoratLoading}
+            className={btn(false) + (lektoratLoading ? " opacity-50 cursor-not-allowed" : "")}
+          >
+            {lektoratLoading ? "Prüft…" : "Lektorat"}
+          </button>
+        )}
         <div className="w-px bg-stone-200 mx-1" />
         <div className="relative">
           <button onClick={openPicker} className={btn(showFootnotePicker)}>

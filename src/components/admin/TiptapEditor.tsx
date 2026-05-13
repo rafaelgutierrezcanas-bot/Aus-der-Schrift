@@ -2,9 +2,11 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+import { useState } from "react";
 import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
+import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 
 export interface Source {
   _id: string;
@@ -53,7 +55,69 @@ export function formatChicago(source: Source, citedPages?: string): string {
   }
 }
 
+// Extract plain text from Tiptap JSON, replacing footnote nodes with ⟨N⟩ markers
+function extractTextWithMarkers(doc: any): string {
+  let fnCount = 0;
+  const paragraphs: string[] = [];
+
+  function processNode(node: any): string {
+    if (node.type === "text") return node.text ?? "";
+    if (node.type === "footnote") {
+      fnCount++;
+      return `⟨${fnCount}⟩`;
+    }
+    if (node.content) return node.content.map(processNode).join("");
+    return "";
+  }
+
+  for (const block of doc.content ?? []) {
+    if (block.type === "bibleVerse" || block.type === "image") continue;
+    const text = processNode(block).trim();
+    if (text) paragraphs.push(text);
+  }
+
+  return paragraphs.join("\n\n");
+}
+
+// Replace the first occurrence of `original` in Tiptap JSON text nodes
+function applyTextChange(
+  node: any,
+  original: string,
+  corrected: string
+): { node: any; found: boolean } {
+  if (node.type === "text" && typeof node.text === "string") {
+    const idx = node.text.indexOf(original);
+    if (idx !== -1) {
+      return {
+        node: {
+          ...node,
+          text: node.text.slice(0, idx) + corrected + node.text.slice(idx + original.length),
+        },
+        found: true,
+      };
+    }
+  }
+  if (Array.isArray(node.content)) {
+    const newContent: any[] = [];
+    let found = false;
+    for (const child of node.content) {
+      if (found) {
+        newContent.push(child);
+      } else {
+        const result = applyTextChange(child, original, corrected);
+        newContent.push(result.node);
+        found = result.found;
+      }
+    }
+    return { node: { ...node, content: newContent }, found };
+  }
+  return { node, found: false };
+}
+
 export default function TiptapEditor({ content, onChange, placeholder, sources = [] }: Props) {
+  const [lektoratLoading, setLektoratLoading] = useState(false);
+  const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -75,7 +139,38 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
 
   if (!editor) return null;
 
-  // Collect footnotes from editor document in order
+  async function runLektorat() {
+    if (!editor) return;
+    setLektoratLoading(true);
+    setLektoratChanges(null);
+    try {
+      const text = extractTextWithMarkers(editor.getJSON());
+      const res = await fetch("/api/admin/lektorat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new Error("API Fehler");
+      const data = await res.json();
+      setLektoratChanges(data.changes ?? []);
+    } catch {
+      setLektoratChanges([]);
+    } finally {
+      setLektoratLoading(false);
+    }
+  }
+
+  function applyChange(original: string, corrected: string): boolean {
+    if (!editor) return false;
+    const doc = editor.getJSON();
+    const result = applyTextChange(doc, original, corrected);
+    if (result.found) {
+      editor.commands.setContent(result.node);
+    }
+    return result.found;
+  }
+
+  // Collect footnotes for the footnote list
   const footnotes: Array<{ sourceId?: string; text: string; pages?: string }> = [];
   editor.state.doc.descendants((node) => {
     if (node.type.name === "footnote") {
@@ -90,9 +185,15 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
 
   return (
     <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
-      <EditorToolbar editor={editor} sources={sources} />
+      <EditorToolbar
+        editor={editor}
+        sources={sources}
+        onLektorat={runLektorat}
+        lektoratLoading={lektoratLoading}
+      />
       <EditorContent editor={editor} />
 
+      {/* Footnote list */}
       {footnotes.length > 0 && (
         <div className="border-t border-stone-200 px-6 py-4" style={{ fontFamily: "var(--font-sans)" }}>
           <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-3">Fußnoten</p>
@@ -102,9 +203,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
               return (
                 <li key={i} className="text-sm text-stone-600 flex gap-2.5">
                   <span className="text-stone-400 shrink-0 tabular-nums">[{i + 1}]</span>
-                  <span>
-                    {src ? formatChicago(src, fn.pages) : fn.text || "—"}
-                  </span>
+                  <span>{src ? formatChicago(src, fn.pages) : fn.text || "—"}</span>
                 </li>
               );
             })}
@@ -112,7 +211,20 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         </div>
       )}
 
-      <div className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
+      {/* Lektorat panel */}
+      {lektoratChanges !== null && (
+        <LektoratPanel
+          changes={lektoratChanges}
+          onApply={applyChange}
+          onClose={() => setLektoratChanges(null)}
+        />
+      )}
+
+      {/* Word count */}
+      <div
+        className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
         {(() => {
           const text = editor.getText();
           const words = text.trim() ? text.trim().split(/\s+/).length : 0;
