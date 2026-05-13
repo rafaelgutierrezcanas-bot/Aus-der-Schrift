@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import Anthropic from "@anthropic-ai/sdk";
+
+export const maxDuration = 120;
 
 async function requireAuth(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
@@ -59,38 +62,19 @@ export async function POST(request: NextRequest) {
   const { text } = await request.json();
   if (!text?.trim()) return NextResponse.json({ changes: [] });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY nicht konfiguriert" }, { status: 500 });
-  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8192,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: text }],
-    }),
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 8192,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: "user", content: text }],
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    console.error("Claude API error:", err);
-    return NextResponse.json({ error: "Claude API Fehler" }, { status: 500 });
-  }
-
-  const data = await response.json();
-  const raw = data.content?.[0]?.text ?? "{}";
+  const raw = message.content[0].type === "text" ? message.content[0].text : "{}";
 
   let parsed: { changes?: unknown[] };
   try {
-    // Strip all markdown code fences regardless of language tag
     const cleaned = raw
       .replace(/^```[\w]*\s*/gm, "")
       .replace(/^```\s*$/gm, "")
@@ -99,7 +83,7 @@ export async function POST(request: NextRequest) {
   } catch {
     console.error("Lektorat JSON parse error. Raw response:", raw.slice(0, 300));
     return NextResponse.json(
-      { error: "Antwort konnte nicht verarbeitet werden", raw: raw.slice(0, 300) },
+      { error: "Antwort konnte nicht verarbeitet werden" },
       { status: 500 }
     );
   }
