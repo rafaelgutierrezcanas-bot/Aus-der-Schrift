@@ -17,8 +17,28 @@ const EMPTY = {
   fileLink: "",
 };
 
+function parseFreetext(raw: string) {
+  const yearMatch = raw.match(/\b(1[0-9]{3}|20[0-2][0-9])\b/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
+  const firstDot = raw.indexOf(".");
+  const authors = firstDot > 0 ? raw.slice(0, firstDot).trim() : "";
+  const afterAuthors = raw.slice(firstDot + 1).trim();
+  const secondDot = afterAuthors.indexOf(".");
+  const title = secondDot > 0 ? afterAuthors.slice(0, secondDot).trim() : afterAuthors.slice(0, 200).trim();
+  const colonIdx = raw.indexOf(":");
+  let publisher = "";
+  if (colonIdx > 0) {
+    const afterColon = raw.slice(colonIdx + 1).trim();
+    const commaIdx = afterColon.indexOf(",");
+    publisher = commaIdx > 0 ? afterColon.slice(0, commaIdx).trim() : afterColon.slice(0, 80).trim();
+  }
+  return { authors: authors || "—", title: title || raw.slice(0, 150), year, publisher };
+}
+
 export default function NeueQuelleePage() {
   const router = useRouter();
+  const [mode, setMode] = useState<"structured" | "freetext">("structured");
+  const [freetext, setFreetext] = useState("");
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [doiLoading, setDoiLoading] = useState(false);
@@ -51,17 +71,35 @@ export default function NeueQuelleePage() {
   }
 
   async function save() {
-    if (!form.title || !form.authors || !form.year) {
-      setError("Titel, Autor und Jahr sind Pflichtfelder.");
-      return;
-    }
     setSaving(true);
-    await fetch("/api/admin/sources", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    router.push("/admin/quellen");
+    setError("");
+    try {
+      let payload = form;
+      if (mode === "freetext") {
+        if (!freetext.trim()) {
+          setError("Bitte gib eine Quellenangabe ein.");
+          setSaving(false);
+          return;
+        }
+        const parsed = parseFreetext(freetext);
+        payload = { ...EMPTY, ...parsed, notes: freetext };
+      } else {
+        if (!form.title || !form.authors || !form.year) {
+          setError("Titel, Autor und Jahr sind Pflichtfelder.");
+          setSaving(false);
+          return;
+        }
+      }
+      await fetch("/api/admin/sources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      router.push("/admin/quellen");
+    } catch {
+      setError("Fehler beim Speichern.");
+      setSaving(false);
+    }
   }
 
   const inputClass = "w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]";
@@ -71,12 +109,55 @@ export default function NeueQuelleePage() {
     <div className="max-w-2xl" style={{ fontFamily: "var(--font-sans)" }}>
       <h1 className="font-serif text-2xl text-[var(--color-foreground)] mb-6">Neue Quelle</h1>
 
+      {/* Mode toggle */}
+      <div className="flex gap-1 mb-6 p-1 bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] w-fit">
+        <button
+          onClick={() => setMode("structured")}
+          className={`px-4 py-1.5 rounded-md text-sm transition-colors ${mode === "structured" ? "bg-white text-[var(--color-foreground)] shadow-sm" : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"}`}
+        >
+          Strukturiert
+        </button>
+        <button
+          onClick={() => setMode("freetext")}
+          className={`px-4 py-1.5 rounded-md text-sm transition-colors ${mode === "freetext" ? "bg-white text-[var(--color-foreground)] shadow-sm" : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"}`}
+        >
+          Freitext einfügen
+        </button>
+      </div>
+
       {error && (
         <p className="mb-4 text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
           {error}
         </p>
       )}
 
+      {/* Freetext mode */}
+      {mode === "freetext" && (
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--color-muted)]">
+            Füge eine vollständige Quellenangabe ein. Titel, Autor und Jahr werden automatisch erkannt.
+          </p>
+          <textarea
+            rows={5}
+            placeholder="z.B. Pannenberg, Wolfhart. Systematische Theologie. Göttingen: Vandenhoeck & Ruprecht, 1988."
+            value={freetext}
+            onChange={(e) => setFreetext(e.target.value)}
+            className={inputClass + " resize-none"}
+            autoFocus
+          />
+          <div className="flex gap-3 pt-2">
+            <button onClick={save} disabled={saving} className="px-6 py-2.5 rounded-lg bg-[var(--color-accent)] text-white text-sm hover:opacity-90 disabled:opacity-50">
+              {saving ? "Speichern..." : "Quelle speichern"}
+            </button>
+            <button onClick={() => router.back()} className="px-6 py-2.5 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Structured mode */}
+      {mode === "structured" && (<>
       {/* DOI Lookup */}
       <div className="mb-6 p-4 bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)]">
         <p className="text-xs font-medium text-[var(--color-muted)] mb-2">
@@ -169,6 +250,7 @@ export default function NeueQuelleePage() {
           </button>
         </div>
       </div>
+      </>)}
     </div>
   );
 }

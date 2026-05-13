@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
@@ -25,6 +25,9 @@ export default function EditArticlePage() {
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [autoSaved, setAutoSaved] = useState<"saved" | "saving" | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasLoadedRef = useRef(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [allSources, setAllSources] = useState<Source[]>([]);
@@ -68,6 +71,51 @@ export default function EditArticlePage() {
     });
   }, [slug]);
 
+  // Mark load complete after a tick so auto-save doesn't fire on initial data
+  useEffect(() => {
+    if (loaded) {
+      const t = setTimeout(() => { hasLoadedRef.current = true; }, 200);
+      return () => clearTimeout(t);
+    }
+  }, [loaded]);
+
+  // Auto-save 2 seconds after any change
+  const buildPatch = useCallback(() => {
+    const patch: Record<string, unknown> = {
+      titleDe, titleEn, language, status,
+      publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
+      excerptDe, excerptEn,
+      bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
+      bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+      sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
+    };
+    if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
+    else patch.category = null;
+    if (projectId) patch.project = { _type: "reference", _ref: projectId };
+    else patch.project = null;
+    return patch;
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn]);
+
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    setAutoSaved(null);
+    autoSaveTimer.current = setTimeout(async () => {
+      setAutoSaved("saving");
+      try {
+        await fetch(`/api/admin/articles/${slug}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildPatch()),
+        });
+        setAutoSaved("saved");
+      } catch {
+        setAutoSaved(null);
+      }
+    }, 2000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn]);
+
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
@@ -75,28 +123,15 @@ export default function EditArticlePage() {
   }
 
   async function handleSave() {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setSaving(true);
     setError("");
     try {
-      const patch: Record<string, unknown> = {
-        titleDe, titleEn, language, status,
-        publishedAt: new Date(publishedAt).toISOString(),
-        excerptDe, excerptEn,
-        bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
-        bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
-        sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
-      };
-      if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
-      else patch.category = null;
-      if (projectId) patch.project = { _type: "reference", _ref: projectId };
-      else patch.project = null;
-
       const res = await fetch(`/api/admin/articles/${slug}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
+        body: JSON.stringify(buildPatch()),
       });
-
       if (!res.ok) throw new Error("Speichern fehlgeschlagen");
       router.push("/admin");
     } catch {
@@ -115,9 +150,17 @@ export default function EditArticlePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Artikel bearbeiten</h1>
-        <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity" style={{ fontFamily: "var(--font-sans)" }}>
-          {saving ? "Speichert..." : "Speichern"}
-        </button>
+        <div className="flex items-center gap-3">
+          {autoSaved === "saving" && (
+            <span className="text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-sans)" }}>Speichert…</span>
+          )}
+          {autoSaved === "saved" && (
+            <span className="text-xs text-green-600" style={{ fontFamily: "var(--font-sans)" }}>Automatisch gespeichert</span>
+          )}
+          <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity" style={{ fontFamily: "var(--font-sans)" }}>
+            {saving ? "Speichert..." : "Speichern & Zurück"}
+          </button>
+        </div>
       </div>
 
       {error && <p className="text-red-500 text-sm" style={{ fontFamily: "var(--font-sans)" }}>{error}</p>}
