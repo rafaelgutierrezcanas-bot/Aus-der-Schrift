@@ -7,6 +7,7 @@ import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
+import ZitatBank from "./ZitatBank";
 
 export interface Source {
   _id: string;
@@ -23,6 +24,7 @@ interface Props {
   onChange: (json: object) => void;
   placeholder?: string;
   sources?: Source[];
+  zitatBankKey?: string;
 }
 
 function normalizeCase(str: string): string {
@@ -126,7 +128,7 @@ function applyTextChange(
   return { node, found: false };
 }
 
-export default function TiptapEditor({ content, onChange, placeholder, sources = [] }: Props) {
+export default function TiptapEditor({ content, onChange, placeholder, sources = [], zitatBankKey }: Props) {
   const [lektoratLoading, setLektoratLoading] = useState(false);
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
 
@@ -249,6 +251,11 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
           );
         })()}
       </div>
+
+      {/* Zitate-Bank */}
+      {zitatBankKey && (
+        <ZitatBank editor={editor} sources={sources} storageKey={zitatBankKey} />
+      )}
     </div>
   );
 }

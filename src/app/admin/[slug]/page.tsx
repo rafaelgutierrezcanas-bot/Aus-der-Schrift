@@ -254,6 +254,7 @@ export default function EditArticlePage() {
             onChange={setBodyDe}
             placeholder="Schreibe auf Deutsch..."
             sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+            zitatBankKey={`zitate-${slug}`}
           />
         </div>
       )}
@@ -266,6 +267,7 @@ export default function EditArticlePage() {
             onChange={setBodyEn}
             placeholder="Write in English..."
             sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+            zitatBankKey={`zitate-${slug}-en`}
           />
         </div>
       )}
