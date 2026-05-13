@@ -90,11 +90,18 @@ export async function POST(request: NextRequest) {
 
   let parsed: { changes?: unknown[] };
   try {
-    const cleaned = raw.replace(/^```json\s*/m, "").replace(/^```\s*/m, "").replace(/```\s*$/m, "").trim();
+    // Strip all markdown code fences regardless of language tag
+    const cleaned = raw
+      .replace(/^```[\w]*\s*/gm, "")
+      .replace(/^```\s*$/gm, "")
+      .trim();
     parsed = JSON.parse(cleaned);
   } catch {
-    console.error("JSON parse error:", raw);
-    return NextResponse.json({ changes: [] });
+    console.error("Lektorat JSON parse error. Raw response:", raw);
+    return NextResponse.json(
+      { error: "Antwort konnte nicht verarbeitet werden", raw: raw.slice(0, 300) },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ changes: parsed.changes ?? [] });

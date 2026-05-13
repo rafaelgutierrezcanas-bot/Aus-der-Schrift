@@ -131,6 +131,7 @@ function applyTextChange(
 export default function TiptapEditor({ content, onChange, placeholder, sources = [], zitatBankKey }: Props) {
   const [lektoratLoading, setLektoratLoading] = useState(false);
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
+  const [lektoratError, setLektoratError] = useState<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -157,6 +158,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
     if (!editor) return;
     setLektoratLoading(true);
     setLektoratChanges(null);
+    setLektoratError(null);
     try {
       const text = extractTextWithMarkers(editor.getJSON());
       const res = await fetch("/api/admin/lektorat", {
@@ -164,11 +166,14 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
-      if (!res.ok) throw new Error("API Fehler");
       const data = await res.json();
+      if (!res.ok) {
+        setLektoratError(data.error ?? "Lektorat fehlgeschlagen");
+        return;
+      }
       setLektoratChanges(data.changes ?? []);
-    } catch {
-      setLektoratChanges([]);
+    } catch (e) {
+      setLektoratError(e instanceof Error ? e.message : "Netzwerkfehler");
     } finally {
       setLektoratLoading(false);
     }
@@ -222,6 +227,16 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
               );
             })}
           </ol>
+        </div>
+      )}
+
+      {/* Lektorat error */}
+      {lektoratError && (
+        <div className="border-t border-stone-200 px-6 py-4 flex items-start justify-between gap-4" style={{ fontFamily: "var(--font-sans)" }}>
+          <p className="text-sm text-red-600">
+            <span className="font-medium">Lektorat-Fehler:</span> {lektoratError}
+          </p>
+          <button onClick={() => setLektoratError(null)} className="text-xs text-stone-400 hover:text-stone-600 shrink-0">Schließen</button>
         </div>
       )}
 
