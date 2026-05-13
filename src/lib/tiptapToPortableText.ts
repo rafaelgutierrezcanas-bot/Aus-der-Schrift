@@ -33,6 +33,7 @@ function convertInline(node: TipTapNode) {
       _key: crypto.randomUUID(),
       sourceId: node.attrs?.sourceId ?? null,
       text: node.attrs?.text ?? "",
+      pages: node.attrs?.pages ?? "",
     };
   }
   return null;

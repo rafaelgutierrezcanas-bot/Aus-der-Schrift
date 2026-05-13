@@ -1,4 +1,4 @@
-type PTSpan = { _type: "span" | "footnote"; text: string; marks?: string[]; sourceId?: string };
+type PTSpan = { _type: "span" | "footnote"; text: string; marks?: string[]; sourceId?: string; pages?: string };
 type PTBlock = {
   _type: string;
   style?: string;
@@ -18,8 +18,9 @@ function convertSpans(children: PTSpan[] = []) {
       return {
         type: "footnote",
         attrs: {
-          sourceId: (span as any).sourceId ?? null,
-          text: (span as any).text ?? "",
+          sourceId: span.sourceId ?? null,
+          text: span.text ?? "",
+          pages: span.pages ?? "",
         },
       };
     }

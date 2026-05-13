@@ -16,6 +16,10 @@ function FootnoteMarker({ node, getPos, editor }: any) {
     num = 0;
   }
 
+  const tooltip = node.attrs.pages
+    ? `S. ${node.attrs.pages}`
+    : node.attrs.text || "";
+
   return (
     <NodeViewWrapper as="span" style={{ display: "inline" }}>
       <sup
@@ -27,7 +31,7 @@ function FootnoteMarker({ node, getPos, editor }: any) {
           cursor: "default",
           userSelect: "none",
         }}
-        title={node.attrs.text || ""}
+        title={tooltip}
       >
         {num > 0 ? `[${num}]` : "[?]"}
       </sup>
@@ -46,6 +50,7 @@ export const FootnoteExtension = Node.create({
     return {
       sourceId: { default: null },
       text: { default: "" },
+      pages: { default: "" },
     };
   },
 

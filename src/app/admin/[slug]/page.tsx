@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
 import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
+import type { Source } from "@/components/admin/TiptapEditor";
 
 const TiptapEditor = dynamic(() => import("@/components/admin/TiptapEditor"), { ssr: false });
 
@@ -14,13 +15,6 @@ interface Category {
 interface Project {
   _id: string;
   title: string;
-}
-interface Source {
-  _id: string;
-  title: string;
-  authors: string;
-  year: number;
-  type: string;
 }
 
 export default function EditArticlePage() {

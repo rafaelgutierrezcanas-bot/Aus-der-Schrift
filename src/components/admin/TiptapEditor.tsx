@@ -12,6 +12,8 @@ export interface Source {
   authors: string;
   year: number;
   type: string;
+  publisher?: string;
+  pages?: string;
 }
 
 interface Props {
@@ -19,6 +21,36 @@ interface Props {
   onChange: (json: object) => void;
   placeholder?: string;
   sources?: Source[];
+}
+
+export function formatChicago(source: Source, citedPages?: string): string {
+  const p = citedPages?.trim() || "";
+  const pub = source.publisher ?? "";
+
+  switch (source.type) {
+    case "journal": {
+      const pageStr = p ? `: ${p}` : source.pages ? `: ${source.pages}` : "";
+      return `${source.authors}, "${source.title}," ${pub} (${source.year})${pageStr}.`;
+    }
+    case "book": {
+      const pageStr = p ? `, ${p}` : "";
+      return `${source.authors}, ${source.title} (${pub ? pub + ", " : ""}${source.year})${pageStr}.`;
+    }
+    case "dissertation": {
+      const pageStr = p ? `, ${p}` : "";
+      return `${source.authors}, "${source.title}" (PhD diss., ${pub ? pub + ", " : ""}${source.year})${pageStr}.`;
+    }
+    case "website": {
+      return `${source.authors}, "${source.title}," ${pub ? pub + ", " : ""}${source.year}.`;
+    }
+    case "bible": {
+      return p ? `${source.title} ${p}` : source.title;
+    }
+    default: {
+      const pageStr = p ? `, ${p}` : "";
+      return `${source.authors}, "${source.title}" (${source.year})${pageStr}.`;
+    }
+  }
 }
 
 export default function TiptapEditor({ content, onChange, placeholder, sources = [] }: Props) {
@@ -44,12 +76,13 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
   if (!editor) return null;
 
   // Collect footnotes from editor document in order
-  const footnotes: Array<{ sourceId?: string; text: string }> = [];
+  const footnotes: Array<{ sourceId?: string; text: string; pages?: string }> = [];
   editor.state.doc.descendants((node) => {
     if (node.type.name === "footnote") {
       footnotes.push({
         sourceId: node.attrs.sourceId ?? undefined,
         text: node.attrs.text ?? "",
+        pages: node.attrs.pages ?? undefined,
       });
     }
     return true;
@@ -70,9 +103,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
                 <li key={i} className="text-sm text-stone-600 flex gap-2.5">
                   <span className="text-stone-400 shrink-0 tabular-nums">[{i + 1}]</span>
                   <span>
-                    {src
-                      ? `${src.authors} (${src.year}). ${src.title}.`
-                      : fn.text || "—"}
+                    {src ? formatChicago(src, fn.pages) : fn.text || "—"}
                   </span>
                 </li>
               );
