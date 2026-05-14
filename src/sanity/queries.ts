@@ -79,3 +79,35 @@ export const allCategoriesQuery = groq`
 export const allArticleSlugsQuery = groq`
   *[_type == "article"] { "slug": slug.current }
 `;
+
+export const recommendedArticlesQuery = groq`
+  *[_type == "article" && isRecommended == true] | order(publishedAt desc) {
+    _id,
+    titleDe,
+    titleEn,
+    slug,
+    publishedAt,
+    excerptDe,
+    excerptEn,
+    language,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
+    "category": category->{ titleDe, titleEn, slug },
+    "author": author->{ name }
+  }
+`;
+
+export const latestArticlesQuery = groq`
+  *[_type == "article"] | order(publishedAt desc) [0..5] {
+    _id,
+    titleDe,
+    titleEn,
+    slug,
+    publishedAt,
+    excerptDe,
+    excerptEn,
+    language,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
+    "category": category->{ titleDe, titleEn, slug },
+    "author": author->{ name }
+  }
+`;

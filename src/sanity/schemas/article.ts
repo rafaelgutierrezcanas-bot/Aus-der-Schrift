@@ -117,6 +117,13 @@ export default defineType({
       type: "array",
       of: [{ type: "reference", to: [{ type: "source" }] }],
     }),
+    defineField({
+      name: "isRecommended",
+      title: "Empfohlen",
+      type: "boolean",
+      description: "Auf der Startseite im Bereich \"Empfohlen\" anzeigen",
+      initialValue: false,
+    }),
   ],
   preview: {
     select: { title: "titleDe", media: "featuredImage" },

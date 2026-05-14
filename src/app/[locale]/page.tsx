@@ -1,5 +1,5 @@
 import { client } from "@/sanity/client";
-import { allArticlesQuery } from "@/sanity/queries";
+import { recommendedArticlesQuery, latestArticlesQuery } from "@/sanity/queries";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -44,15 +44,16 @@ export default async function HomePage({
   const { locale } = await params;
   const t = await getTranslations("homepage");
 
-  let articles: Record<string, unknown>[] = [];
+  let recommended: Record<string, unknown>[] = [];
+  let latest: Record<string, unknown>[] = [];
   try {
-    articles = await client.fetch(allArticlesQuery);
+    [recommended, latest] = await Promise.all([
+      client.fetch(recommendedArticlesQuery),
+      client.fetch(latestArticlesQuery),
+    ]);
   } catch {
     // empty state
   }
-
-  const featured = articles.slice(0, 4);
-  const latest = articles.slice(4, 10);
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -145,8 +146,8 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ── Featured Articles ── */}
-      {featured.length > 0 && (
+      {/* ── Recommended Articles ── */}
+      {recommended.length > 0 && (
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16">
 
@@ -161,12 +162,12 @@ export default async function HomePage({
             </div>
 
             <div className="mb-12">
-              <ArticleCard article={featured[0]} featured />
+              <ArticleCard article={recommended[0]} featured />
             </div>
 
-            {featured.slice(1, 4).length > 0 && (
+            {recommended.slice(1, 4).length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featured.slice(1, 4).map((article) => (
+                {recommended.slice(1, 4).map((article) => (
                   <ArticleCard key={article._id as string} article={article} />
                 ))}
               </div>
@@ -210,7 +211,7 @@ export default async function HomePage({
         </section>
       )}
 
-      {articles.length === 0 && (
+      {recommended.length === 0 && latest.length === 0 && (
         <section className="max-w-6xl mx-auto px-6 py-24 text-center">
           <p className="text-muted" style={{ fontFamily: "var(--font-sans)" }}>
             {locale === "de" ? "Noch keine Artikel veröffentlicht." : "No articles published yet."}
