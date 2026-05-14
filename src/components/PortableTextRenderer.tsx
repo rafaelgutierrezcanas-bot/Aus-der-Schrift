@@ -15,7 +15,9 @@ const components: PortableTextComponents = {
       const n = (value._fnIndex as number | undefined) ?? "?";
       return (
         <sup className="text-accent font-medium text-xs leading-none" style={{ fontFamily: "var(--font-sans)" }}>
-          [{n}]
+          <a href={`#fn-${n}`} id={`fnref-${n}`} aria-label={`Fußnote ${n}`}>
+            [{n}]
+          </a>
         </sup>
       );
     },
@@ -49,6 +51,22 @@ const components: PortableTextComponents = {
         translation={value.translation}
       />
     ),
+  },
+  list: {
+    bullet: ({ children }) => (
+      <ul className="list-disc list-outside pl-6 mb-5 space-y-1.5 text-[1.0625rem]" style={{ fontFamily: "var(--font-body-serif)" }}>
+        {children}
+      </ul>
+    ),
+    number: ({ children }) => (
+      <ol className="list-decimal list-outside pl-6 mb-5 space-y-1.5 text-[1.0625rem]" style={{ fontFamily: "var(--font-body-serif)" }}>
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }) => <li className="leading-relaxed pl-1">{children}</li>,
+    number: ({ children }) => <li className="leading-relaxed pl-1">{children}</li>,
   },
   block: {
     h2: ({ children, value }) => (

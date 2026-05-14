@@ -328,9 +328,11 @@ export default async function ArticlePage({
               const src = fn.sourceId ? sourcesMap.get(fn.sourceId) : null;
               const citation = src ? formatChicago(src, fn.pages) : (fn.text || "—");
               return (
-                <li key={fn._key} className="flex gap-3 text-sm text-muted leading-relaxed">
+                <li key={fn._key} id={`fn-${fn._fnIndex}`} className="flex gap-3 text-sm text-muted leading-relaxed">
                   <span className="shrink-0 text-accent font-medium" style={{ fontFamily: "var(--font-sans)" }}>
-                    [{fn._fnIndex}]
+                    <a href={`#fnref-${fn._fnIndex}`} aria-label="Zurück zum Text">
+                      [{fn._fnIndex}]
+                    </a>
                   </span>
                   <span style={{ fontFamily: "var(--font-sans)" }}>{citation}</span>
                 </li>
