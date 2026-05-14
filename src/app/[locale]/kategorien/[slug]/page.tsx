@@ -106,6 +106,9 @@ export default async function CategoryPage({
   );
   if (!category) notFound();
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
+  const categoryDescription = (locale === "en" && category.descriptionEn
+    ? category.descriptionEn
+    : category.descriptionDe) as string | undefined;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -128,11 +131,20 @@ export default async function CategoryPage({
         {locale === "de" ? "Kategorie" : "Category"}
       </p>
       <h1
-        className="text-3xl font-bold mb-12"
+        className="text-3xl font-bold mb-4"
         style={{ fontFamily: "var(--font-serif)" }}
       >
         {categoryTitle}
       </h1>
+      {!!categoryDescription && (
+        <p
+          className="text-muted text-[1.0625rem] leading-relaxed mb-12 max-w-prose"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          {categoryDescription}
+        </p>
+      )}
+      {!categoryDescription && <div className="mb-12" />}
       {articles.length === 0 && (
         <p className="text-muted" style={{ fontFamily: "var(--font-sans)" }}>
           {locale === "de" ? "Noch keine Artikel in dieser Kategorie." : "No articles in this category yet."}

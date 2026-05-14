@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { absoluteUrl, localePath } from "@/lib/site";
+import { absoluteUrl, localePath, SITE_NAME } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -19,7 +19,9 @@ export async function generateMetadata({
       url: absoluteUrl(path),
       title: locale === "de" ? "Impressum" : "Legal Notice",
       description: locale === "de" ? "Impressum von Theologik." : "Legal notice for Theologik.",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
     },
+    robots: { index: true, follow: true },
   };
 }
 

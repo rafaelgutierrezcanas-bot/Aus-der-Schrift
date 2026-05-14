@@ -113,6 +113,7 @@ export async function generateMetadata({
         siteName: SITE_NAME,
         locale: locale === "de" ? "de_DE" : "en_US",
         publishedTime: article.publishedAt as string | undefined,
+        modifiedTime: (article._updatedAt ?? article.publishedAt) as string | undefined,
         images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
       },
       twitter: {
@@ -185,7 +186,7 @@ export default async function ArticlePage({
     headline: title,
     description: excerpt || title,
     datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
+    dateModified: article._updatedAt ?? article.publishedAt,
     mainEntityOfPage: absoluteUrl(`/${locale}/blog/${slug}`),
     inLanguage: locale === "de" ? "de-DE" : "en-US",
     timeRequired: `PT${readingTime}M`,

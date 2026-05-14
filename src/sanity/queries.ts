@@ -19,6 +19,7 @@ export const allArticlesQuery = groq`
 export const articleBySlugQuery = groq`
   *[_type == "article" && slug.current == $slug][0] {
     _id,
+    _updatedAt,
     titleDe,
     titleEn,
     slug,
@@ -77,7 +78,7 @@ export const allCategoriesQuery = groq`
 `;
 
 export const allArticleSlugsQuery = groq`
-  *[_type == "article"] { "slug": slug.current, publishedAt }
+  *[_type == "article"] { "slug": slug.current, publishedAt, _updatedAt }
 `;
 
 export const recommendedArticlesQuery = groq`

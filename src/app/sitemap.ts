@@ -33,9 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     articleEntries = SUPPORTED_LOCALES.flatMap((locale) =>
-      (articles as Array<{ slug: string; publishedAt?: string }>).map(({ slug, publishedAt }): MetadataRoute.Sitemap[number] => ({
+      (articles as Array<{ slug: string; publishedAt?: string; _updatedAt?: string }>).map(({ slug, publishedAt, _updatedAt }): MetadataRoute.Sitemap[number] => ({
         url: absoluteUrl(`/${locale}/blog/${slug}`),
-        lastModified: publishedAt ? new Date(publishedAt) : new Date(),
+        lastModified: _updatedAt ? new Date(_updatedAt) : publishedAt ? new Date(publishedAt) : new Date(),
         changeFrequency: "weekly",
         priority: 0.8,
       }))
