@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface Props {
   url: string;
@@ -8,18 +8,34 @@ interface Props {
 
 export function ShareButton({ url, title }: Props) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   async function handleShare() {
-    if (typeof navigator !== "undefined" && navigator.share) {
+    if (navigator.share) {
       try {
         await navigator.share({ url, title });
-      } catch {
-        // user cancelled — ignore
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // user dismissed the share sheet — ignore
+        } else {
+          console.error("navigator.share failed:", err);
+        }
       }
     } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Clipboard write failed:", err);
+      }
     }
   }
 
