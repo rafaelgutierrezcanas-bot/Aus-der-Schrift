@@ -36,11 +36,13 @@ export const metadata: Metadata = {
     url: absoluteUrl("/de"),
     siteName: SITE_NAME,
     locale: "de_DE",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: "Theologik – Theologie, Bibelauslegung, Kirchengeschichte und geistliches Leben aus der Heiligen Schrift.",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
