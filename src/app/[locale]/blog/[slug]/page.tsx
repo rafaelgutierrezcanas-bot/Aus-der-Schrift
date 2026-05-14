@@ -298,6 +298,16 @@ export default async function ArticlePage({
         )}
       </header>
 
+      {/* Excerpt standfirst */}
+      {!!excerpt && (
+        <p
+          className="max-w-prose mx-auto mb-10 text-[1.125rem] italic text-muted leading-relaxed border-l-2 border-border pl-5"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          {excerpt}
+        </p>
+      )}
+
       {/* Article Body with ToC */}
       <div className="flex items-start">
         <div className="max-w-prose mx-auto flex-1 min-w-0">
