@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
   applicationName: SITE_NAME,
   title: { default: SITE_TITLE, template: `%s | ${SITE_NAME}` },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
   description: "Theologik – Theologie, Bibelauslegung, Kirchengeschichte und geistliches Leben aus der Heiligen Schrift.",
   keywords: [
     "Theologik",
