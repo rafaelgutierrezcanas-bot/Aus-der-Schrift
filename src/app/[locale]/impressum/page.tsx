@@ -39,10 +39,10 @@ export default async function ImpressumPage({
           <p>
             E-Mail:{" "}
             <a
-              href="mailto:rafaelgcp12@gmail.com"
+              href="mailto:info@theologik.org"
               className="text-accent hover:underline"
             >
-              rafaelgcp12@gmail.com
+              info@theologik.org
             </a>
           </p>
         </section>

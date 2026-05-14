@@ -30,7 +30,7 @@ export default async function KontaktPage({
 
       {/* Contact form */}
       <form
-        action={`mailto:rafaelgcp12@gmail.com`}
+        action={`mailto:info@theologik.org`}
         method="get"
         className="space-y-6"
       >
