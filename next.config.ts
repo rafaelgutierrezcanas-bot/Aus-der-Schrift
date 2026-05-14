@@ -4,7 +4,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig = {
   images: {
-    remotePatterns: [new URL("https://cdn.sanity.io/**")],
+    remotePatterns: [{ protocol: "https" as const, hostname: "cdn.sanity.io" }],
   },
   turbopack: {
     root: __dirname,

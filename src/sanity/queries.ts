@@ -10,7 +10,7 @@ export const allArticlesQuery = groq`
     excerptDe,
     excerptEn,
     language,
-    featuredImage,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
   }
@@ -28,7 +28,7 @@ export const articleBySlugQuery = groq`
     excerptDe,
     excerptEn,
     language,
-    featuredImage,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name, bio, image },
     "sources": sources[]->{ _id, title, authors, year, type, publisher, pages }
@@ -45,7 +45,7 @@ export const articlesByCategoryQuery = groq`
     excerptDe,
     excerptEn,
     language,
-    featuredImage,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
   }
@@ -60,7 +60,7 @@ export const relatedArticlesQuery = groq`
     publishedAt,
     excerptDe,
     excerptEn,
-    featuredImage,
+    "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug }
   }
 `;
