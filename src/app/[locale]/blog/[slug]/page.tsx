@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReadingProgressBar } from "@/components/ReadingProgressBar";
+import { ShareButton } from "@/components/ShareButton";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
@@ -278,6 +279,10 @@ export default async function ArticlePage({
               · {(article.author as Record<string, unknown>).name as string}
             </span>
           )}
+          <ShareButton
+            url={absoluteUrl(localePath(locale, `/blog/${slug}`))}
+            title={title}
+          />
         </div>
         <h1
           className="text-3xl md:text-4xl font-bold leading-tight mb-6"
