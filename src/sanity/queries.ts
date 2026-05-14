@@ -77,7 +77,7 @@ export const allCategoriesQuery = groq`
 `;
 
 export const allArticleSlugsQuery = groq`
-  *[_type == "article"] { "slug": slug.current }
+  *[_type == "article"] { "slug": slug.current, publishedAt }
 `;
 
 export const recommendedArticlesQuery = groq`

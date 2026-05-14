@@ -39,11 +39,13 @@ export function buildLocalizedMetadata({
       url: absoluteUrl(localizedPath),
       siteName: SITE_NAME,
       locale: locale === "de" ? "de_DE" : "en_US",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: ["/opengraph-image"],
     },
   };
 }

@@ -1,3 +1,6 @@
+import Script from "next/script";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
+
 export default async function ZuMeinerPersonPage({
   params,
 }: {
@@ -5,8 +8,29 @@ export default async function ZuMeinerPersonPage({
 }) {
   const { locale } = await params;
 
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Rafael",
+    url: absoluteUrl(`/${locale}/zu-meiner-person`),
+    worksFor: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: absoluteUrl(`/${locale}`),
+    },
+    description:
+      locale === "de"
+        ? "Theologe und Autor des Blogs Theologik zu Bibelauslegung, Kirchengeschichte und Apologetik."
+        : "Theologian and author of the Theologik blog on biblical interpretation, church history, and apologetics.",
+  };
+
   return (
     <div className="max-w-prose mx-auto px-6 py-16">
+      <Script
+        id={`schema-person-${locale}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <p
         className="text-xs uppercase tracking-widest text-accent mb-2"
         style={{ fontFamily: "var(--font-sans)" }}

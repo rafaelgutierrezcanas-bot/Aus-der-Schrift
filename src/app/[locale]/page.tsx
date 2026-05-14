@@ -3,6 +3,7 @@ import { recommendedArticlesQuery, latestArticlesQuery } from "@/sanity/queries"
 import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import Image from "next/image";
 import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
@@ -133,11 +134,13 @@ export default async function HomePage({
           {/* Right: manuscript image */}
           <div className="hidden md:block relative">
             <div className="aspect-[4/5] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=900&q=85"
                 alt="Altes Manuskript"
+                width={900}
+                height={1125}
                 className="w-full h-full object-cover"
+                priority
               />
             </div>
             <div className="absolute inset-3 border border-border pointer-events-none" />
