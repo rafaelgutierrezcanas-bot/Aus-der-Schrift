@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
 import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
-import type { Source } from "@/components/admin/TiptapEditor";
+import type { Source, EntwurfThema } from "@/components/admin/TiptapEditor";
 import { urlFor } from "@/sanity/image";
 
 const TiptapEditor = dynamic(() => import("@/components/admin/TiptapEditor"), { ssr: false });
@@ -45,6 +45,7 @@ export default function EditArticlePage() {
   const [excerptEn, setExcerptEn] = useState("");
   const [bodyDe, setBodyDe] = useState<object | null>(null);
   const [bodyEn, setBodyEn] = useState<object | null>(null);
+  const [entwurf, setEntwurf] = useState<EntwurfThema[]>([]);
   const [featuredImage, setFeaturedImage] = useState<object | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
@@ -69,6 +70,7 @@ export default function EditArticlePage() {
       if (article.bodyDe) setBodyDe(portableTextToTiptap(article.bodyDe));
       if (article.bodyEn) setBodyEn(portableTextToTiptap(article.bodyEn));
       setFeaturedImage(article.featuredImage ?? null);
+      setEntwurf(article.entwurf ?? []);
       setCategories(cats);
       setProjects(projs);
       setAllSources(srcs);
@@ -94,13 +96,14 @@ export default function EditArticlePage() {
       bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
       featuredImage: featuredImage ?? null,
+      entwurf: entwurf.length > 0 ? entwurf : null,
     };
     if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
     else patch.category = null;
     if (projectId) patch.project = { _type: "reference", _ref: projectId };
     else patch.project = null;
     return patch;
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf]);
 
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -120,7 +123,7 @@ export default function EditArticlePage() {
       }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf]);
 
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
@@ -393,7 +396,8 @@ export default function EditArticlePage() {
             onChange={setBodyDe}
             placeholder="Schreibe auf Deutsch..."
             sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-            zitatBankKey={`zitate-${slug}`}
+            entwurf={entwurf}
+            onEntwurfChange={setEntwurf}
           />
         </div>
       )}
@@ -406,7 +410,6 @@ export default function EditArticlePage() {
             onChange={setBodyEn}
             placeholder="Write in English..."
             sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-            zitatBankKey={`zitate-${slug}-en`}
           />
         </div>
       )}
