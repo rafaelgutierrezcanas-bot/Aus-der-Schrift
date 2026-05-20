@@ -118,6 +118,42 @@ export default defineType({
       of: [{ type: "reference", to: [{ type: "source" }] }],
     }),
     defineField({
+      name: "entwurf",
+      title: "Entwurf",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "entwurfThema",
+          title: "Thema",
+          fields: [
+            { name: "thema", title: "Thema", type: "string" },
+            { name: "notiz", title: "Notiz", type: "text" },
+            {
+              name: "zitate",
+              title: "Zitate",
+              type: "array",
+              of: [
+                {
+                  type: "object",
+                  name: "entwurfZitat",
+                  title: "Zitat",
+                  fields: [
+                    { name: "sourceId", title: "Quelle ID", type: "string" },
+                    { name: "pages", title: "Seite(n)", type: "string" },
+                    { name: "text", title: "Zitattext", type: "text" },
+                  ],
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: { title: "thema" },
+          },
+        },
+      ],
+    }),
+    defineField({
       name: "isRecommended",
       title: "Empfohlen",
       type: "boolean",
