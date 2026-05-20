@@ -7,7 +7,8 @@ import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
-import ZitatBank from "./ZitatBank";
+import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
+export type { EntwurfThema } from "./EntwurfSidebar";
 import { formatChicago } from "@/lib/formatChicago";
 
 export type { Source } from "@/lib/formatChicago";
@@ -18,7 +19,8 @@ interface Props {
   onChange: (json: object) => void;
   placeholder?: string;
   sources?: Source[];
-  zitatBankKey?: string;
+  entwurf?: EntwurfThema[];
+  onEntwurfChange?: (entwurf: EntwurfThema[]) => void;
 }
 
 // Extract plain text from Tiptap JSON, replacing footnote nodes with ⟨N⟩ markers
@@ -80,10 +82,11 @@ function applyTextChange(
   return { node, found: false };
 }
 
-export default function TiptapEditor({ content, onChange, placeholder, sources = [], zitatBankKey }: Props) {
+export default function TiptapEditor({ content, onChange, placeholder, sources = [], entwurf, onEntwurfChange }: Props) {
   const [lektoratLoading, setLektoratLoading] = useState(false);
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
   const [lektoratError, setLektoratError] = useState<string | null>(null);
+  const [showEntwurf, setShowEntwurf] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -161,8 +164,22 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         sources={sources}
         onLektorat={runLektorat}
         lektoratLoading={lektoratLoading}
+        showEntwurf={showEntwurf}
+        onToggleEntwurf={onEntwurfChange ? () => setShowEntwurf((v) => !v) : undefined}
       />
-      <EditorContent editor={editor} />
+      <div className="flex">
+        <div className="flex-1 min-w-0">
+          <EditorContent editor={editor} />
+        </div>
+        {showEntwurf && onEntwurfChange && entwurf !== undefined && (
+          <EntwurfSidebar
+            editor={editor}
+            sources={sources}
+            entwurf={entwurf}
+            onChange={onEntwurfChange}
+          />
+        )}
+      </div>
 
       {/* Footnote list */}
       {footnotes.length > 0 && (
@@ -219,10 +236,6 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         })()}
       </div>
 
-      {/* Zitate-Bank */}
-      {zitatBankKey && (
-        <ZitatBank editor={editor} sources={sources} storageKey={zitatBankKey} />
-      )}
     </div>
   );
 }
