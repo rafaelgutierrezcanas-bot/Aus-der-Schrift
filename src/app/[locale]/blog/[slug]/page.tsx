@@ -69,7 +69,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
 
   try {
-    const article = await client.fetch(articleBySlugQuery, { slug });
+    const article = await client.fetch(articleBySlugQuery, { slug }, { next: { tags: ["articles", `article-${slug}`], revalidate: 60 } });
     if (!article) {
       return {
         title: "Artikel nicht gefunden",
@@ -143,7 +143,7 @@ export default async function ArticlePage({
 
   let article: Record<string, unknown> | null = null;
   try {
-    article = await client.fetch(articleBySlugQuery, { slug });
+    article = await client.fetch(articleBySlugQuery, { slug }, { next: { tags: ["articles", `article-${slug}`], revalidate: 60 } });
   } catch {
     notFound();
   }
@@ -174,7 +174,7 @@ export default async function ArticlePage({
       related = await client.fetch(relatedArticlesQuery, {
         categorySlug: catSlug,
         currentSlug: slug,
-      });
+      }, { next: { tags: ["articles"], revalidate: 60 } });
     }
   } catch {
     related = [];

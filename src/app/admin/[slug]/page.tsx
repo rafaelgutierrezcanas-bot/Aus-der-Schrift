@@ -131,6 +131,17 @@ export default function EditArticlePage() {
     );
   }
 
+  async function handleDelete() {
+    if (!window.confirm(`Artikel „${titleDe}" wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+    try {
+      const res = await fetch(`/api/admin/articles/${slug}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Löschen fehlgeschlagen");
+      router.push("/admin/artikel");
+    } catch {
+      setError("Fehler beim Löschen. Bitte erneut versuchen.");
+    }
+  }
+
   async function handleSave() {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setSaving(true);
@@ -213,6 +224,9 @@ export default function EditArticlePage() {
           {autoSaved === "saved" && (
             <span className="text-xs text-green-600" style={{ fontFamily: "var(--font-sans)" }}>Automatisch gespeichert</span>
           )}
+          <button onClick={handleDelete} className="text-sm px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors" style={{ fontFamily: "var(--font-sans)" }}>
+            Löschen
+          </button>
           <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity" style={{ fontFamily: "var(--font-sans)" }}>
             {saving ? "Speichert..." : "Speichern & Zurück"}
           </button>

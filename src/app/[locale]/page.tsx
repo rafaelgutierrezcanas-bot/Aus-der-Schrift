@@ -49,8 +49,8 @@ export default async function HomePage({
   let latest: Record<string, unknown>[] = [];
   try {
     [recommended, latest] = await Promise.all([
-      client.fetch(recommendedArticlesQuery),
-      client.fetch(latestArticlesQuery),
+      client.fetch(recommendedArticlesQuery, {}, { next: { tags: ["articles"], revalidate: 60 } }),
+      client.fetch(latestArticlesQuery, {}, { next: { tags: ["articles"], revalidate: 60 } }),
     ]);
   } catch {
     // empty state

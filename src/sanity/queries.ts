@@ -1,7 +1,7 @@
 import { groq } from "next-sanity";
 
 export const allArticlesQuery = groq`
-  *[_type == "article"] | order(publishedAt desc) {
+  *[_type == "article" && status == "published"] | order(publishedAt desc) {
     _id,
     titleDe,
     titleEn,
@@ -17,7 +17,7 @@ export const allArticlesQuery = groq`
 `;
 
 export const articleBySlugQuery = groq`
-  *[_type == "article" && slug.current == $slug][0] {
+  *[_type == "article" && slug.current == $slug && status == "published"][0] {
     _id,
     _updatedAt,
     titleDe,
@@ -37,7 +37,7 @@ export const articleBySlugQuery = groq`
 `;
 
 export const articlesByCategoryQuery = groq`
-  *[_type == "article" && category->slug.current == $categorySlug] | order(publishedAt desc) {
+  *[_type == "article" && status == "published" && category->slug.current == $categorySlug] | order(publishedAt desc) {
     _id,
     titleDe,
     titleEn,
@@ -53,7 +53,7 @@ export const articlesByCategoryQuery = groq`
 `;
 
 export const relatedArticlesQuery = groq`
-  *[_type == "article" && category->slug.current == $categorySlug && slug.current != $currentSlug] | order(publishedAt desc)[0..2] {
+  *[_type == "article" && status == "published" && category->slug.current == $categorySlug && slug.current != $currentSlug] | order(publishedAt desc)[0..2] {
     _id,
     titleDe,
     titleEn,
@@ -78,11 +78,11 @@ export const allCategoriesQuery = groq`
 `;
 
 export const allArticleSlugsQuery = groq`
-  *[_type == "article"] { "slug": slug.current, publishedAt, _updatedAt }
+  *[_type == "article" && status == "published"] { "slug": slug.current, publishedAt, _updatedAt }
 `;
 
 export const recommendedArticlesQuery = groq`
-  *[_type == "article" && isRecommended == true] | order(publishedAt desc) {
+  *[_type == "article" && status == "published" && isRecommended == true] | order(publishedAt desc) {
     _id,
     titleDe,
     titleEn,
@@ -98,7 +98,7 @@ export const recommendedArticlesQuery = groq`
 `;
 
 export const latestArticlesQuery = groq`
-  *[_type == "article"] | order(publishedAt desc) [0..5] {
+  *[_type == "article" && status == "published"] | order(publishedAt desc) [0..5] {
     _id,
     titleDe,
     titleEn,

@@ -48,8 +48,8 @@ export default async function BlogPage({
   let categories: Record<string, unknown>[] = [];
   try {
     [articles, categories] = await Promise.all([
-      client.fetch(allArticlesQuery),
-      client.fetch(allCategoriesQuery),
+      client.fetch(allArticlesQuery, {}, { next: { tags: ["articles"], revalidate: 60 } }),
+      client.fetch(allCategoriesQuery, {}, { next: { tags: ["categories"], revalidate: 3600 } }),
     ]);
   } catch {
     // empty state

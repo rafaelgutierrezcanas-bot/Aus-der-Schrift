@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
+import { DeleteArticleButton } from "@/components/admin/DeleteArticleButton";
 
 interface ArticleSummary {
   _id: string;
@@ -70,6 +71,7 @@ export default async function ArtikelPage() {
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${badge.color}`} style={{ fontFamily: "var(--font-sans)" }}>
                   {badge.label}
                 </span>
+                <DeleteArticleButton slug={article.slug.current} title={article.titleDe} />
                 <span className="text-[var(--color-muted)] text-sm">→</span>
               </div>
             </Link>

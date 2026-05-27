@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 
@@ -42,6 +43,32 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   return NextResponse.json(article);
 }
 
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const denied = await requireAuth();
+  if (denied) return denied;
+
+  const { slug } = await params;
+
+  const article = await client.fetch(
+    `*[_type == "article" && slug.current == $slug][0]{ _id }`,
+    { slug }
+  );
+  if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await writeClient.delete(article._id);
+
+  revalidateTag("articles");
+  revalidateTag(`article-${slug}`);
+  revalidatePath(`/de/blog/${slug}`);
+  revalidatePath(`/en/blog/${slug}`);
+  revalidatePath("/de/blog");
+  revalidatePath("/en/blog");
+  revalidatePath("/de");
+  revalidatePath("/en");
+
+  return NextResponse.json({ deleted: true });
+}
+
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const denied = await requireAuth();
   if (denied) return denied;
@@ -65,5 +92,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   let op = writeClient.patch(article._id).set(toSet);
   if (toUnset.length > 0) op = op.unset(toUnset);
   const updated = await op.commit();
+
+  // Invalidate data cache and page cache immediately
+  revalidateTag("articles");
+  revalidateTag(`article-${slug}`);
+  revalidatePath(`/de/blog/${slug}`);
+  revalidatePath(`/en/blog/${slug}`);
+  revalidatePath("/de/blog");
+  revalidatePath("/en/blog");
+  revalidatePath("/de");
+  revalidatePath("/en");
+
   return NextResponse.json(updated);
 }

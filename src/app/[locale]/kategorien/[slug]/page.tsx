@@ -94,8 +94,8 @@ export default async function CategoryPage({
   let categories: Record<string, unknown>[] = [];
   try {
     [articles, categories] = await Promise.all([
-      client.fetch(articlesByCategoryQuery, { categorySlug: slug }),
-      client.fetch(allCategoriesQuery),
+      client.fetch(articlesByCategoryQuery, { categorySlug: slug }, { next: { tags: ["articles"], revalidate: 60 } }),
+      client.fetch(allCategoriesQuery, {}, { next: { tags: ["categories"], revalidate: 3600 } }),
     ]);
   } catch {
     notFound();
