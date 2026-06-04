@@ -21,25 +21,78 @@ const components: PortableTextComponents = {
         </sup>
       );
     },
-    image: ({ value }: { value: Record<string, unknown> }) => (
-      <figure className="my-8 not-prose">
-        <Image
-          src={urlFor(value).width(1200).url()}
-          alt={(value.alt as string) || ""}
-          width={1200}
-          height={675}
-          className="rounded-sm w-full"
-        />
-        {typeof value.caption === "string" && (
-          <figcaption
-            className="mt-2 text-center text-xs text-muted"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {value.caption}
-          </figcaption>
-        )}
-      </figure>
-    ),
+    image: ({ value }: { value: Record<string, unknown> }) => {
+      const layout = (value.layout as string) ?? "full";
+      const alt = (value.alt as string) || "";
+      const caption = typeof value.caption === "string" ? value.caption : "";
+
+      if (layout === "infographic") {
+        return (
+          <figure className="my-10 not-prose">
+            <div className="bg-[var(--color-surface)] border border-border rounded-xl p-4 shadow-sm">
+              <Image
+                src={urlFor(value).width(1400).url()}
+                alt={alt}
+                width={1400}
+                height={900}
+                className="rounded-lg w-full object-contain max-h-[600px]"
+              />
+            </div>
+            {caption && (
+              <figcaption
+                className="mt-3 text-center text-xs text-muted"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {caption}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
+
+      if (layout === "center") {
+        return (
+          <figure className="my-8 not-prose flex flex-col items-center">
+            <Image
+              src={urlFor(value).width(800).url()}
+              alt={alt}
+              width={800}
+              height={600}
+              className="rounded-sm max-w-sm w-full object-contain"
+            />
+            {caption && (
+              <figcaption
+                className="mt-2 text-center text-xs text-muted"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {caption}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
+
+      // default: full
+      return (
+        <figure className="my-8 not-prose">
+          <Image
+            src={urlFor(value).width(1200).url()}
+            alt={alt}
+            width={1200}
+            height={675}
+            className="rounded-sm w-full"
+          />
+          {caption && (
+            <figcaption
+              className="mt-2 text-center text-xs text-muted"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              {caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
     bibleVerse: ({
       value,
     }: {

@@ -60,6 +60,13 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     return () => window.removeEventListener("keydown", onKeyDown, true);
   }, []);
 
+  function addImage() {
+    editor.chain().focus().insertContent({
+      type: "imageBlock",
+      attrs: { sanityRef: null, previewUrl: null, alt: "", caption: "", layout: "full" },
+    }).run();
+  }
+
   function addBibleVerse() {
     editor.chain().focus().insertContent({
       type: "bibleVerse",
@@ -124,6 +131,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         </button>
         <button onClick={addExplanationBox} className={btn(false)}>📌 Erklärung</button>
         <button onClick={addQuestionBox} className={btn(false)}>❓ Frage</button>
+        <button onClick={addImage} className={btn(false)}>🖼 Bild</button>
         <div className="w-px bg-stone-200 mx-1" />
         {onLektorat && (
           <button

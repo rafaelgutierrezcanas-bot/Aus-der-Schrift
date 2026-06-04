@@ -102,14 +102,17 @@ export function tiptapToPortableText(doc: TipTapNode): unknown[] {
         text: node.attrs?.text ?? "",
         translation: node.attrs?.translation ?? "",
       });
-    } else if (node.type === "image") {
-      blocks.push({
-        _type: "image",
-        _key: crypto.randomUUID(),
-        asset: { _type: "reference", _ref: node.attrs?.sanityRef },
-        alt: node.attrs?.alt ?? "",
-        caption: node.attrs?.caption ?? "",
-      });
+    } else if (node.type === "image" || node.type === "imageBlock") {
+      if (node.attrs?.sanityRef) {
+        blocks.push({
+          _type: "image",
+          _key: crypto.randomUUID(),
+          asset: { _type: "reference", _ref: node.attrs.sanityRef },
+          alt: node.attrs?.alt ?? "",
+          caption: node.attrs?.caption ?? "",
+          layout: node.attrs?.layout ?? "full",
+        });
+      }
     }
   }
 

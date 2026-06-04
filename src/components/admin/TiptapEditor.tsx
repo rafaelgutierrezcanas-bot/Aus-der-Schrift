@@ -6,6 +6,7 @@ import { useState } from "react";
 import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
+import { ImageBlockExtension } from "./ImageBlock";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
 export type { EntwurfThema } from "./EntwurfSidebar";
@@ -39,7 +40,7 @@ function extractTextWithMarkers(doc: any): string {
   }
 
   for (const block of doc.content ?? []) {
-    if (block.type === "bibleVerse" || block.type === "image") continue;
+    if (block.type === "bibleVerse" || block.type === "image" || block.type === "imageBlock") continue;
     const text = processNode(block).trim();
     if (text) paragraphs.push(text);
   }
@@ -93,6 +94,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
       StarterKit,
       BibleVerseExtension,
       FootnoteExtension,
+      ImageBlockExtension,
       Placeholder.configure({ placeholder: placeholder ?? "Schreibe hier..." }),
     ],
     immediatelyRender: false,
