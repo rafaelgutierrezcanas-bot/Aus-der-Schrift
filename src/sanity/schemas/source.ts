@@ -25,11 +25,19 @@ export default defineType({
     defineField({ name: "authors", title: "Autor(en)", type: "string", validation: (r) => r.required() }),
     defineField({ name: "title", title: "Titel", type: "string", validation: (r) => r.required() }),
     defineField({ name: "year", title: "Jahr", type: "number", validation: (r) => r.required() }),
-    defineField({ name: "publisher", title: "Verlag / Zeitschrift", type: "string" }),
+    // For books: publisher name. For journals: journal name.
+    defineField({ name: "publisher", title: "Verlag (Bücher) / Zeitschriftenname (Artikel)", type: "string" }),
+    // Journal-specific
+    defineField({ name: "volume", title: "Band (Volume)", type: "string" }),
+    defineField({ name: "issue", title: "Heft (Issue)", type: "string" }),
+    // Book-specific
+    defineField({ name: "city", title: "Verlagsort", type: "string" }),
+    defineField({ name: "edition", title: "Auflage (z. B. 2)", type: "string" }),
+    // Common
     defineField({ name: "doi", title: "DOI", type: "string" }),
     defineField({ name: "isbn", title: "ISBN", type: "string" }),
     defineField({ name: "url", title: "URL", type: "url" }),
-    defineField({ name: "pages", title: "Seiten", type: "string" }),
+    defineField({ name: "pages", title: "Seitenbereich (z. B. 129–150)", type: "string" }),
     defineField({ name: "notes", title: "Eigene Notizen", type: "text", rows: 4 }),
     defineField({ name: "fileLink", title: "Link zur Datei (Google Drive, JSTOR etc.)", type: "url" }),
   ],

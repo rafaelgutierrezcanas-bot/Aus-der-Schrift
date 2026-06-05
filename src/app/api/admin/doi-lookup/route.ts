@@ -10,6 +10,43 @@ async function requireAuth(): Promise<NextResponse | null> {
   return null;
 }
 
+/** Convert a given name like "Justin P." or "Philip" to initials "J. P." or "P." */
+function toInitials(given: string): string {
+  if (!given) return "";
+  // Split on spaces and hyphens, keeping hyphens for compound names
+  return given
+    .split(/[\s]+/)
+    .map((part) => {
+      // Remove trailing period if present, take first char, add period
+      const clean = part.replace(/\.$/, "");
+      return clean.charAt(0).toUpperCase() + ".";
+    })
+    .join(" ");
+}
+
+/** Format Crossref author array to APA style: "Family, I. I., & Family2, I." */
+function formatAuthors(authors: Array<{ family?: string; given?: string; name?: string }>): string {
+  if (!authors || authors.length === 0) return "";
+
+  const formatted = authors.map((a) => {
+    if (a.name) return a.name; // Organization author
+    const family = a.family ?? "";
+    const initials = a.given ? toInitials(a.given) : "";
+    return initials ? `${family}, ${initials}` : family;
+  });
+
+  if (formatted.length === 1) return formatted[0];
+  if (formatted.length === 2) return `${formatted[0]}, & ${formatted[1]}`;
+  // 3+ authors: all but last joined with ", ", then ", & " + last
+  return formatted.slice(0, -1).join(", ") + ", & " + formatted[formatted.length - 1];
+}
+
+/** Convert page range like "129-150" to "129–150" using en-dash */
+function normalizePages(pages: string): string {
+  if (!pages) return "";
+  return pages.replace(/\s*-\s*/g, "–");
+}
+
 export async function GET(request: NextRequest) {
   const denied = await requireAuth();
   if (denied) return denied;
@@ -26,24 +63,31 @@ export async function GET(request: NextRequest) {
     const data = await res.json();
     const w = data.message;
 
-    const authors = (w.author ?? [])
-      .map((a: { family?: string; given?: string }) =>
-        [a.family, a.given].filter(Boolean).join(", ")
-      )
-      .join("; ");
+    const isJournal = w.type === "journal-article";
 
     const year =
       w.published?.["date-parts"]?.[0]?.[0] ??
       w["published-print"]?.["date-parts"]?.[0]?.[0] ??
+      w["published-online"]?.["date-parts"]?.[0]?.[0] ??
       null;
+
+    // For journal articles: use container-title as the journal name (stored in publisher field)
+    // For books: use publisher field
+    const publisher = isJournal
+      ? (w["container-title"]?.[0] ?? "")
+      : (w.publisher ?? "");
 
     return NextResponse.json({
       title: w.title?.[0] ?? "",
-      authors,
+      authors: formatAuthors(w.author ?? []),
       year,
-      publisher: w.publisher ?? w["container-title"]?.[0] ?? "",
+      publisher,
       doi,
-      type: w.type === "journal-article" ? "journal" : "book",
+      type: isJournal ? "journal" : "book",
+      // Journal-specific
+      volume: w.volume ?? "",
+      issue: w.issue ?? "",
+      pages: normalizePages(w.page ?? ""),
     });
   } catch {
     return NextResponse.json({ error: "Lookup failed" }, { status: 500 });

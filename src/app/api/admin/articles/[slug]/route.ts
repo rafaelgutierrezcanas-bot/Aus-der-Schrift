@@ -35,7 +35,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       "category": category->{ _id, titleDe, slug },
       "author": author->{ _id, name },
       "project": project->{ _id, title },
-      "sources": sources[]->{ _id, title, authors, year, type, publisher, pages, url },
+      "sources": sources[]->{ _id, title, authors, year, type, publisher, volume, issue, city, edition, doi, pages, url },
       entwurf
     }
   `, { slug });

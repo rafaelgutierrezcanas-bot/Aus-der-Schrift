@@ -18,7 +18,9 @@ export async function GET() {
 
   const sources = await client.fetch(`
     *[_type == "source"] | order(authors asc) {
-      _id, type, authors, title, year, publisher, doi, isbn, url, pages, notes, fileLink
+      _id, type, authors, title, year, publisher,
+      volume, issue, city, edition,
+      doi, isbn, url, pages, notes, fileLink
     }
   `);
   return NextResponse.json(sources);
