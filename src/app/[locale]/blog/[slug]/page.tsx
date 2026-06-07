@@ -307,7 +307,7 @@ export default async function ArticlePage({
       {/* Article Body with ToC */}
       <div className="flex items-start">
         <div className="max-w-prose mx-auto flex-1 min-w-0">
-          {body && body.length > 0 && <PortableTextRenderer value={body} />}
+          {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} />}
         </div>
         {body && body.length > 0 && (
           <TableOfContents

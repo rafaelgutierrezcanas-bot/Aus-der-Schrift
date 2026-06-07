@@ -7,24 +7,35 @@ type TipTapNode = {
   attrs?: Record<string, unknown>;
 };
 
-function convertMarks(marks: TipTapMark[] = []) {
-  return marks
-    .map((m) => {
-      if (m.type === "bold") return { _type: "strong" };
-      if (m.type === "italic") return { _type: "em" };
-      if (m.type === "link") return { _type: "link", href: m.attrs?.href };
-      return null;
-    })
-    .filter(Boolean);
-}
+type MarkDef = Record<string, unknown>;
 
-function convertInline(node: TipTapNode) {
+function convertInline(node: TipTapNode, markDefs: MarkDef[]) {
   if (node.type === "text") {
+    const marks: string[] = [];
+    for (const m of node.marks ?? []) {
+      if (m.type === "bold") {
+        marks.push("strong");
+      } else if (m.type === "italic") {
+        marks.push("em");
+      } else if (m.type === "link") {
+        const key = crypto.randomUUID();
+        markDefs.push({ _type: "link", _key: key, href: m.attrs?.href ?? "" });
+        marks.push(key);
+      } else if (m.type === "infocard") {
+        const key = crypto.randomUUID();
+        markDefs.push({ _type: "infocard", _key: key, explanation: m.attrs?.explanation ?? "" });
+        marks.push(key);
+      } else if (m.type === "internalLink") {
+        const key = crypto.randomUUID();
+        markDefs.push({ _type: "internalLink", _key: key, slug: m.attrs?.slug ?? "", titleDe: m.attrs?.titleDe ?? "" });
+        marks.push(key);
+      }
+    }
     return {
       _type: "span",
       _key: crypto.randomUUID(),
       text: node.text ?? "",
-      marks: convertMarks(node.marks).map((m) => (m as { _type: string })._type),
+      marks,
     };
   }
   if (node.type === "footnote") {
@@ -49,49 +60,54 @@ export function tiptapToPortableText(doc: TipTapNode): unknown[] {
 
   for (const node of doc.content ?? []) {
     if (node.type === "paragraph") {
+      const markDefs: MarkDef[] = [];
       blocks.push({
         _type: "block",
         _key: crypto.randomUUID(),
         style: "normal",
-        children: (node.content ?? []).map(convertInline).filter(Boolean),
-        markDefs: [],
+        children: (node.content ?? []).map((n) => convertInline(n, markDefs)).filter(Boolean),
+        markDefs,
       });
     } else if (node.type === "heading") {
+      const markDefs: MarkDef[] = [];
       blocks.push({
         _type: "block",
         _key: crypto.randomUUID(),
         style: headingStyle(node.attrs?.level as number),
-        children: (node.content ?? []).map(convertInline).filter(Boolean),
-        markDefs: [],
+        children: (node.content ?? []).map((n) => convertInline(n, markDefs)).filter(Boolean),
+        markDefs,
       });
     } else if (node.type === "blockquote") {
+      const markDefs: MarkDef[] = [];
       blocks.push({
         _type: "block",
         _key: crypto.randomUUID(),
         style: "blockquote",
-        children: (node.content?.[0]?.content ?? []).map(convertInline).filter(Boolean),
-        markDefs: [],
+        children: (node.content?.[0]?.content ?? []).map((n) => convertInline(n, markDefs)).filter(Boolean),
+        markDefs,
       });
     } else if (node.type === "bulletList") {
       for (const item of node.content ?? []) {
+        const markDefs: MarkDef[] = [];
         blocks.push({
           _type: "block",
           _key: crypto.randomUUID(),
           style: "normal",
           listItem: "bullet",
-          children: (item.content?.[0]?.content ?? []).map(convertInline).filter(Boolean),
-          markDefs: [],
+          children: (item.content?.[0]?.content ?? []).map((n) => convertInline(n, markDefs)).filter(Boolean),
+          markDefs,
         });
       }
     } else if (node.type === "orderedList") {
       for (const item of node.content ?? []) {
+        const markDefs: MarkDef[] = [];
         blocks.push({
           _type: "block",
           _key: crypto.randomUUID(),
           style: "normal",
           listItem: "number",
-          children: (item.content?.[0]?.content ?? []).map(convertInline).filter(Boolean),
-          markDefs: [],
+          children: (item.content?.[0]?.content ?? []).map((n) => convertInline(n, markDefs)).filter(Boolean),
+          markDefs,
         });
       }
     } else if (node.type === "bibleVerse") {

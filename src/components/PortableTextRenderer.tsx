@@ -1,7 +1,9 @@
 import { PortableText } from "@portabletext/react";
 import type { PortableTextComponents } from "@portabletext/react";
 import { BibleVerse } from "./BibleVerse";
+import { InfoCardPopover } from "./InfoCardPopover";
 import Image from "next/image";
+import Link from "next/link";
 import { urlFor } from "@/sanity/image";
 
 function firstSpanText(value: unknown): string {
@@ -9,7 +11,26 @@ function firstSpanText(value: unknown): string {
   return v?.children?.[0]?.text ?? "";
 }
 
-const components: PortableTextComponents = {
+function buildComponents(locale: string): PortableTextComponents {
+  return {
+  marks: {
+    infocard: ({ children, value }) => (
+      <InfoCardPopover explanation={(value as Record<string, unknown>).explanation as string ?? ""}>
+        {children}
+      </InfoCardPopover>
+    ),
+    internalLink: ({ children, value }) => {
+      const slug = (value as Record<string, unknown>).slug as string ?? "";
+      return (
+        <Link
+          href={`/${locale}/blog/${slug}`}
+          className="text-accent underline underline-offset-2 hover:opacity-75 transition-opacity"
+        >
+          {children}
+        </Link>
+      );
+    },
+  },
   types: {
     footnote: ({ value }: { value: Record<string, unknown> }) => {
       const n = (value._fnIndex as number | undefined) ?? "?";
@@ -200,13 +221,14 @@ const components: PortableTextComponents = {
       </p>
     ),
   },
-};
+  };
+}
 
-export function PortableTextRenderer({ value }: { value: unknown[] }) {
+export function PortableTextRenderer({ value, locale = "de" }: { value: unknown[]; locale?: string }) {
   return (
     <PortableText
       value={value as Parameters<typeof PortableText>[0]["value"]}
-      components={components}
+      components={buildComponents(locale)}
     />
   );
 }

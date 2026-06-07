@@ -7,6 +7,8 @@ import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
 import { ImageBlockExtension } from "./ImageBlock";
+import { InfoCardExtension } from "./InfoCardExtension";
+import { InternalLinkExtension } from "./InternalLinkExtension";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
 export type { EntwurfThema } from "./EntwurfSidebar";
@@ -95,6 +97,8 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
       BibleVerseExtension,
       FootnoteExtension,
       ImageBlockExtension,
+      InfoCardExtension,
+      InternalLinkExtension,
       Placeholder.configure({ placeholder: placeholder ?? "Schreibe hier..." }),
     ],
     immediatelyRender: false,

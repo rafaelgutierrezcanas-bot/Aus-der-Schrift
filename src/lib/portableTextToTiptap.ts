@@ -1,9 +1,11 @@
+type PTMarkDef = { _type: string; _key: string; [key: string]: unknown };
 type PTSpan = { _type: "span" | "footnote"; text: string; marks?: string[]; sourceId?: string; pages?: string };
 type PTBlock = {
   _type: string;
   style?: string;
   listItem?: string;
   children?: PTSpan[];
+  markDefs?: PTMarkDef[];
   reference?: string;
   text?: string;
   translation?: string;
@@ -12,7 +14,7 @@ type PTBlock = {
   caption?: string;
 };
 
-function convertSpans(children: PTSpan[] = []) {
+function convertSpans(children: PTSpan[] = [], markDefs: PTMarkDef[] = []) {
   return children.map((span) => {
     if (span._type === "footnote") {
       return {
@@ -30,8 +32,15 @@ function convertSpans(children: PTSpan[] = []) {
       marks: (span.marks ?? []).map((m) => {
         if (m === "strong") return { type: "bold" };
         if (m === "em") return { type: "italic" };
+        // Look up markDef by key
+        const def = markDefs.find((d) => d._key === m);
+        if (def) {
+          if (def._type === "infocard") return { type: "infocard", attrs: { explanation: def.explanation ?? "" } };
+          if (def._type === "internalLink") return { type: "internalLink", attrs: { slug: def.slug ?? "", titleDe: def.titleDe ?? "" } };
+          if (def._type === "link") return { type: "link", attrs: { href: def.href ?? "" } };
+        }
         return { type: m };
-      }),
+      }).filter(Boolean),
     };
   });
 }
@@ -55,7 +64,7 @@ export function portableTextToTiptap(blocks: PTBlock[]) {
         ) {
           items.push({
             type: "listItem",
-            content: [{ type: "paragraph", content: convertSpans(blocks[i].children) }],
+            content: [{ type: "paragraph", content: convertSpans(blocks[i].children, blocks[i].markDefs) }],
           });
           i++;
         }
@@ -65,19 +74,19 @@ export function portableTextToTiptap(blocks: PTBlock[]) {
       } else if (block.style === "blockquote") {
         content.push({
           type: "blockquote",
-          content: [{ type: "paragraph", content: convertSpans(block.children) }],
+          content: [{ type: "paragraph", content: convertSpans(block.children, block.markDefs) }],
         });
       } else if (block.style && block.style.startsWith("h")) {
         const level = parseInt(block.style[1]);
         content.push({
           type: "heading",
           attrs: { level },
-          content: convertSpans(block.children),
+          content: convertSpans(block.children, block.markDefs),
         });
       } else {
         content.push({
           type: "paragraph",
-          content: convertSpans(block.children),
+          content: convertSpans(block.children, block.markDefs),
         });
       }
     } else if (block._type === "bibleVerse") {

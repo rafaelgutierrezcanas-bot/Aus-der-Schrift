@@ -3,6 +3,12 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Editor } from "@tiptap/react";
 import type { Source } from "./TiptapEditor";
 
+interface ArticleSummary {
+  _id: string;
+  titleDe: string;
+  slug: { current: string };
+}
+
 interface Props {
   editor: Editor;
   sources?: Source[];
@@ -19,6 +25,19 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   const [customText, setCustomText] = useState("");
   const [pickerPos, setPickerPos] = useState<{ top: number; right: number } | null>(null);
   const footnoteButtonRef = useRef<HTMLButtonElement>(null);
+
+  // InfoCard state
+  const [showInfoCardPicker, setShowInfoCardPicker] = useState(false);
+  const [infoCardExplanation, setInfoCardExplanation] = useState("");
+  const [infoCardPos, setInfoCardPos] = useState<{ top: number; left: number } | null>(null);
+  const infoCardButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Article link state
+  const [showArticlePicker, setShowArticlePicker] = useState(false);
+  const [articleSearch, setArticleSearch] = useState("");
+  const [articles, setArticles] = useState<ArticleSummary[]>([]);
+  const [articlePickerPos, setArticlePickerPos] = useState<{ top: number; left: number } | null>(null);
+  const articleButtonRef = useRef<HTMLButtonElement>(null);
 
   const openPicker = useCallback(() => {
     if (footnoteButtonRef.current) {
@@ -106,6 +125,72 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     closePicker();
   }
 
+  function openInfoCardPicker() {
+    if (infoCardButtonRef.current) {
+      const rect = infoCardButtonRef.current.getBoundingClientRect();
+      setInfoCardPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setInfoCardExplanation(
+      editor.isActive("infocard")
+        ? (editor.getAttributes("infocard").explanation as string) ?? ""
+        : ""
+    );
+    setShowInfoCardPicker(true);
+  }
+
+  function closeInfoCardPicker() {
+    setShowInfoCardPicker(false);
+    setInfoCardExplanation("");
+  }
+
+  function applyInfoCard() {
+    if (!infoCardExplanation.trim()) return;
+    editor.chain().focus().setMark("infocard", { explanation: infoCardExplanation.trim() }).run();
+    closeInfoCardPicker();
+  }
+
+  function removeInfoCard() {
+    editor.chain().focus().unsetMark("infocard").run();
+    closeInfoCardPicker();
+  }
+
+  async function openArticlePicker() {
+    if (articleButtonRef.current) {
+      const rect = articleButtonRef.current.getBoundingClientRect();
+      setArticlePickerPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setArticleSearch("");
+    setShowArticlePicker(true);
+    if (articles.length === 0) {
+      try {
+        const res = await fetch("/api/admin/articles");
+        const data = await res.json();
+        setArticles(data);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  function closeArticlePicker() {
+    setShowArticlePicker(false);
+    setArticleSearch("");
+  }
+
+  function applyArticleLink(article: ArticleSummary) {
+    editor
+      .chain()
+      .focus()
+      .setMark("internalLink", { slug: article.slug.current, titleDe: article.titleDe })
+      .run();
+    closeArticlePicker();
+  }
+
+  const filteredArticles = articles.filter((a) =>
+    a.titleDe.toLowerCase().includes(articleSearch.toLowerCase()) ||
+    a.slug.current.includes(articleSearch.toLowerCase())
+  );
+
   const btn = (active: boolean) =>
     `px-3 py-1.5 rounded text-sm font-medium transition-colors ${active ? "bg-stone-800 text-white" : "bg-stone-100 text-stone-700 hover:bg-stone-200"}`;
 
@@ -132,6 +217,106 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         <button onClick={addExplanationBox} className={btn(false)}>📌 Erklärung</button>
         <button onClick={addQuestionBox} className={btn(false)}>❓ Frage</button>
         <button onClick={addImage} className={btn(false)}>🖼 Bild</button>
+        <div className="w-px bg-stone-200 mx-1" />
+        {/* InfoCard */}
+        <div className="relative">
+          <button
+            ref={infoCardButtonRef}
+            onClick={openInfoCardPicker}
+            className={btn(editor.isActive("infocard"))}
+            title="Info-Karte einfügen (Erklärung für markierten Text)"
+          >
+            💡 Info
+          </button>
+          {showInfoCardPicker && infoCardPos && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={closeInfoCardPicker} />
+              <div
+                className="fixed bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50"
+                style={{ fontFamily: "var(--font-sans)", minWidth: "320px", top: infoCardPos.top, left: infoCardPos.left }}
+              >
+                <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Erklärung</p>
+                <textarea
+                  value={infoCardExplanation}
+                  onChange={(e) => setInfoCardExplanation(e.target.value)}
+                  placeholder="Erkläre den markierten Begriff..."
+                  rows={3}
+                  className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700 focus:outline-none focus:border-stone-400 transition-colors resize-none mb-3"
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) applyInfoCard(); }}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={applyInfoCard}
+                    className="flex-1 px-3 py-2 rounded-lg bg-stone-800 text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    Einfügen
+                  </button>
+                  {editor.isActive("infocard") && (
+                    <button
+                      onClick={removeInfoCard}
+                      className="px-3 py-2 rounded-lg border border-stone-200 text-stone-600 text-sm hover:border-red-300 hover:text-red-600 transition-colors"
+                    >
+                      Entfernen
+                    </button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        {/* Article Link */}
+        <div className="relative">
+          <button
+            ref={articleButtonRef}
+            onClick={openArticlePicker}
+            className={btn(editor.isActive("internalLink"))}
+            title="Auf anderen Artikel verweisen"
+          >
+            → Artikel
+          </button>
+          {showArticlePicker && articlePickerPos && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={closeArticlePicker} />
+              <div
+                className="fixed bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50"
+                style={{ fontFamily: "var(--font-sans)", minWidth: "360px", top: articlePickerPos.top, left: articlePickerPos.left }}
+              >
+                <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-2">Artikel verlinken</p>
+                <input
+                  value={articleSearch}
+                  onChange={(e) => setArticleSearch(e.target.value)}
+                  placeholder="Artikel suchen..."
+                  className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700 focus:outline-none focus:border-stone-400 transition-colors mb-2"
+                  autoFocus
+                />
+                <div className="space-y-0.5 max-h-52 overflow-y-auto">
+                  {filteredArticles.length === 0 && (
+                    <p className="text-xs text-stone-400 py-2 px-1">Keine Artikel gefunden.</p>
+                  )}
+                  {filteredArticles.map((a) => (
+                    <button
+                      key={a._id}
+                      onClick={() => applyArticleLink(a)}
+                      className="w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-stone-50 text-stone-700 transition-colors"
+                    >
+                      {a.titleDe}
+                      <span className="text-stone-400 text-xs ml-2">/{a.slug.current}</span>
+                    </button>
+                  ))}
+                </div>
+                {editor.isActive("internalLink") && (
+                  <button
+                    onClick={() => { editor.chain().focus().unsetMark("internalLink").run(); closeArticlePicker(); }}
+                    className="mt-2 w-full text-xs text-stone-400 hover:text-red-500 transition-colors py-1"
+                  >
+                    Verlinkung entfernen
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
         <div className="w-px bg-stone-200 mx-1" />
         {onLektorat && (
           <button
