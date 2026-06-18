@@ -21,6 +21,10 @@ interface LocalBackup {
   publishedAt: string;
   selectedSourceIds: string[];
   entwurf: EntwurfThema[];
+  isPaper: boolean;
+  abstractDe: string;
+  abstractEn: string;
+  keywords: string;
   savedAt: number;
 }
 
@@ -69,6 +73,10 @@ export default function EditArticlePage() {
   const [featuredImage, setFeaturedImage] = useState<object | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [isPaper, setIsPaper] = useState(false);
+  const [abstractDe, setAbstractDe] = useState("");
+  const [abstractEn, setAbstractEn] = useState("");
+  const [keywords, setKeywords] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -91,6 +99,10 @@ export default function EditArticlePage() {
       if (article.bodyEn) setBodyEn(portableTextToTiptap(article.bodyEn));
       setFeaturedImage(article.featuredImage ?? null);
       setEntwurf(article.entwurf ?? []);
+      setIsPaper(article.isPaper ?? false);
+      setAbstractDe(article.abstractDe ?? "");
+      setAbstractEn(article.abstractEn ?? "");
+      setKeywords((article.keywords ?? []).join(", "));
       setCategories(cats);
       setProjects(projs);
       setAllSources(srcs);
@@ -139,13 +151,14 @@ export default function EditArticlePage() {
         titleDe, titleEn, excerptDe, excerptEn,
         bodyDe, bodyEn, categoryId, projectId,
         language, status, publishedAt, selectedSourceIds, entwurf,
+        isPaper, abstractDe, abstractEn, keywords,
         savedAt: Date.now(),
       };
       localStorage.setItem(`artikel-backup-${slug}`, JSON.stringify(backup));
     } catch {
       // ignore quota errors
     }
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords, slug]);
 
   // Auto-save 2 seconds after any change
   const buildPatch = useCallback(() => {
@@ -158,13 +171,19 @@ export default function EditArticlePage() {
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
       featuredImage: featuredImage ?? null,
       entwurf: entwurf.length > 0 ? entwurf : null,
+      isPaper,
+      abstractDe: abstractDe || null,
+      abstractEn: abstractEn || null,
+      keywords: keywords.trim()
+        ? keywords.split(",").map((k) => k.trim()).filter(Boolean)
+        : null,
     };
     if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
     else patch.category = null;
     if (projectId) patch.project = { _type: "reference", _ref: projectId };
     else patch.project = null;
     return patch;
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords]);
 
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -187,7 +206,7 @@ export default function EditArticlePage() {
       }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords, slug]);
 
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
@@ -244,6 +263,10 @@ export default function EditArticlePage() {
     setPublishedAt(localBackup.publishedAt);
     setSelectedSourceIds(localBackup.selectedSourceIds);
     setEntwurf(localBackup.entwurf);
+    setIsPaper(localBackup.isPaper ?? false);
+    setAbstractDe(localBackup.abstractDe ?? "");
+    setAbstractEn(localBackup.abstractEn ?? "");
+    setKeywords(localBackup.keywords ?? "");
     setLocalBackup(null);
   }
 
@@ -441,6 +464,55 @@ export default function EditArticlePage() {
           <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Excerpt (EN)</label>
           <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
         </div>
+      </div>
+
+      {/* Paper-Modus */}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 space-y-4">
+        <label className="flex items-center gap-3 cursor-pointer" style={{ fontFamily: "var(--font-sans)" }}>
+          <input
+            type="checkbox"
+            checked={isPaper}
+            onChange={(e) => setIsPaper(e.target.checked)}
+            className="accent-[var(--color-accent)] w-4 h-4"
+          />
+          <span className="text-sm font-medium text-[var(--color-foreground)]">Als akademisches Paper veröffentlichen</span>
+        </label>
+        {isPaper && (
+          <div className="space-y-4 pt-2 border-t border-[var(--color-border)]">
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (DE)</label>
+              <textarea
+                value={abstractDe}
+                onChange={(e) => setAbstractDe(e.target.value)}
+                rows={4}
+                placeholder="Kurzzusammenfassung auf Deutsch..."
+                className={inputClass}
+                style={{ fontFamily: "var(--font-sans)" }}
+              />
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (EN)</label>
+              <textarea
+                value={abstractEn}
+                onChange={(e) => setAbstractEn(e.target.value)}
+                rows={4}
+                placeholder="Short summary in English..."
+                className={inputClass}
+                style={{ fontFamily: "var(--font-sans)" }}
+              />
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schlüsselwörter (kommagetrennt)</label>
+              <input
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="Theologie, Kirchengeschichte, Luthertum, ..."
+                className={inputClass}
+                style={{ fontFamily: "var(--font-sans)" }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sources picker */}

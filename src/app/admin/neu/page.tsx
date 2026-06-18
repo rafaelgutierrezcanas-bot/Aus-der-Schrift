@@ -35,6 +35,10 @@ export default function NewArticlePage() {
   const [excerptEn, setExcerptEn] = useState("");
   const [bodyDe, setBodyDe] = useState<object | null>(null);
   const [bodyEn, setBodyEn] = useState<object | null>(null);
+  const [isPaper, setIsPaper] = useState(false);
+  const [abstractDe, setAbstractDe] = useState("");
+  const [abstractEn, setAbstractEn] = useState("");
+  const [keywords, setKeywords] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -69,6 +73,12 @@ export default function NewArticlePage() {
         excerptDe, excerptEn,
         bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
         bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+        isPaper,
+        abstractDe: abstractDe || undefined,
+        abstractEn: abstractEn || undefined,
+        keywords: keywords.trim()
+          ? keywords.split(",").map((k) => k.trim()).filter(Boolean)
+          : undefined,
       };
       if (categoryId) doc.category = { _type: "reference", _ref: categoryId };
       if (projectId) doc.project = { _type: "reference", _ref: projectId };
@@ -168,6 +178,52 @@ export default function NewArticlePage() {
           <label className={labelClass}>Excerpt (EN)</label>
           <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} />
         </div>
+      </div>
+
+      {/* Paper-Modus */}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 space-y-4">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPaper}
+            onChange={(e) => setIsPaper(e.target.checked)}
+            className="accent-[var(--color-accent)] w-4 h-4"
+          />
+          <span className="text-sm font-medium text-[var(--color-foreground)]">Als akademisches Paper veröffentlichen</span>
+        </label>
+        {isPaper && (
+          <div className="space-y-4 pt-2 border-t border-[var(--color-border)]">
+            <div>
+              <label className={labelClass}>Abstract (DE)</label>
+              <textarea
+                value={abstractDe}
+                onChange={(e) => setAbstractDe(e.target.value)}
+                rows={4}
+                placeholder="Kurzzusammenfassung auf Deutsch..."
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Abstract (EN)</label>
+              <textarea
+                value={abstractEn}
+                onChange={(e) => setAbstractEn(e.target.value)}
+                rows={4}
+                placeholder="Short summary in English..."
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Schlüsselwörter (kommagetrennt)</label>
+              <input
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="Theologie, Kirchengeschichte, Luthertum, ..."
+                className={inputClass}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {(language === "de" || language === "both") && (

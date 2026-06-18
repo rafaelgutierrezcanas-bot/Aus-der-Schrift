@@ -36,7 +36,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       "author": author->{ _id, name },
       "project": project->{ _id, title },
       "sources": sources[]->{ _id, title, authors, year, type, publisher, volume, issue, city, edition, doi, pages, url },
-      entwurf
+      entwurf,
+      isPaper,
+      abstractDe,
+      abstractEn,
+      keywords
     }
   `, { slug });
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });

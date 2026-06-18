@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
 import { formatChicago, type Source } from "@/lib/formatChicago";
+import { PaperLayout } from "@/components/PaperLayout";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -229,6 +230,41 @@ export default async function ArticlePage({
       },
     ],
   };
+
+  // Paper mode: render academic journal layout
+  if (article.isPaper) {
+    return (
+      <div>
+        <Script
+          id={`schema-article-${locale}-${slug}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        <Script
+          id={`schema-breadcrumb-${locale}-${slug}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
+        <div className="max-w-2xl mx-auto px-4 pt-6 flex justify-end">
+          <a
+            href={`/api/pdf/${slug}?locale=${locale}`}
+            download
+            className="text-xs px-3 py-1.5 rounded border border-border text-muted hover:text-foreground hover:border-accent transition-colors"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Als PDF herunterladen" : "Download as PDF"}
+          </a>
+        </div>
+        <PaperLayout
+          article={article}
+          locale={locale}
+          body={body}
+          footnotes={footnotes}
+          sourcesMap={sourcesMap}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16">
