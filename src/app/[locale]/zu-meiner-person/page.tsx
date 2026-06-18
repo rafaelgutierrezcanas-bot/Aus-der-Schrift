@@ -53,15 +53,26 @@ export default async function ZuMeinerPersonPage({
           <>
             <p>
               Ich bin Rafael — und auf diesem Blog teile ich, was mich an Bibel,
-              Theologie und Kirchengeschichte fasziniert. Was als persönliches
-              Rechercheprojekt begann, ist für mich zu einer echten Leidenschaft
-              geworden.
+              Theologie und Kirchengeschichte fasziniert. Je länger ich mich
+              damit beschäftige, desto mehr zieht es mich in die Tiefe dieser
+              Themen.
             </p>
             <p>
-              Mein Ziel ist es, gut recherchierte und verständliche Beiträge zu
-              Bibel, Theologie und christlicher Praxis anzubieten — um Leser
-              dabei zu unterstützen, ihren Glauben informiert und alltagstauglich
-              zu leben.
+              Mir liegt daran, einen Glauben zu fördern, der akademisch
+              tragfähig ist und zugleich von einer tiefen Hingabe an den Herrn
+              Jesus lebt. Beides schließt sich nicht aus, sondern bedingt
+              einander. Viele Fragen rund um Bibel und Theologie sind dabei
+              vielschichtiger, als es zunächst scheint. Diese Komplexität ernst
+              zu nehmen, statt sie zu übergehen, halte ich für entscheidend —
+              nicht nur für ein redliches Verständnis der Sache, sondern auch
+              für eine Gesprächskultur, die dem Gegenüber mit Demut und Respekt
+              begegnet.
+            </p>
+            <p>
+              Mein Ziel ist es deshalb, gut recherchierte und verständliche
+              Beiträge zu Bibel, Theologie und christlicher Praxis anzubieten,
+              die Leser dabei unterstützen, ihren Glauben informiert und
+              alltagstauglich zu leben.
             </p>
             <p>
               Schau dich gerne um und lies dir die Artikel durch, die dich
