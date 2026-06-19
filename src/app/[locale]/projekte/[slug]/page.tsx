@@ -20,7 +20,7 @@ interface Project {
   researchQuestionDe?: string;
   researchQuestionEn?: string;
   plannedOutput?: string;
-  articles: Record<string, unknown>[];
+  articles?: Record<string, unknown>[];
 }
 
 export async function generateStaticParams() {
@@ -92,10 +92,12 @@ export default async function ProjectDetailPage({
 }) {
   const { locale, slug } = await params;
 
-  const project: Project | null = await client
-    .fetch(projectBySlugQuery, { slug }, { next: { tags: ["projects"], revalidate: 60 } })
-    .catch(() => null);
-
+  let project: Project | null = null;
+  try {
+    project = await client.fetch(projectBySlugQuery, { slug }, { next: { tags: ["projects"], revalidate: 60 } });
+  } catch {
+    notFound();
+  }
   if (!project) notFound();
 
   const t = project.status
@@ -198,38 +200,44 @@ export default async function ProjectDetailPage({
       {/* Articles */}
       <section>
         <div className="border-t border-border pt-8">
-          <h2
-            className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-6"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {locale === "de"
-              ? project.articles.length === 0
-                ? "Noch keine Artikel erschienen"
-                : `${project.articles.length} ${project.articles.length === 1 ? "Artikel" : "Artikel"} in diesem Projekt`
-              : project.articles.length === 0
-              ? "No articles published yet"
-              : `${project.articles.length} ${project.articles.length === 1 ? "article" : "articles"} in this project`}
-          </h2>
-
-          {project.articles.length === 0 ? (
-            <p
-              className="text-sm text-muted italic"
-              style={{ fontFamily: "var(--font-body-serif)" }}
-            >
-              {locale === "de"
-                ? "Beiträge zu diesem Projekt sind in Vorbereitung."
-                : "Articles for this project are in preparation."}
-            </p>
-          ) : (
-            <div className="space-y-8">
-              {project.articles.map((article) => (
-                <ArticleCard
-                  key={article._id as string}
-                  article={article}
-                />
-              ))}
-            </div>
-          )}
+          {(() => {
+            const articles = project.articles ?? [];
+            return (
+              <>
+                <h2
+                  className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-6"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  {locale === "de"
+                    ? articles.length === 0
+                      ? "Noch keine Artikel erschienen"
+                      : `${articles.length} ${articles.length === 1 ? "Artikel" : "Artikel"} in diesem Projekt`
+                    : articles.length === 0
+                    ? "No articles published yet"
+                    : `${articles.length} ${articles.length === 1 ? "article" : "articles"} in this project`}
+                </h2>
+                {articles.length === 0 ? (
+                  <p
+                    className="text-sm text-muted italic"
+                    style={{ fontFamily: "var(--font-body-serif)" }}
+                  >
+                    {locale === "de"
+                      ? "Beiträge zu diesem Projekt sind in Vorbereitung."
+                      : "Articles for this project are in preparation."}
+                  </p>
+                ) : (
+                  <div className="space-y-8">
+                    {articles.map((article) => (
+                      <ArticleCard
+                        key={article._id as string}
+                        article={article}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </section>
     </div>
