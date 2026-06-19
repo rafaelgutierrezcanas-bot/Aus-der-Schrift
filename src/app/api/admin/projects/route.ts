@@ -18,7 +18,10 @@ export async function GET() {
 
   const projects = await client.fetch(`
     *[_type == "project"] | order(title asc) {
-      _id, title, description, slug
+      _id, title, titleEn, description, descriptionEn, slug,
+      status, startedAt,
+      researchQuestionDe, researchQuestionEn,
+      plannedOutput, isPublic
     }
   `);
   return NextResponse.json(projects);

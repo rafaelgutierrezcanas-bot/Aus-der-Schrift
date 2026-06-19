@@ -116,3 +116,24 @@ export const latestArticlesQuery = groq`
     "author": author->{ name }
   }
 `;
+
+export const allProjectsQuery = groq`
+  *[_type == "project" && isPublic != false] | order(
+    status == "laufend" desc,
+    status == "pausiert" desc,
+    startedAt desc
+  ) {
+    _id,
+    title,
+    titleEn,
+    slug,
+    status,
+    startedAt,
+    description,
+    descriptionEn,
+    researchQuestionDe,
+    researchQuestionEn,
+    plannedOutput,
+    "articleCount": count(*[_type == "article" && references(^._id) && (status == "published" || !defined(status))])
+  }
+`;

@@ -89,6 +89,17 @@ export function Header({ locale }: HeaderProps) {
 
           <span className="w-px h-3 bg-border shrink-0" />
 
+          {/* Projekte */}
+          <Link
+            href={`/${locale}/projekte`}
+            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Projekte" : "Projects"}
+          </Link>
+
+          <span className="w-px h-3 bg-border shrink-0" />
+
           {/* Ressourcen */}
           <Link
             href={`/${locale}/ressourcen`}
