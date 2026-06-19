@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 
@@ -19,6 +20,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { id } = await params;
   const body = await request.json();
   const updated = await writeClient.patch(id).set(body).commit();
+  revalidatePath("/", "layout");
   return NextResponse.json(updated);
 }
 

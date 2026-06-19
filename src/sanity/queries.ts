@@ -117,6 +117,35 @@ export const latestArticlesQuery = groq`
   }
 `;
 
+export const projectBySlugQuery = groq`
+  *[_type == "project" && slug.current == $slug && isPublic != false][0] {
+    _id,
+    title,
+    titleEn,
+    slug,
+    status,
+    startedAt,
+    description,
+    descriptionEn,
+    researchQuestionDe,
+    researchQuestionEn,
+    plannedOutput,
+    "articles": *[_type == "article" && references(^._id) && (status == "published" || !defined(status))] | order(publishedAt desc) {
+      _id,
+      titleDe,
+      titleEn,
+      slug,
+      publishedAt,
+      excerptDe,
+      excerptEn,
+      language,
+      "featuredImage": featuredImage { ..., "asset": asset-> },
+      "category": category->{ titleDe, titleEn, slug },
+      "author": author->{ name }
+    }
+  }
+`;
+
 export const allProjectsQuery = groq`
   *[_type == "project" && isPublic != false] | order(
     status == "laufend" desc,

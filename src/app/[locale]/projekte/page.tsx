@@ -88,8 +88,12 @@ function ProjectCard({
       ? project.researchQuestionEn
       : project.researchQuestionDe;
 
-  return (
-    <div className="border border-border rounded-sm p-6 space-y-3">
+  const href = project.slug?.current
+    ? `/${locale}/projekte/${project.slug.current}`
+    : undefined;
+
+  const inner = (
+    <div className="border border-border rounded-sm p-6 space-y-3 hover:border-accent/50 transition-colors">
       {/* Header row */}
       <div className="flex items-start justify-between gap-4">
         <h2
@@ -158,21 +162,18 @@ function ProjectCard({
             {project.plannedOutput}
           </p>
         )}
-        {typeof project.articleCount === "number" &&
-          project.articleCount > 0 &&
-          project.slug?.current && (
-            <Link
-              href={`/${locale}/blog?projekt=${project.slug.current}`}
-              className="text-xs text-accent hover:underline ml-auto"
-            >
-              {project.articleCount}{" "}
-              {locale === "de" ? "Artikel" : project.articleCount === 1 ? "article" : "articles"}
-              {" →"}
-            </Link>
-          )}
+        {typeof project.articleCount === "number" && project.slug?.current && (
+          <span className="text-xs text-accent ml-auto">
+            {project.articleCount > 0
+              ? `${project.articleCount} ${locale === "de" ? "Artikel" : project.articleCount === 1 ? "article" : "articles"}`
+              : locale === "de" ? "Noch keine Artikel" : "No articles yet"}{" →"}
+          </span>
+        )}
       </div>
     </div>
   );
+
+  return href ? <Link href={href}>{inner}</Link> : inner;
 }
 
 function Section({
