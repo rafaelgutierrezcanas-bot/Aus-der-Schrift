@@ -147,11 +147,7 @@ export const projectBySlugQuery = groq`
 `;
 
 export const allProjectsQuery = groq`
-  *[_type == "project" && isPublic != false] | order(
-    status == "laufend" desc,
-    status == "pausiert" desc,
-    startedAt desc
-  ) {
+  *[_type == "project" && isPublic != false] | order(startedAt desc) {
     _id,
     title,
     titleEn,
