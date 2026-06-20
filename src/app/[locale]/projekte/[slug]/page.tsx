@@ -1,12 +1,11 @@
 import { client } from "@/sanity/client";
-import { projectBySlugQuery, allProjectsQuery } from "@/sanity/queries";
+import { projectBySlugQuery } from "@/sanity/queries";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle } from "@/lib/utils";
 
-export const revalidate = 60;
-export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 interface Project {
   _id: string;
@@ -21,17 +20,6 @@ interface Project {
   researchQuestionEn?: string;
   plannedOutput?: string;
   articles?: Record<string, unknown>[];
-}
-
-export async function generateStaticParams() {
-  try {
-    const projects = await client.fetch(allProjectsQuery);
-    return (projects as Project[])
-      .filter((p) => p.slug?.current)
-      .map((p) => ({ slug: p.slug.current }));
-  } catch {
-    return [];
-  }
 }
 
 export async function generateMetadata({

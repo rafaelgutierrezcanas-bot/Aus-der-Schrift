@@ -118,7 +118,7 @@ export const latestArticlesQuery = groq`
 `;
 
 export const projectBySlugQuery = groq`
-  *[_type == "project" && slug.current == $slug && isPublic != false][0] {
+  *[_type == "project" && slug.current == $slug][0] {
     _id,
     title,
     titleEn,
