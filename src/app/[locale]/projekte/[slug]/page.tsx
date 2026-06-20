@@ -1,9 +1,9 @@
 import { client } from "@/sanity/client";
 import { projectBySlugQuery, allProjectsQuery } from "@/sanity/queries";
-import { ArticleCard } from "@/components/ArticleCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle } from "@/lib/utils";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -226,13 +226,57 @@ export default async function ProjectDetailPage({
                       : "Articles for this project are in preparation."}
                   </p>
                 ) : (
-                  <div className="space-y-8">
-                    {articles.map((article) => (
-                      <ArticleCard
-                        key={article._id as string}
-                        article={article}
-                      />
-                    ))}
+                  <div className="space-y-6">
+                    {articles.map((article) => {
+                      const artTitle = getLocalizedTitle(article, locale);
+                      const artExcerpt = getLocalizedExcerpt(article, locale);
+                      const artCategoryTitle = getLocalizedCategoryTitle(
+                        article.category as Record<string, unknown> | null,
+                        locale
+                      );
+                      const artSlug = (article.slug as { current: string })?.current;
+                      const artDate = article.publishedAt as string | undefined;
+                      return (
+                        <Link
+                          key={article._id as string}
+                          href={`/${locale}/blog/${artSlug}`}
+                          className="block group border border-border rounded-sm p-5 hover:border-accent/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            {artCategoryTitle && (
+                              <span
+                                className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent"
+                                style={{ fontFamily: "var(--font-sans)" }}
+                              >
+                                {artCategoryTitle}
+                              </span>
+                            )}
+                            {artDate && (
+                              <span
+                                className="text-[11px] text-muted"
+                                style={{ fontFamily: "var(--font-sans)" }}
+                              >
+                                {formatDate(artDate, locale)}
+                              </span>
+                            )}
+                          </div>
+                          <h3
+                            className="font-semibold leading-snug mb-1 group-hover:text-accent transition-colors"
+                            style={{ fontFamily: "var(--font-serif)" }}
+                          >
+                            {artTitle}
+                          </h3>
+                          {artExcerpt && (
+                            <p
+                              className="text-muted text-sm leading-relaxed line-clamp-2"
+                              style={{ fontFamily: "var(--font-body-serif)" }}
+                            >
+                              {artExcerpt}
+                            </p>
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </>
