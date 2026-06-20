@@ -240,8 +240,8 @@ export default async function ProjektePage({
         style={{ fontFamily: "var(--font-body-serif)" }}
       >
         {locale === "de"
-          ? "Hier dokumentiert Theologik seine laufenden und abgeschlossenen Forschungsprojekte. Jedes Projekt bündelt Artikel, die eine übergeordnete theologische Frage verfolgen."
-          : "Theologik documents its ongoing and completed research projects here. Each project gathers articles pursuing a common theological question."}
+          ? "Auf dieser Seite halte ich fest, woran ich gerade arbeite — und was ich abgeschlossen oder zurückgestellt habe. Jedes Projekt verfolgt eine theologische Leitfrage und bündelt die dazugehörigen Artikel."
+          : "Here I keep track of what I am currently working on — and what I have completed or set aside. Each project follows a central theological question and gathers the articles that belong to it."}
       </p>
 
       {projects.length === 0 ? (
