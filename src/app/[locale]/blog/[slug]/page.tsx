@@ -96,11 +96,10 @@ export async function generateMetadata({
       title,
       description,
       keywords: [
-        title,
+        ...(Array.isArray(article.keywords) && article.keywords.length > 0
+          ? (article.keywords as string[])
+          : [title, "Theologie", "Bibelauslegung", "Kirchengeschichte"]),
         "Theologik",
-        "Theologie",
-        "Bibelauslegung",
-        "Kirchengeschichte",
       ],
       alternates: {
         canonical: path,

@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/client";
-import { allArticleSlugsQuery, allCategoriesQuery } from "@/sanity/queries";
+import { allArticleSlugsQuery, allCategoriesQuery, allProjectSlugsQuery } from "@/sanity/queries";
 import { absoluteUrl, SUPPORTED_LOCALES } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = [
     "",
     "/blog",
+    "/projekte",
     "/uber-uns",
     "/zu-meiner-person",
     "/ressourcen",
@@ -25,11 +26,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articleEntries: MetadataRoute.Sitemap = [];
   let categoryEntries: MetadataRoute.Sitemap = [];
+  let projectEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const [articles, categories] = await Promise.all([
+    const [articles, categories, projects] = await Promise.all([
       client.fetch(allArticleSlugsQuery),
       client.fetch(allCategoriesQuery),
+      client.fetch(allProjectSlugsQuery),
     ]);
 
     articleEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -53,9 +56,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.75,
       }))
     );
+    projectEntries = SUPPORTED_LOCALES.flatMap((locale) =>
+      (projects as Array<{ slug: string }>).map(({ slug }): MetadataRoute.Sitemap[number] => ({
+        url: absoluteUrl(`/${locale}/projekte/${slug}`),
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.7,
+      }))
+    );
   } catch {
     return staticEntries;
   }
 
-  return [...staticEntries, ...categoryEntries, ...articleEntries];
+  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries];
 }

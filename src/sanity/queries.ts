@@ -146,6 +146,10 @@ export const projectBySlugQuery = groq`
   }
 `;
 
+export const allProjectSlugsQuery = groq`
+  *[_type == "project" && isPublic != false] { "slug": slug.current }
+`;
+
 export const allProjectsQuery = groq`
   *[_type == "project" && isPublic != false] | order(startedAt desc) {
     _id,

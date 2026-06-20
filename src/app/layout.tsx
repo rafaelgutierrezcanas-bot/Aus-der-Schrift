@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { Playfair_Display, Source_Serif_4, Inter } from "next/font/google";
 import { absoluteUrl, SITE_NAME, SITE_TITLE } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -85,13 +86,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const locale = headersList.get("x-locale") ?? "de";
+
   return (
-    <html lang="de" suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${inter.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${inter.variable}`}>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
