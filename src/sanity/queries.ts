@@ -166,3 +166,73 @@ export const allProjectsQuery = groq`
     "articleCount": count(*[_type == "article" && references(^._id) && (status == "published" || !defined(status))])
   }
 `;
+
+// ── Hermeneutik ──────────────────────────────────────────
+
+export const allHermeneutikStepsQuery = groq`
+  *[_type == "hermeneutikSchritt"] | order(order asc) {
+    _id,
+    titleDe,
+    titleEn,
+    "slug": slug.current,
+    order,
+    accentColor,
+    icon,
+    explanationDe,
+    explanationEn,
+    guidingQuestionsDe,
+    guidingQuestionsEn,
+    commonMistakesDe,
+    commonMistakesEn,
+    interactionType,
+    sources
+  }
+`;
+
+export const allHermeneutikTextsQuery = groq`
+  *[_type == "hermeneutikText"] | order(order asc) {
+    _id,
+    titleDe,
+    titleEn,
+    "slug": slug.current,
+    bibleReference,
+    genre,
+    difficulty,
+    order
+  }
+`;
+
+export const hermeneutikTextBySlugQuery = groq`
+  *[_type == "hermeneutikText" && slug.current == $slug][0] {
+    _id,
+    titleDe,
+    titleEn,
+    "slug": slug.current,
+    bibleReference,
+    genre,
+    difficulty,
+    textContentDe,
+    textContentEn,
+    backgroundInfoDe,
+    backgroundInfoEn,
+    stepAnalyses[] {
+      step-> {
+        _id,
+        titleDe,
+        titleEn,
+        "slug": slug.current,
+        order,
+        accentColor,
+        icon,
+        interactionType,
+        guidingQuestionsDe,
+        guidingQuestionsEn
+      },
+      expertAnalysisDe,
+      expertAnalysisEn,
+      hintsDe,
+      hintsEn,
+      interactionData
+    }
+  }
+`;
