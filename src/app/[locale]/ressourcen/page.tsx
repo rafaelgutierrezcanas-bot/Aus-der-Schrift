@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default async function RessourcenPage({
   params,
 }: {
@@ -63,6 +65,28 @@ export default async function RessourcenPage({
           ? "Hier findest du eine Auswahl empfehlenswerter Bücher, Artikel und Podcasts zu Bibel, Theologie und Kirchengeschichte."
           : "Here you will find a selection of recommended books, articles and podcasts on the Bible, theology and church history."}
       </p>
+
+      {/* Hermeneutik Program */}
+      <Link
+        href={`/${locale}/ressourcen/hermeneutik`}
+        className="group block rounded-2xl border p-8 mb-12 transition-all hover:scale-[1.01]"
+        style={{
+          borderColor: "var(--color-border)",
+          background: "var(--color-surface)",
+        }}
+      >
+        <h2
+          className="text-2xl font-semibold mb-2"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {locale === "de" ? "Hermeneutik lernen" : "Learn Hermeneutics"}
+        </h2>
+        <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+          {locale === "de"
+            ? "Interaktives Lernprogramm für biblische Textanalyse — lerne die hermeneutische Methode Schritt für Schritt."
+            : "Interactive learning program for biblical text analysis — learn the hermeneutical method step by step."}
+        </p>
+      </Link>
 
       <div className="space-y-12">
         {sections.map((section) => (
