@@ -9,7 +9,7 @@ async function getDashboardData() {
     client.fetch(`count(*[_type == "source"])`),
     client.fetch(`count(*[_type == "idea"])`),
     client.fetch(`count(*[_type == "article"])`),
-    client.fetch(`count(*[_type == "article" && status in ["draft", "idea"]])`),
+    client.fetch(`count(*[_type == "article" && status in ["idea", "draft", "ready", "archived"]])`),
   ]);
   return { articles, totalArticles, drafts, sources, ideas };
 }
