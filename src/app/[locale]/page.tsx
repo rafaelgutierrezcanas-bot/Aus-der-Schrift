@@ -55,6 +55,13 @@ export default async function HomePage({
   } catch {
     // empty state
   }
+
+  // Newest article always first in recommended section
+  const newestArticle = latest[0];
+  if (newestArticle) {
+    const withoutNewest = recommended.filter((a) => a._id !== newestArticle._id);
+    recommended = [newestArticle, ...withoutNewest];
+  }
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
