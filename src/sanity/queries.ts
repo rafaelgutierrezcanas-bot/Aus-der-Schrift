@@ -10,6 +10,7 @@ export const allArticlesQuery = groq`
     excerptDe,
     excerptEn,
     language,
+    difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
@@ -36,7 +37,8 @@ export const articleBySlugQuery = groq`
     isPaper,
     abstractDe,
     abstractEn,
-    keywords
+    keywords,
+    difficulty
   }
 `;
 
@@ -50,6 +52,7 @@ export const articlesByCategoryQuery = groq`
     excerptDe,
     excerptEn,
     language,
+    difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
@@ -65,6 +68,7 @@ export const relatedArticlesQuery = groq`
     publishedAt,
     excerptDe,
     excerptEn,
+    difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug }
   }
@@ -95,6 +99,7 @@ export const recommendedArticlesQuery = groq`
     excerptDe,
     excerptEn,
     language,
+    difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
@@ -111,6 +116,7 @@ export const latestArticlesQuery = groq`
     excerptDe,
     excerptEn,
     language,
+    difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name }
@@ -139,6 +145,7 @@ export const projectBySlugQuery = groq`
       excerptDe,
       excerptEn,
       language,
+      difficulty,
       "featuredImage": featuredImage { ..., "asset": asset-> },
       "category": category->{ titleDe, titleEn, slug },
       "author": author->{ name }

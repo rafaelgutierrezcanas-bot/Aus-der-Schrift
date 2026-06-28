@@ -21,6 +21,7 @@ interface LocalBackup {
   publishedAt: string;
   selectedSourceIds: string[];
   entwurf: EntwurfThema[];
+  difficulty: string;
   isPaper: boolean;
   abstractDe: string;
   abstractEn: string;
@@ -73,6 +74,7 @@ export default function EditArticlePage() {
   const [featuredImage, setFeaturedImage] = useState<object | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [difficulty, setDifficulty] = useState("");
   const [isPaper, setIsPaper] = useState(false);
   const [abstractDe, setAbstractDe] = useState("");
   const [abstractEn, setAbstractEn] = useState("");
@@ -99,6 +101,7 @@ export default function EditArticlePage() {
       if (article.bodyEn) setBodyEn(portableTextToTiptap(article.bodyEn));
       setFeaturedImage(article.featuredImage ?? null);
       setEntwurf(article.entwurf ?? []);
+      setDifficulty(article.difficulty ?? "");
       setIsPaper(article.isPaper ?? false);
       setAbstractDe(article.abstractDe ?? "");
       setAbstractEn(article.abstractEn ?? "");
@@ -151,14 +154,14 @@ export default function EditArticlePage() {
         titleDe, titleEn, excerptDe, excerptEn,
         bodyDe, bodyEn, categoryId, projectId,
         language, status, publishedAt, selectedSourceIds, entwurf,
-        isPaper, abstractDe, abstractEn, keywords,
+        difficulty, isPaper, abstractDe, abstractEn, keywords,
         savedAt: Date.now(),
       };
       localStorage.setItem(`artikel-backup-${slug}`, JSON.stringify(backup));
     } catch {
       // ignore quota errors
     }
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, slug]);
 
   // Auto-save 2 seconds after any change
   const buildPatch = useCallback(() => {
@@ -171,6 +174,7 @@ export default function EditArticlePage() {
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
       featuredImage: featuredImage ?? null,
       entwurf: entwurf.length > 0 ? entwurf : null,
+      difficulty: difficulty || null,
       isPaper,
       abstractDe: abstractDe || null,
       abstractEn: abstractEn || null,
@@ -183,7 +187,7 @@ export default function EditArticlePage() {
     if (projectId) patch.project = { _type: "reference", _ref: projectId };
     else patch.project = null;
     return patch;
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords]);
 
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -206,7 +210,7 @@ export default function EditArticlePage() {
       }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, isPaper, abstractDe, abstractEn, keywords, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, slug]);
 
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
@@ -263,6 +267,7 @@ export default function EditArticlePage() {
     setPublishedAt(localBackup.publishedAt);
     setSelectedSourceIds(localBackup.selectedSourceIds);
     setEntwurf(localBackup.entwurf);
+    setDifficulty(localBackup.difficulty ?? "");
     setIsPaper(localBackup.isPaper ?? false);
     setAbstractDe(localBackup.abstractDe ?? "");
     setAbstractEn(localBackup.abstractEn ?? "");
@@ -450,6 +455,15 @@ export default function EditArticlePage() {
             <option value="ready">Bereit</option>
             <option value="published">Veröffentlicht</option>
             <option value="archived">Archiviert</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schwierigkeitsgrad</label>
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+            <option value="">— Kein Level —</option>
+            <option value="einfach">Einfach</option>
+            <option value="mittel">Mittel</option>
+            <option value="anspruchsvoll">Anspruchsvoll</option>
           </select>
         </div>
         <div className="col-span-2">

@@ -165,6 +165,12 @@ export default async function ArticlePage({
   const imageUrl = article.featuredImage
     ? urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(1200).height(675).url()
     : undefined;
+  const difficulty = article.difficulty as string | undefined;
+  const difficultyConfig: Record<string, { de: string; en: string; color: string }> = {
+    einfach: { de: "Einfach", en: "Beginner", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+    mittel: { de: "Mittel", en: "Intermediate", color: "text-amber-700 bg-amber-50 border-amber-200" },
+    anspruchsvoll: { de: "Anspruchsvoll", en: "Advanced", color: "text-rose-700 bg-rose-50 border-rose-200" },
+  };
   const readingTime = estimateReadingTime(body || []);
 
   let related: Record<string, unknown>[] = [];
@@ -298,6 +304,14 @@ export default async function ArticlePage({
                 {categoryTitle}
               </span>
             )
+          )}
+          {difficulty && difficultyConfig[difficulty] && (
+            <span
+              className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${difficultyConfig[difficulty].color}`}
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              {locale === "en" ? difficultyConfig[difficulty].en : difficultyConfig[difficulty].de}
+            </span>
           )}
           {!!article.publishedAt && (
             <span

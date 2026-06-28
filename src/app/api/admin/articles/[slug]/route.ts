@@ -37,6 +37,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       "project": project->{ _id, title },
       "sources": sources[]->{ _id, title, authors, year, type, publisher, volume, issue, city, edition, doi, pages, url },
       entwurf,
+      difficulty,
       isPaper,
       abstractDe,
       abstractEn,

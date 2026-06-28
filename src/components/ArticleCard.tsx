@@ -18,11 +18,32 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   const category = article.category as Record<string, unknown> | null;
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
   const categorySlug = (category?.slug as { current: string })?.current;
+  const difficulty = article.difficulty as string | undefined;
   const slug = (article.slug as { current: string })?.current;
   const publishedAt = article.publishedAt as string | undefined;
   const hasImage = !!article.featuredImage;
   const articleHref = `/${locale}/blog/${slug}`;
   const categoryHref = categorySlug ? `/${locale}/kategorien/${categorySlug}` : null;
+
+  const difficultyConfig: Record<string, { label: string; labelEn: string; color: string }> = {
+    einfach: { label: "Einfach", labelEn: "Beginner", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+    mittel: { label: "Mittel", labelEn: "Intermediate", color: "text-amber-700 bg-amber-50 border-amber-200" },
+    anspruchsvoll: { label: "Anspruchsvoll", labelEn: "Advanced", color: "text-rose-700 bg-rose-50 border-rose-200" },
+  };
+
+  const DifficultyBadge = () => {
+    if (!difficulty || !difficultyConfig[difficulty]) return null;
+    const cfg = difficultyConfig[difficulty];
+    const label = locale === "en" ? cfg.labelEn : cfg.label;
+    return (
+      <span
+        className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${cfg.color}`}
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        {label}
+      </span>
+    );
+  };
 
   const CategoryLabel = () =>
     categoryTitle ? (
@@ -61,6 +82,7 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
             <CategoryLabel />
+            <DifficultyBadge />
             {publishedAt && (
               <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
                 {formatDate(publishedAt, locale)}
@@ -95,6 +117,7 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         )}
         <div className="flex items-center gap-3 mb-3">
           <CategoryLabel />
+          <DifficultyBadge />
           {publishedAt && (
             <span className="text-xs text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
@@ -132,8 +155,9 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         </Link>
       )}
       <div className="p-5">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center flex-wrap gap-3 mb-3">
           <CategoryLabel />
+          <DifficultyBadge />
           {publishedAt && (
             <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}

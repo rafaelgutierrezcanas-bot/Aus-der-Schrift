@@ -35,6 +35,7 @@ export default function NewArticlePage() {
   const [excerptEn, setExcerptEn] = useState("");
   const [bodyDe, setBodyDe] = useState<object | null>(null);
   const [bodyEn, setBodyEn] = useState<object | null>(null);
+  const [difficulty, setDifficulty] = useState("");
   const [isPaper, setIsPaper] = useState(false);
   const [abstractDe, setAbstractDe] = useState("");
   const [abstractEn, setAbstractEn] = useState("");
@@ -73,6 +74,7 @@ export default function NewArticlePage() {
         excerptDe, excerptEn,
         bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
         bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+        difficulty: difficulty || undefined,
         isPaper,
         abstractDe: abstractDe || undefined,
         abstractEn: abstractEn || undefined,
@@ -164,6 +166,15 @@ export default function NewArticlePage() {
             <option value="ready">Bereit</option>
             <option value="published">Veröffentlicht</option>
             <option value="archived">Archiviert</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schwierigkeitsgrad</label>
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+            <option value="">— Kein Level —</option>
+            <option value="einfach">Einfach</option>
+            <option value="mittel">Mittel</option>
+            <option value="anspruchsvoll">Anspruchsvoll</option>
           </select>
         </div>
         <div>

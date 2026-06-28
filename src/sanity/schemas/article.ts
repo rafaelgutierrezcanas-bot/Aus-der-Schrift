@@ -106,6 +106,20 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "difficulty",
+      title: "Schwierigkeitsgrad",
+      type: "string",
+      description: "Wie fachlich anspruchsvoll ist dieser Artikel?",
+      options: {
+        list: [
+          { title: "Einfach — für jeden verständlich", value: "einfach" },
+          { title: "Mittel — Grundwissen hilfreich", value: "mittel" },
+          { title: "Anspruchsvoll — theologisches Fachwissen nötig", value: "anspruchsvoll" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
       name: "project",
       title: "Projekt / Reihe",
       type: "reference",
