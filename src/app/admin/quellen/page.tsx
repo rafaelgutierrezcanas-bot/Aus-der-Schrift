@@ -37,8 +37,13 @@ export default function QuellenPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Quellen</h1>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Quellen</h1>
+          <p className="text-sm text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>
+            Bücher, Artikel und Websites, die du in deinen Texten zitierst.
+          </p>
+        </div>
         <Link
           href="/admin/quellen/neu"
           className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity"

@@ -18,8 +18,13 @@ export default async function ProjektePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Projekte</h1>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Projekte</h1>
+          <p className="text-sm text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>
+            Themenreihen und Forschungsprojekte, die mehrere Artikel umfassen.
+          </p>
+        </div>
         <Link
           href="/admin/projekte/neu"
           className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity"

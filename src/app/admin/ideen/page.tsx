@@ -52,8 +52,13 @@ export default function IdeenPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Ideen</h1>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Ideen</h1>
+          <p className="text-sm text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>
+            Gedanken und Themen, die noch zu Artikeln werden könnten.
+          </p>
+        </div>
         <Link
           href="/admin/ideen/neu"
           className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity"
