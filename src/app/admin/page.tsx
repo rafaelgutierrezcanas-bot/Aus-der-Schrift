@@ -31,7 +31,7 @@ export default async function AdminDashboard() {
 
   const stats = [
     { label: "Artikel gesamt", value: totalArticles, href: "/admin/artikel" },
-    { label: "Entwürfe", value: drafts, href: "/admin/artikel" },
+    { label: "Entwürfe", value: drafts, href: "/admin/artikel?tab=entwuerfe" },
     { label: "Quellen", value: sources, href: "/admin/quellen" },
     { label: "Ideen", value: ideas, href: "/admin/ideen" },
   ];
@@ -45,6 +45,16 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Dashboard</h1>
+
+      {/* Theological quote */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-5">
+        <p className="font-serif italic text-sm text-[var(--color-accent)] leading-relaxed">
+          &ldquo;We need a generation of Christians who are gentle toward people and fierce toward ideas.&rdquo;
+        </p>
+        <p className="text-xs text-[var(--color-muted)] mt-2" style={{ fontFamily: "var(--font-sans)" }}>
+          — Gavin Ortlund
+        </p>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
