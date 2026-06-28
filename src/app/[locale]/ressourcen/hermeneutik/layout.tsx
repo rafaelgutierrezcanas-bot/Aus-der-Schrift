@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { buildLocalizedMetadata } from "@/lib/seo";
 import { HermeneutikNav } from "@/components/hermeneutik/HermeneutikNav";
+
+const isEnabled = process.env.NEXT_PUBLIC_HERMENEUTIK_ENABLED === "true";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  if (!isEnabled) return {};
   const { locale } = await params;
   return buildLocalizedMetadata({
     locale,
@@ -25,6 +29,8 @@ export default function HermeneutikLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!isEnabled) notFound();
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <HermeneutikNav />
