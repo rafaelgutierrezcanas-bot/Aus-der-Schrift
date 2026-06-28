@@ -18,10 +18,14 @@ function BulbIcon() {
 function FolderIcon() {
   return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M1 4a1 1 0 011-1h3.5l1.5 2H13a1 1 0 011 1v5a1 1 0 01-1 1H2a1 1 0 01-1-1V4z"/></svg>;
 }
+function StarIcon() {
+  return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7.5 1l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L2 5.2l4-.6L7.5 1z"/></svg>;
+}
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: GridIcon, exact: true },
   { href: "/admin/artikel", label: "Artikel", Icon: PenIcon },
+  { href: "/admin/empfohlen", label: "Empfohlen", Icon: StarIcon },
   { href: "/admin/quellen", label: "Quellen", Icon: BookIcon },
   { href: "/admin/ideen", label: "Ideen", Icon: BulbIcon },
   { href: "/admin/projekte", label: "Projekte", Icon: FolderIcon },
