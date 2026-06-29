@@ -1,7 +1,6 @@
 import { client } from "@/sanity/client";
 import { articlesByCategoryQuery, allCategoriesQuery } from "@/sanity/queries";
-import { ArticleCard } from "@/components/ArticleCard";
-import { getLocalizedCategoryTitle } from "@/lib/utils";
+import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Script from "next/script";
@@ -118,42 +117,85 @@ export default async function CategoryPage({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <Script
         id={`schema-category-${locale}-${slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <p
-        className="text-xs uppercase tracking-widest text-accent mb-2"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        {locale === "de" ? "Kategorie" : "Category"}
-      </p>
-      <h1
-        className="text-3xl font-bold mb-4"
-        style={{ fontFamily: "var(--font-serif)" }}
-      >
-        {categoryTitle}
-      </h1>
-      {!!categoryDescription && (
-        <p
-          className="text-muted text-[1.0625rem] leading-relaxed mb-12 max-w-prose"
-          style={{ fontFamily: "var(--font-body-serif)" }}
-        >
-          {categoryDescription}
+
+      {/* Header */}
+      <div className="mb-10">
+        <div className="w-8 h-0.5 bg-accent mb-4" />
+        <p className="text-xs uppercase tracking-[0.15em] text-accent mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+          {locale === "de" ? "Kategorie" : "Category"}
         </p>
-      )}
-      {!categoryDescription && <div className="mb-12" />}
+        <h1 className="text-4xl md:text-5xl font-bold leading-tight" style={{ fontFamily: "var(--font-serif)" }}>
+          {categoryTitle}
+        </h1>
+        {!!categoryDescription && (
+          <p className="text-muted text-lg leading-relaxed mt-4 max-w-prose" style={{ fontFamily: "var(--font-body-serif)" }}>
+            {categoryDescription}
+          </p>
+        )}
+      </div>
+
+      <div className="h-px bg-border mb-0" />
+
       {articles.length === 0 && (
-        <p className="text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+        <p className="text-muted py-16 text-center" style={{ fontFamily: "var(--font-sans)" }}>
           {locale === "de" ? "Noch keine Artikel in dieser Kategorie." : "No articles in this category yet."}
         </p>
       )}
-      <div className="space-y-10">
-        {articles.map((article) => (
-          <ArticleCard key={article._id as string} article={article} />
-        ))}
+
+      {/* Broadsheet article list */}
+      <div>
+        {articles.map((article, i) => {
+          const title = getLocalizedTitle(article, locale);
+          const excerpt = getLocalizedExcerpt(article, locale);
+          const slug2 = (article.slug as { current: string })?.current;
+          const publishedAt = article.publishedAt as string | undefined;
+          const isFirst = i === 0;
+
+          return (
+            <article
+              key={article._id as string}
+              className="group grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-4 md:gap-8 py-7 border-b border-border"
+            >
+              {/* Metadata column */}
+              <div className="flex flex-col gap-1 pt-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+                  {categoryTitle}
+                </span>
+                {publishedAt && (
+                  <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+                    {formatDate(publishedAt, locale)}
+                  </span>
+                )}
+              </div>
+
+              {/* Content column */}
+              <div>
+                <Link href={`/${locale}/blog/${slug2}`}>
+                  <h2
+                    className={`font-bold leading-snug mb-2 group-hover:text-accent transition-colors ${isFirst ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    {title}
+                  </h2>
+                  {excerpt && (
+                    <p
+                      className={`text-muted leading-relaxed line-clamp-2 ${isFirst ? "text-base" : "text-sm"}`}
+                      style={{ fontFamily: "var(--font-body-serif)" }}
+                    >
+                      {excerpt}
+                    </p>
+                  )}
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
