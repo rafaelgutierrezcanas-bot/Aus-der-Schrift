@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS } from "@/lib/ressourcen";
 
 export default defineType({
   name: "bookRecommendation",
@@ -21,11 +22,7 @@ export default defineType({
       title: "Schwierigkeitsgrad",
       type: "string",
       options: {
-        list: [
-          { title: "Einsteiger", value: "einsteiger" },
-          { title: "Mittel", value: "mittel" },
-          { title: "Fortgeschritten", value: "fortgeschritten" },
-        ],
+        list: [...DIFFICULTY_OPTIONS],
         layout: "radio",
       },
       validation: (r) => r.required(),
@@ -36,13 +33,7 @@ export default defineType({
       type: "array",
       of: [{ type: "string" }],
       options: {
-        list: [
-          { title: "Theologie", value: "theologie" },
-          { title: "Apologetik", value: "apologetik" },
-          { title: "Bibelauslegung", value: "bibelauslegung" },
-          { title: "Kirchengeschichte", value: "kirchengeschichte" },
-          { title: "Geistliches Leben", value: "geistliches-leben" },
-        ],
+        list: [...TOPIC_OPTIONS],
         layout: "grid",
       },
       validation: (r) => r.required().min(1),

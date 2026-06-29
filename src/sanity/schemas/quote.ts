@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { TOPIC_OPTIONS } from "@/lib/ressourcen";
 
 export default defineType({
   name: "quote",
@@ -25,13 +26,7 @@ export default defineType({
       type: "array",
       of: [{ type: "string" }],
       options: {
-        list: [
-          { title: "Theologie", value: "theologie" },
-          { title: "Apologetik", value: "apologetik" },
-          { title: "Bibelauslegung", value: "bibelauslegung" },
-          { title: "Kirchengeschichte", value: "kirchengeschichte" },
-          { title: "Geistliches Leben", value: "geistliches-leben" },
-        ],
+        list: [...TOPIC_OPTIONS],
         layout: "grid",
       },
       validation: (r) => r.required().min(1),
