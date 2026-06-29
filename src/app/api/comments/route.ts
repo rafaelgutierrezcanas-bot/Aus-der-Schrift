@@ -60,6 +60,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Felder dürfen nicht leer sein" }, { status: 400 });
   }
 
+  // Sanity document IDs: alphanumeric + hyphens/dots, 1-128 chars
+  const SANITY_ID_REGEX = /^[a-zA-Z0-9._-]{1,128}$/;
+  if (!SANITY_ID_REGEX.test(articleId.trim())) {
+    return NextResponse.json({ error: "Ungültige Artikel-ID" }, { status: 400 });
+  }
+
   if (authorName.length > MAX_NAME_LENGTH) {
     return NextResponse.json({ error: "Name zu lang" }, { status: 400 });
   }
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Kommentar zu lang (max. 2000 Zeichen)" }, { status: 400 });
   }
   if (authorEmail !== undefined && authorEmail !== null) {
-    if (typeof authorEmail !== "string" || authorEmail.length > MAX_EMAIL_LENGTH) {
+    if (typeof authorEmail !== "string" || authorEmail.length > MAX_EMAIL_LENGTH || !authorEmail.includes("@") || authorEmail.indexOf("@") === 0 || authorEmail.lastIndexOf("@") === authorEmail.length - 1) {
       return NextResponse.json({ error: "Ungültige E-Mail" }, { status: 400 });
     }
   }
