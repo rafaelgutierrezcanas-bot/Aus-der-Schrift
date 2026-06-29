@@ -31,7 +31,7 @@ export default async function LocaleLayout({
       </div>
       <p className="text-sm text-muted leading-relaxed mb-4" style={{ fontFamily: "var(--font-body-serif)" }}>
         {locale === "de"
-          ? "Fundierte Theologie, Bibelauslegung und Kirchengeschichte — aus der Heiligen Schrift."
+          ? "Fundiert, respektvoll, alltagstauglich: Theologie für einen informierten und gelebten Glauben."
           : "Well-researched theology, biblical exegesis and church history — from Holy Scripture."}
       </p>
       <p className="text-xs text-muted/60 italic" style={{ fontFamily: "var(--font-sans)" }}>
@@ -74,7 +74,7 @@ export default async function LocaleLayout({
         {[
           { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },
           { label: locale === "de" ? "Alle Artikel" : "All Articles", href: `/${locale}/blog` },
-          { label: locale === "de" ? "Über uns" : "About", href: `/${locale}/uber-uns` },
+          { label: locale === "de" ? "Über mich" : "About", href: `/${locale}/zu-meiner-person` },
         ].map((link) => (
           <li key={link.href}>
             <a
