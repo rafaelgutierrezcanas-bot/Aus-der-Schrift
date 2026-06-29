@@ -100,27 +100,39 @@ export default async function HomePage({
       />
 
       {/* ── Hero ── */}
-      <section className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-24 md:py-36 grid md:grid-cols-2 gap-16 items-center">
+      <section className="relative border-b border-border overflow-hidden min-h-[520px] md:min-h-[600px] flex items-center">
+        {/* Background: Codex Sinaiticus */}
+        <Image
+          src="https://upload.wikimedia.org/wikipedia/commons/b/be/Codex_Sinaiticus_Matthew_6%2C4-32.JPG"
+          alt={locale === "de" ? "Codex Sinaiticus – griechisches Pergamentmanuskript, 4. Jahrhundert" : "Codex Sinaiticus – Greek parchment manuscript, 4th century"}
+          fill
+          className="object-cover object-center"
+          priority
+        />
 
-          {/* Left */}
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-              <div className="h-px flex-1 bg-border" />
-              <span className="flex flex-col items-center gap-0.5">
-                <span className="text-accent text-base tracking-wide" style={{ fontFamily: "var(--font-serif)" }}>
-                  Κατὰ τὰς Γραφάς
-                </span>
-                <span className="text-muted text-[10px] tracking-[0.15em] uppercase" style={{ fontFamily: "var(--font-sans)" }}>
-                  {locale === "de" ? "nach den Schriften · 1 Kor 15,3" : "according to the Scriptures · 1 Cor 15:3"}
-                </span>
+        {/* Gradient overlay: dark left → transparent right */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "linear-gradient(to right, rgba(28,24,18,0.93) 0%, rgba(28,24,18,0.80) 40%, rgba(28,24,18,0.30) 70%, rgba(28,24,18,0.10) 100%)" }}
+        />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 md:py-36 w-full">
+          <div className="max-w-2xl">
+
+            {/* Greek epigraph */}
+            <div className="mb-8">
+              <span className="text-accent text-base tracking-wide block" style={{ fontFamily: "var(--font-serif)" }}>
+                Κατὰ τὰς Γραφάς
               </span>
-              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] tracking-[0.15em] uppercase block mt-1" style={{ fontFamily: "var(--font-sans)", color: "rgba(237,229,216,0.5)" }}>
+                {locale === "de" ? "nach den Schriften · 1 Kor 15,3" : "according to the Scriptures · 1 Cor 15:3"}
+              </span>
             </div>
 
             <h1
               className="text-5xl md:text-6xl font-bold leading-[1.1] mb-6"
-              style={{ fontFamily: "var(--font-serif)" }}
+              style={{ fontFamily: "var(--font-serif)", color: "#EDE5D8" }}
             >
               {locale === "de" ? "Theologie" : "Theology"}<br />
               <em className="not-italic text-accent">
@@ -129,8 +141,8 @@ export default async function HomePage({
             </h1>
 
             <p
-              className="text-muted text-lg leading-relaxed mb-10 max-w-lg"
-              style={{ fontFamily: "var(--font-body-serif)" }}
+              className="text-lg leading-relaxed mb-10 max-w-lg"
+              style={{ fontFamily: "var(--font-body-serif)", color: "rgba(237,229,216,0.65)" }}
             >
               {t("subtitle")}
             </p>
@@ -143,23 +155,8 @@ export default async function HomePage({
               {locale === "de" ? "Alle Artikel lesen" : "Read all articles"}
               <span aria-hidden>→</span>
             </Link>
-          </div>
 
-          {/* Right: manuscript image */}
-          <div className="hidden md:block relative">
-            <div className="aspect-[4/5] overflow-hidden">
-              <Image
-                src="https://upload.wikimedia.org/wikipedia/commons/b/be/Codex_Sinaiticus_Matthew_6%2C4-32.JPG"
-                alt={locale === "de" ? "Codex Sinaiticus – griechisches Pergamentmanuskript, 4. Jahrhundert" : "Codex Sinaiticus – Greek parchment manuscript, 4th century"}
-                width={900}
-                height={1125}
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-            <div className="absolute inset-3 border border-border pointer-events-none" />
           </div>
-
         </div>
       </section>
 
