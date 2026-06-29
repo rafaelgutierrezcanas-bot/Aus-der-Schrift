@@ -79,7 +79,7 @@ export function Header({ locale }: HeaderProps) {
           {/* Über mich dropdown */}
           <div className="relative group">
             <span
-              className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
+              className={`text-xs px-4 py-1.5 rounded-full transition-colors whitespace-nowrap flex items-center gap-1 cursor-default ${atTop ? "hover:bg-white/10" : "hover:bg-surface"}`}
               style={{
                 fontFamily: "var(--font-sans)",
                 color: atTop ? CREAM : "var(--color-muted)",
@@ -113,7 +113,7 @@ export function Header({ locale }: HeaderProps) {
           {/* Themen dropdown */}
           <div className="relative group">
             <span
-              className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
+              className={`text-xs px-4 py-1.5 rounded-full transition-colors whitespace-nowrap flex items-center gap-1 cursor-default ${atTop ? "hover:bg-white/10" : "hover:bg-surface"}`}
               style={{
                 fontFamily: "var(--font-sans)",
                 color: atTop ? CREAM : "var(--color-muted)",
@@ -143,7 +143,7 @@ export function Header({ locale }: HeaderProps) {
           {/* Projekte */}
           <Link
             href={`/${locale}/projekte`}
-            className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap"
+            className={`text-xs px-4 py-1.5 rounded-full transition-colors whitespace-nowrap ${atTop ? "hover:bg-white/10" : "hover:bg-surface"}`}
             style={{
               fontFamily: "var(--font-sans)",
               color: atTop ? CREAM : "var(--color-muted)",
@@ -157,7 +157,7 @@ export function Header({ locale }: HeaderProps) {
           {/* Ressourcen */}
           <Link
             href={`/${locale}/ressourcen`}
-            className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap"
+            className={`text-xs px-4 py-1.5 rounded-full transition-colors whitespace-nowrap ${atTop ? "hover:bg-white/10" : "hover:bg-surface"}`}
             style={{
               fontFamily: "var(--font-sans)",
               color: atTop ? CREAM : "var(--color-muted)",
