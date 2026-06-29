@@ -1,6 +1,7 @@
 import { client } from "@/sanity/client";
 import { articlesByCategoryQuery, allCategoriesQuery } from "@/sanity/queries";
 import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, formatDate } from "@/lib/utils";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Script from "next/script";
