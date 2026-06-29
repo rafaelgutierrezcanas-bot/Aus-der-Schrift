@@ -107,8 +107,13 @@ export default async function HomePage({
           <div>
             <div className="flex items-center gap-3 mb-8">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-accent text-xs tracking-[0.3em] uppercase" style={{ fontFamily: "var(--font-sans)" }}>
-                {t("tagline")}
+              <span className="flex flex-col items-center gap-0.5">
+                <span className="text-accent text-base tracking-wide" style={{ fontFamily: "var(--font-serif)" }}>
+                  Κατὰ τὰς Γραφάς
+                </span>
+                <span className="text-muted text-[10px] tracking-[0.15em] uppercase" style={{ fontFamily: "var(--font-sans)" }}>
+                  {locale === "de" ? "nach den Schriften · 1 Kor 15,3" : "according to the Scriptures · 1 Cor 15:3"}
+                </span>
               </span>
               <div className="h-px flex-1 bg-border" />
             </div>
@@ -144,7 +149,7 @@ export default async function HomePage({
           <div className="hidden md:block relative">
             <div className="aspect-[4/5] overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=900&q=85"
+                src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=900&q=85"
                 alt={locale === "de" ? "Altes Manuskript" : "Ancient manuscript"}
                 width={900}
                 height={1125}
