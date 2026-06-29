@@ -154,7 +154,7 @@ export function PaperLayout({ article, locale, body, footnotes, sourcesMap }: Pa
                     className="shrink-0 text-accent font-medium"
                     style={{ fontFamily: "var(--font-sans)" }}
                   >
-                    <a href={`#fnref-${fn._fnIndex}`} aria-label="Zurück zum Text">
+                    <a href={`#fnref-${fn._fnIndex}`} aria-label={locale === "de" ? "Zurück zum Text" : "Back to text"}>
                       [{fn._fnIndex}]
                     </a>
                   </span>

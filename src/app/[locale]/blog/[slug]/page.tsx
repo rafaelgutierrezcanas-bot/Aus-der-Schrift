@@ -388,7 +388,7 @@ export default async function ArticlePage({
               return (
                 <li key={fn._key} id={`fn-${fn._fnIndex}`} className="flex gap-3 text-sm text-muted leading-relaxed">
                   <span className="shrink-0 text-accent font-medium" style={{ fontFamily: "var(--font-sans)" }}>
-                    <a href={`#fnref-${fn._fnIndex}`} aria-label="Zurück zum Text">
+                    <a href={`#fnref-${fn._fnIndex}`} aria-label={locale === "de" ? "Zurück zum Text" : "Back to text"}>
                       [{fn._fnIndex}]
                     </a>
                   </span>

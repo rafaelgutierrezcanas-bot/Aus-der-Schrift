@@ -36,7 +36,7 @@ function buildComponents(locale: string): PortableTextComponents {
       const n = (value._fnIndex as number | undefined) ?? "?";
       return (
         <sup className="text-accent font-medium text-xs leading-none" style={{ fontFamily: "var(--font-sans)" }}>
-          <a href={`#fn-${n}`} id={`fnref-${n}`} aria-label={`Fußnote ${n}`}>
+          <a href={`#fn-${n}`} id={`fnref-${n}`} aria-label={locale === "de" ? `Fußnote ${n}` : `Footnote ${n}`}>
             [{n}]
           </a>
         </sup>
@@ -173,7 +173,7 @@ function buildComponents(locale: string): PortableTextComponents {
             style={{ fontFamily: "var(--font-body-serif)" }}
           >
             <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2" style={{ fontFamily: "var(--font-sans)" }}>
-              Frage
+              {locale === "de" ? "Frage" : "Question"}
             </p>
             <p className="italic leading-relaxed text-[1rem] text-foreground">
               {children}
@@ -190,7 +190,7 @@ function buildComponents(locale: string): PortableTextComponents {
             style={{ fontFamily: "var(--font-body-serif)" }}
           >
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent mb-2" style={{ fontFamily: "var(--font-sans)" }}>
-              Erklärung
+              {locale === "de" ? "Erklärung" : "Definition"}
             </p>
             <div className="text-[0.9375rem] leading-relaxed text-foreground">
               {children}

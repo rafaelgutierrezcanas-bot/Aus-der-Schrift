@@ -7,12 +7,20 @@ interface HeaderProps {
   locale: string;
 }
 
-const themen = [
-  { label: "Kirchengeschichte", slug: "kirchengeschichte" },
-  { label: "Bibelauslegung", slug: "bibelauslegung" },
-  { label: "Theologie", slug: "theologie" },
-  { label: "Buchgedanken", slug: "buchgedanken" },
-];
+const themen: Record<string, { de: string; en: string; slug: string }[]> = {
+  de: [
+    { de: "Kirchengeschichte", en: "Church History", slug: "kirchengeschichte" },
+    { de: "Bibelauslegung", en: "Biblical Interpretation", slug: "bibelauslegung" },
+    { de: "Theologie", en: "Theology", slug: "theologie" },
+    { de: "Buchgedanken", en: "Book Thoughts", slug: "buchgedanken" },
+  ],
+  en: [
+    { de: "Kirchengeschichte", en: "Church History", slug: "kirchengeschichte" },
+    { de: "Bibelauslegung", en: "Biblical Interpretation", slug: "bibelauslegung" },
+    { de: "Theologie", en: "Theology", slug: "theologie" },
+    { de: "Buchgedanken", en: "Book Thoughts", slug: "buchgedanken" },
+  ],
+};
 
 export function Header({ locale }: HeaderProps) {
   return (
@@ -23,7 +31,7 @@ export function Header({ locale }: HeaderProps) {
         <Link
           href={`/${locale}`}
           className="shrink-0 hover:opacity-75 transition-opacity"
-          aria-label="Theologik – Startseite"
+          aria-label={locale === "de" ? "Theologik – Startseite" : "Theologik – Home"}
         >
           <TheologikLogo className="h-7 w-auto text-foreground" />
         </Link>
@@ -37,7 +45,7 @@ export function Header({ locale }: HeaderProps) {
               className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
               style={{ fontFamily: "var(--font-sans)" }}
             >
-              Über mich
+              {locale === "de" ? "Über mich" : "About me"}
               <svg width="8" height="5" viewBox="0 0 8 5" fill="none" className="opacity-50">
                 <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -48,14 +56,14 @@ export function Header({ locale }: HeaderProps) {
                 className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
-                Zu meiner Person
+                {locale === "de" ? "Zu meiner Person" : "About me"}
               </Link>
               <Link
                 href={`/${locale}/impressum`}
                 className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
-                Impressum
+                {locale === "de" ? "Impressum" : "Legal Notice"}
               </Link>
             </div>
           </div>
@@ -68,20 +76,20 @@ export function Header({ locale }: HeaderProps) {
               className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
               style={{ fontFamily: "var(--font-sans)" }}
             >
-              Themen
+              {locale === "de" ? "Themen" : "Topics"}
               <svg width="8" height="5" viewBox="0 0 8 5" fill="none" className="opacity-50">
                 <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
             <div className="absolute top-[calc(100%+6px)] left-0 hidden group-hover:block bg-background border border-border rounded-lg shadow-lg py-1 min-w-[170px] z-50">
-              {themen.map((t) => (
+              {(themen[locale] ?? themen.de).map((t) => (
                 <Link
                   key={t.slug}
                   href={`/${locale}/kategorien/${t.slug}`}
                   className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
                   style={{ fontFamily: "var(--font-sans)" }}
                 >
-                  {t.label}
+                  {locale === "de" ? t.de : t.en}
                 </Link>
               ))}
             </div>
@@ -106,7 +114,7 @@ export function Header({ locale }: HeaderProps) {
             className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Ressourcen
+            {locale === "de" ? "Ressourcen" : "Resources"}
           </Link>
 
         </nav>
@@ -118,7 +126,7 @@ export function Header({ locale }: HeaderProps) {
             className="hidden md:inline-flex items-center text-xs px-4 py-1.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition-colors"
             style={{ fontFamily: "var(--font-sans)" }}
           >
-            Kontakt
+            {locale === "de" ? "Kontakt" : "Contact"}
           </Link>
           <DarkModeToggle />
           <LanguageToggle />
