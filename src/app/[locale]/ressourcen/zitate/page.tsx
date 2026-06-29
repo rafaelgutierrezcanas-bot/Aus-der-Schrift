@@ -13,7 +13,7 @@ export default async function ZitatePage({
 
   const quotes = await client.fetch(
     `*[_type == "quote"] | order(_createdAt desc) {
-      _id, text, author, topics,
+      _id, text, author, topics, customSource,
       "source": source->{ title, author, year }
     }`,
     {},

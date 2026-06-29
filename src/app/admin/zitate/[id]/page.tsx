@@ -15,6 +15,7 @@ export default function EditZitatPage() {
   const [author, setAuthor] = useState("");
   const [topics, setTopics] = useState<string[]>([]);
   const [sourceId, setSourceId] = useState("");
+  const [customSource, setCustomSource] = useState("");
   const [books, setBooks] = useState<Book[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ export default function EditZitatPage() {
       setAuthor(quote.author ?? "");
       setTopics(quote.topics ?? []);
       setSourceId(quote.source?._id ?? "");
+      setCustomSource(quote.customSource ?? "");
       setBooks(bookList);
       setLoading(false);
     });
@@ -48,6 +50,7 @@ export default function EditZitatPage() {
         author: author.trim(),
         topics,
         source: sourceId ? { _type: "reference", _ref: sourceId } : null,
+        customSource: customSource.trim() || null,
       }),
     });
     setSaving(false);
@@ -76,13 +79,18 @@ export default function EditZitatPage() {
           <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Quelle (optional)</label>
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Quelle — Buch verknüpfen (optional)</label>
           <select value={sourceId} onChange={(e) => setSourceId(e.target.value)} className={inputClass}>
             <option value="">— Kein Buch verknüpft —</option>
             {books.map((b) => (
               <option key={b._id} value={b._id}>{b.title} – {b.author}{b.year ? ` (${b.year})` : ""}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Quelle — manuell (optional)</label>
+          <input type="text" value={customSource} onChange={(e) => setCustomSource(e.target.value)} className={inputClass} placeholder="z. B. Augustinus, Bekenntnisse, I.1" />
+          <p className="text-xs text-[var(--color-muted)]/70 mt-1">Wird nur angezeigt wenn kein Buch verknüpft ist.</p>
         </div>
         <div>
           <label className="block text-xs font-medium text-[var(--color-muted)] mb-2">Themen *</label>

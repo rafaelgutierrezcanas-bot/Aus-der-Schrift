@@ -19,7 +19,7 @@ export async function GET() {
 
   const quotes = await client.fetch(`
     *[_type == "quote"] | order(_createdAt desc) {
-      _id, text, author, topics,
+      _id, text, author, topics, customSource,
       "source": source->{ _id, title, author, year }
     }
   `);

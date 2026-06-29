@@ -8,6 +8,7 @@ export interface Quote {
   text: string;
   author: string;
   topics: string[];
+  customSource?: string;
   source?: { title: string; author: string; year?: number };
 }
 
@@ -112,12 +113,16 @@ export function ZitateClient({ quotes, locale }: Props) {
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 — {quote.author}
-                {quote.source && (
+                {quote.source ? (
                   <span className="text-[var(--color-muted)]/70">
                     , <em>{quote.source.title}</em>
                     {quote.source.year ? ` (${quote.source.year})` : ""}
                   </span>
-                )}
+                ) : quote.customSource ? (
+                  <span className="text-[var(--color-muted)]/70">
+                    , <em>{quote.customSource}</em>
+                  </span>
+                ) : null}
               </footer>
             </blockquote>
           ))}

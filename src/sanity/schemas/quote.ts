@@ -21,6 +21,12 @@ export default defineType({
       to: [{ type: "bookRecommendation" }],
     }),
     defineField({
+      name: "customSource",
+      title: "Quelle (manuell)",
+      type: "string",
+      description: "Freitext, z. B. 'Augustinus, Bekenntnisse, I.1' -- wird nur angezeigt wenn kein Buch verknuepft ist.",
+    }),
+    defineField({
       name: "topics",
       title: "Themen",
       type: "array",

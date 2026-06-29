@@ -18,7 +18,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (denied) return denied;
   const { id } = await params;
   const quote = await client.fetch(
-    `*[_type == "quote" && _id == $id][0]{ _id, text, author, topics, "source": source->{ _id, title, author, year } }`,
+    `*[_type == "quote" && _id == $id][0]{ _id, text, author, topics, customSource, "source": source->{ _id, title, author, year } }`,
     { id }
   );
   if (!quote) return NextResponse.json({ error: "Not found" }, { status: 404 });
