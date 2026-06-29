@@ -79,6 +79,9 @@ export default function EditArticlePage() {
   const [abstractDe, setAbstractDe] = useState("");
   const [abstractEn, setAbstractEn] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [slugInput, setSlugInput] = useState("");
+  const [slugUpdating, setSlugUpdating] = useState(false);
+  const [slugError, setSlugError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -106,6 +109,7 @@ export default function EditArticlePage() {
       setAbstractDe(article.abstractDe ?? "");
       setAbstractEn(article.abstractEn ?? "");
       setKeywords((article.keywords ?? []).join(", "));
+      setSlugInput(article.slug?.current ?? "");
       setCategories(cats);
       setProjects(projs);
       setAllSources(srcs);
@@ -278,6 +282,26 @@ export default function EditArticlePage() {
   function handleDismissBackup() {
     localStorage.removeItem(`artikel-backup-${slug}`);
     setLocalBackup(null);
+  }
+
+  async function handleSlugUpdate() {
+    const newSlug = slugInput.trim();
+    if (!newSlug || newSlug === slug) return;
+    setSlugUpdating(true);
+    setSlugError("");
+    try {
+      const res = await fetch(`/api/admin/articles/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newSlug }),
+      });
+      if (!res.ok) throw new Error("Slug-Aktualisierung fehlgeschlagen");
+      router.replace(`/admin/${newSlug}`);
+    } catch {
+      setSlugError("Fehler beim Aktualisieren des Slugs.");
+    } finally {
+      setSlugUpdating(false);
+    }
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -478,6 +502,32 @@ export default function EditArticlePage() {
           <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Excerpt (EN)</label>
           <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
         </div>
+      </div>
+
+      {/* Slug */}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6" style={{ fontFamily: "var(--font-sans)" }}>
+        <p className="text-sm font-medium text-[var(--color-muted)] mb-3">URL-Slug</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[var(--color-muted)] shrink-0">/de/blog/</span>
+          <input
+            value={slugInput}
+            onChange={(e) => setSlugInput(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+            className={inputClass + " flex-1"}
+            style={{ fontFamily: "var(--font-sans)" }}
+            placeholder={slug}
+          />
+          <button
+            onClick={handleSlugUpdate}
+            disabled={slugUpdating || slugInput === slug || !slugInput}
+            className="shrink-0 text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+          >
+            {slugUpdating ? "..." : "Aktualisieren"}
+          </button>
+        </div>
+        {slugError && <p className="text-red-500 text-xs mt-2">{slugError}</p>}
+        <p className="text-xs text-[var(--color-muted)] mt-2">
+          Der alte Link wird automatisch weitergeleitet.
+        </p>
       </div>
 
       {/* Paper-Modus */}

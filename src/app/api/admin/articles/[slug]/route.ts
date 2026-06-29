@@ -85,10 +85,30 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   );
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // Handle slug change: newSlug in body triggers slug rename + old slug tracking
+  const { newSlug, ...rest } = body as { newSlug?: string } & Record<string, unknown>;
+  if (newSlug && newSlug !== slug) {
+    const op = writeClient
+      .patch(article._id)
+      .setIfMissing({ oldSlugs: [] })
+      .append("oldSlugs", [slug])
+      .set({ slug: { _type: "slug", current: newSlug } });
+    const updated = await op.commit();
+    revalidatePath(`/de/blog/${slug}`);
+    revalidatePath(`/en/blog/${slug}`);
+    revalidatePath(`/de/blog/${newSlug}`);
+    revalidatePath(`/en/blog/${newSlug}`);
+    revalidatePath("/de/blog");
+    revalidatePath("/en/blog");
+    revalidatePath("/de");
+    revalidatePath("/en");
+    return NextResponse.json({ ...updated, newSlug });
+  }
+
   // Separate null values (must use unset) from regular values
   const toSet: Record<string, unknown> = {};
   const toUnset: string[] = [];
-  for (const [key, value] of Object.entries(body)) {
+  for (const [key, value] of Object.entries(rest)) {
     if (value === null || value === undefined) toUnset.push(key);
     else toSet[key] = value;
   }

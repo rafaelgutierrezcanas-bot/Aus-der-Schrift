@@ -8,7 +8,7 @@ import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle, getLocalizedE
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 import { ShareButton } from "@/components/ShareButton";
 import type { Metadata } from "next";
@@ -147,7 +147,15 @@ export default async function ArticlePage({
   } catch {
     notFound();
   }
-  if (!article) notFound();
+  if (!article) {
+    // Check if this slug was previously used by an article that was renamed
+    const redirect = await client.fetch<{ slug: { current: string } } | null>(
+      `*[_type == "article" && $slug in coalesce(oldSlugs, []) && (status == "published" || !defined(status))][0]{ slug }`,
+      { slug }
+    );
+    if (redirect) permanentRedirect(localePath(locale, `/blog/${redirect.slug.current}`));
+    notFound();
+  }
 
   const t = await getTranslations("article");
   const title = getLocalizedTitle(article, locale);

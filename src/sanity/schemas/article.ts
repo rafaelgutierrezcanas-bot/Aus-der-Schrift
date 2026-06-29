@@ -168,6 +168,14 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "oldSlugs",
+      title: "Alte Slugs (Weiterleitungen)",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Frühere Slugs dieses Artikels — Besucher werden automatisch weitergeleitet.",
+      readOnly: true,
+    }),
+    defineField({
       name: "isRecommended",
       title: "Empfohlen",
       type: "boolean",
