@@ -302,9 +302,9 @@ export default async function HomePage({
                 const publishedAt = article.publishedAt as string | undefined;
                 return (
                   <article key={article._id as string}
-                    className="group grid grid-cols-[120px_1fr_auto] md:grid-cols-[160px_1fr_auto] items-baseline gap-4 py-4 border-b border-border last:border-0">
+                    className="group grid grid-cols-[auto_1fr] md:grid-cols-[160px_1fr_auto] items-baseline gap-3 md:gap-4 py-4 border-b border-border last:border-0">
                     {/* Category */}
-                    <div>
+                    <div className="shrink-0">
                       {catTitle && (
                         catSlug ? (
                           <Link href={`/${locale}/kategorien/${catSlug}`}
@@ -321,13 +321,13 @@ export default async function HomePage({
                     </div>
                     {/* Title */}
                     <Link href={`/${locale}/blog/${slug}`}
-                      className="font-semibold leading-snug group-hover:text-accent transition-colors"
+                      className="min-w-0 font-semibold leading-snug group-hover:text-accent transition-colors"
                       style={{ fontFamily: "var(--font-serif)" }}>
                       {title}
                     </Link>
-                    {/* Date */}
+                    {/* Date — hidden on mobile */}
                     {publishedAt && (
-                      <span className="text-[11px] text-muted whitespace-nowrap" style={{ fontFamily: "var(--font-sans)" }}>
+                      <span className="hidden md:block text-[11px] text-muted whitespace-nowrap" style={{ fontFamily: "var(--font-sans)" }}>
                         {formatDate(publishedAt, locale)}
                       </span>
                     )}

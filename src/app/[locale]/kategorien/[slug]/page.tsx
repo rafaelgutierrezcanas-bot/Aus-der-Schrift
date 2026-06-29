@@ -161,21 +161,21 @@ export default async function CategoryPage({
           return (
             <article
               key={article._id as string}
-              className="group grid grid-cols-[100px_1fr] md:grid-cols-[180px_1fr] gap-3 md:gap-8 py-7 border-b border-border"
+              className="group py-6 border-b border-border md:grid md:grid-cols-[180px_1fr] md:gap-8 md:py-7"
             >
-              {/* Metadata column */}
-              <div className="flex flex-col gap-1 pt-0.5">
+              {/* Metadata: inline row on mobile, column on desktop */}
+              <div className="flex items-center gap-2 mb-2 md:flex-col md:items-start md:gap-1 md:pt-0.5 md:mb-0">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
                   {categoryTitle}
                 </span>
                 {publishedAt && (
                   <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                    {formatDate(publishedAt, locale)}
+                    <span className="md:hidden">· </span>{formatDate(publishedAt, locale)}
                   </span>
                 )}
               </div>
 
-              {/* Content column */}
+              {/* Content */}
               <div className="min-w-0">
                 <Link href={`/${locale}/blog/${slug2}`}>
                   <h2
