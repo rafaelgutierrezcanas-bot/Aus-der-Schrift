@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { client } from "@/sanity/client";
+import { RessourcenClient } from "@/components/RessourcenClient";
+
+export const revalidate = 60;
 
 export default async function RessourcenPage({
   params,
@@ -7,41 +11,23 @@ export default async function RessourcenPage({
 }) {
   const { locale } = await params;
 
-  const sections = locale === "de"
-    ? [
-        {
-          title: "Bücher",
-          description: "Empfehlenswerte theologische Literatur — von Bibelkommentaren bis zu klassischen Werken der Kirchengeschichte.",
-          items: [],
-        },
-        {
-          title: "Artikel",
-          description: "Ausgewählte Artikel und Essays aus zuverlässigen theologischen Quellen.",
-          items: [],
-        },
-        {
-          title: "Podcast",
-          description: "Hörenswerte Podcasts zu Theologie, Bibelauslegung und christlichem Leben.",
-          items: [],
-        },
-      ]
-    : [
-        {
-          title: "Books",
-          description: "Recommended theological literature — from Bible commentaries to classic works of church history.",
-          items: [],
-        },
-        {
-          title: "Articles",
-          description: "Selected articles and essays from reliable theological sources.",
-          items: [],
-        },
-        {
-          title: "Podcast",
-          description: "Podcasts worth listening to on theology, biblical interpretation, and Christian life.",
-          items: [],
-        },
-      ];
+  const [books, quotes] = await Promise.all([
+    client.fetch(
+      `*[_type == "bookRecommendation"] | order(_createdAt desc) {
+        _id, title, author, year, description, difficulty, topics, buyLink
+      }`,
+      {},
+      { next: { tags: ["ressourcen"], revalidate: 60 } }
+    ),
+    client.fetch(
+      `*[_type == "quote"] | order(_createdAt desc) {
+        _id, text, author, topics,
+        "source": source->{ title, author, year }
+      }`,
+      {},
+      { next: { tags: ["ressourcen"], revalidate: 60 } }
+    ),
+  ]);
 
   return (
     <div className="max-w-prose mx-auto px-6 py-16">
@@ -62,8 +48,8 @@ export default async function RessourcenPage({
         style={{ fontFamily: "var(--font-body-serif)" }}
       >
         {locale === "de"
-          ? "Hier findest du eine Auswahl empfehlenswerter Bücher, Artikel und Podcasts zu Bibel, Theologie und Kirchengeschichte."
-          : "Here you will find a selection of recommended books, articles and podcasts on the Bible, theology and church history."}
+          ? "Hier findest du eine Auswahl empfehlenswerter Bücher und theologischer Zitate."
+          : "Here you will find a selection of recommended books and theological quotes."}
       </p>
 
       {/* Hermeneutik Program — only shown when enabled */}
@@ -90,30 +76,7 @@ export default async function RessourcenPage({
         </Link>
       )}
 
-      <div className="space-y-12">
-        {sections.map((section) => (
-          <section key={section.title}>
-            <h2
-              className="text-xl font-semibold mb-2"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {section.title}
-            </h2>
-            <p
-              className="text-muted text-sm leading-relaxed"
-              style={{ fontFamily: "var(--font-body-serif)" }}
-            >
-              {section.description}
-            </p>
-            <p
-              className="text-muted/50 text-xs mt-4 italic"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              {locale === "de" ? "Bald verfügbar." : "Coming soon."}
-            </p>
-          </section>
-        ))}
-      </div>
+      <RessourcenClient books={books} quotes={quotes} locale={locale} />
     </div>
   );
 }
