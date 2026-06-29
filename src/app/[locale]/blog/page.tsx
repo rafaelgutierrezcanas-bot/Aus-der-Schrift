@@ -134,7 +134,7 @@ export default async function BlogPage({
           return (
             <article
               key={article._id as string}
-              className="group grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-4 md:gap-8 py-7 border-b border-border"
+              className="group grid grid-cols-[100px_1fr] md:grid-cols-[180px_1fr] gap-3 md:gap-8 py-7 border-b border-border"
             >
               {/* Metadata column */}
               <div className="flex flex-col gap-1 pt-0.5">
@@ -161,7 +161,7 @@ export default async function BlogPage({
               </div>
 
               {/* Content column */}
-              <div>
+              <div className="min-w-0">
                 <Link href={articleHref}>
                   <h2
                     className={`font-bold leading-snug mb-2 group-hover:text-accent transition-colors ${isFirst ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}
