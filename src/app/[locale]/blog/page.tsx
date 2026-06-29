@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { client } from "@/sanity/client";
 import { allArticlesQuery, allCategoriesQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
@@ -99,16 +100,15 @@ export default async function BlogPage({
           {locale === "de" ? "Alle" : "All"}
         </Link>
         {categories.map((cat) => (
-          <>
-            <span key={`dot-${cat._id as string}`} className="text-border select-none">·</span>
+          <Fragment key={cat._id as string}>
+            <span className="text-border select-none">·</span>
             <Link
-              key={cat._id as string}
               href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
               className="text-xs uppercase tracking-[0.12em] text-muted hover:text-accent transition-colors"
             >
               {getLocalizedCategoryTitle(cat, locale)}
             </Link>
-          </>
+          </Fragment>
         ))}
       </nav>
 
