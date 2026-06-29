@@ -60,7 +60,7 @@ export default function EditBuchPage() {
     router.push("/admin/buecher");
   }
 
-  async function deletebook() {
+  async function deleteBook() {
     if (!confirm("Buch löschen?")) return;
     await fetch(`/api/admin/books/${id}`, { method: "DELETE" });
     router.push("/admin/buecher");
@@ -135,7 +135,7 @@ export default function EditBuchPage() {
             style={{ fontFamily: "var(--font-sans)" }}>
             Abbrechen
           </button>
-          <button onClick={deletebook} className="ml-auto text-xs text-[var(--color-muted)] hover:text-red-500 transition-colors"
+          <button onClick={deleteBook} className="ml-auto text-xs text-[var(--color-muted)] hover:text-red-500 transition-colors"
             style={{ fontFamily: "var(--font-sans)" }}>
             Löschen
           </button>
