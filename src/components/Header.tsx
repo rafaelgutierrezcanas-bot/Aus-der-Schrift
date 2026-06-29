@@ -174,65 +174,68 @@ export function Header({ locale }: HeaderProps) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div
-          className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-40"
+          className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-40 px-6 py-5 space-y-5"
           style={{ fontFamily: "var(--font-sans)" }}
         >
-          {/* Über mich */}
-          <Link
-            href={`/${locale}/zu-meiner-person`}
-            className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            {locale === "de" ? "Zu meiner Person" : "About me"}
-          </Link>
-          <Link
-            href={`/${locale}/impressum`}
-            className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            {locale === "de" ? "Impressum" : "Legal Notice"}
-          </Link>
-
-          {/* Separator */}
-          <div className="h-px bg-border mx-6 my-1" />
-
           {/* Themen */}
-          {(themen[locale] ?? themen.de).map((t) => (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">
+              {locale === "de" ? "Themen" : "Topics"}
+            </p>
+            <div className="grid grid-cols-2 gap-1">
+              {(themen[locale] ?? themen.de).map((t) => (
+                <Link
+                  key={t.slug}
+                  href={`/${locale}/kategorien/${t.slug}`}
+                  className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {locale === "de" ? t.de : t.en}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-border" />
+
+          {/* Navigation */}
+          <div className="flex flex-col gap-0.5">
             <Link
-              key={t.slug}
-              href={`/${locale}/kategorien/${t.slug}`}
-              className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
+              href={`/${locale}/blog`}
+              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
               onClick={() => setMobileOpen(false)}
             >
-              {locale === "de" ? t.de : t.en}
+              {locale === "de" ? "Alle Artikel" : "All Articles"}
             </Link>
-          ))}
-
-          {/* Separator */}
-          <div className="h-px bg-border mx-6 my-1" />
-
-          {/* Projekte, Ressourcen, Kontakt */}
-          <Link
-            href={`/${locale}/projekte`}
-            className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            {locale === "de" ? "Projekte" : "Projects"}
-          </Link>
-          <Link
-            href={`/${locale}/ressourcen`}
-            className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            {locale === "de" ? "Ressourcen" : "Resources"}
-          </Link>
-          <Link
-            href={`/${locale}/kontakt`}
-            className="block px-6 py-3 text-sm text-muted hover:text-foreground hover:bg-surface border-b border-border transition-colors"
-            onClick={() => setMobileOpen(false)}
-          >
-            {locale === "de" ? "Kontakt" : "Contact"}
-          </Link>
+            <Link
+              href={`/${locale}/projekte`}
+              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {locale === "de" ? "Projekte" : "Projects"}
+            </Link>
+            <Link
+              href={`/${locale}/ressourcen`}
+              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {locale === "de" ? "Ressourcen" : "Resources"}
+            </Link>
+            <Link
+              href={`/${locale}/zu-meiner-person`}
+              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {locale === "de" ? "Über mich" : "About me"}
+            </Link>
+            <Link
+              href={`/${locale}/kontakt`}
+              className="px-3 py-2 text-sm text-accent font-medium hover:bg-surface rounded transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {locale === "de" ? "Kontakt" : "Contact"}
+            </Link>
+          </div>
         </div>
       )}
     </header>
