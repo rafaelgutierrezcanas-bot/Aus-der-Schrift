@@ -301,7 +301,6 @@ export default async function ArticlePage({
         items={[
           { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },
           { label: locale === "de" ? "Alle Artikel" : "All Articles", href: `/${locale}/blog` },
-          { label: title },
         ]}
       />
       {/* Article Header */}
@@ -349,31 +348,19 @@ export default async function ArticlePage({
               · {(article.author as Record<string, unknown>).name as string}
             </span>
           )}
-          {!!(article._updatedAt && article.publishedAt) &&
-            Math.abs(
-              new Date(article._updatedAt as string).getTime() -
-                new Date(article.publishedAt as string).getTime()
-            ) >
-              7 * 24 * 60 * 60 * 1000 && (
-            <span
-              className="text-xs text-muted"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              · {locale === "de" ? "Aktualisiert am" : "Updated"}{" "}
-              {formatDate(article._updatedAt as string, locale)}
-            </span>
-          )}
+        </div>
+        <h1
+          className="text-3xl md:text-4xl font-bold leading-tight mb-4"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {title}
+        </h1>
+        <div className="mb-6">
           <ShareButton
             url={absoluteUrl(localePath(locale, `/blog/${slug}`))}
             title={title}
           />
         </div>
-        <h1
-          className="text-3xl md:text-4xl font-bold leading-tight mb-6"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
-          {title}
-        </h1>
         {!!article.featuredImage && (
           <div className="aspect-[16/9] overflow-hidden rounded-sm mb-8">
             <Image
