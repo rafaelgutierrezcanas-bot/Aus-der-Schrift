@@ -76,55 +76,77 @@ export function BuecherClient({ books, locale }: Props) {
 
   return (
     <div>
-      {/* Book type filters */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <FilterChip
-          label={locale === "de" ? "Alle Typen" : "All Types"}
-          active={typeFilter === null}
-          onClick={() => setTypeFilter(null)}
-        />
-        {BOOK_TYPE_OPTIONS.map((t) => (
-          <FilterChip
-            key={t.value}
-            label={t.title}
-            active={typeFilter === t.value}
-            onClick={() => setTypeFilter(typeFilter === t.value ? null : t.value)}
-          />
-        ))}
-      </div>
+      {/* Filters */}
+      <div className="border border-[var(--color-border)] rounded-xl p-5 mb-8 space-y-4" style={{ background: "var(--color-surface)" }}>
+        {/* Book type */}
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+            {locale === "de" ? "Typ" : "Type"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              label={locale === "de" ? "Alle" : "All"}
+              active={typeFilter === null}
+              onClick={() => setTypeFilter(null)}
+            />
+            {BOOK_TYPE_OPTIONS.map((t) => (
+              <FilterChip
+                key={t.value}
+                label={t.title}
+                active={typeFilter === t.value}
+                onClick={() => setTypeFilter(typeFilter === t.value ? null : t.value)}
+              />
+            ))}
+          </div>
+        </div>
 
-      {/* Topic filters */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <FilterChip
-          label={locale === "de" ? "Alle Themen" : "All Topics"}
-          active={topicFilter === null}
-          onClick={() => setTopicFilter(null)}
-        />
-        {TOPIC_OPTIONS.map((t) => (
-          <FilterChip
-            key={t.value}
-            label={t.title}
-            active={topicFilter === t.value}
-            onClick={() => setTopicFilter(topicFilter === t.value ? null : t.value)}
-          />
-        ))}
-      </div>
+        <div className="border-t border-[var(--color-border)]" />
 
-      {/* Difficulty filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        <FilterChip
-          label={locale === "de" ? "Alle Level" : "All Levels"}
-          active={difficultyFilter === null}
-          onClick={() => setDifficultyFilter(null)}
-        />
-        {DIFFICULTY_OPTIONS.map((d) => (
-          <FilterChip
-            key={d.value}
-            label={locale === "de" ? difficultyLabel[d.value].de : difficultyLabel[d.value].en}
-            active={difficultyFilter === d.value}
-            onClick={() => setDifficultyFilter(difficultyFilter === d.value ? null : d.value)}
-          />
-        ))}
+        {/* Topic */}
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+            {locale === "de" ? "Thema" : "Topic"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              label={locale === "de" ? "Alle" : "All"}
+              active={topicFilter === null}
+              onClick={() => setTopicFilter(null)}
+            />
+            {TOPIC_OPTIONS.map((t) => (
+              <FilterChip
+                key={t.value}
+                label={t.title}
+                active={topicFilter === t.value}
+                onClick={() => setTopicFilter(topicFilter === t.value ? null : t.value)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--color-border)]" />
+
+        {/* Difficulty */}
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] mb-2" style={{ fontFamily: "var(--font-sans)" }}>
+            {locale === "de" ? "Schwierigkeit" : "Difficulty"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              label={locale === "de" ? "Alle" : "All"}
+              active={difficultyFilter === null}
+              onClick={() => setDifficultyFilter(null)}
+            />
+            {DIFFICULTY_OPTIONS.map((d) => (
+              <FilterChip
+                key={d.value}
+                label={locale === "de" ? difficultyLabel[d.value].de : difficultyLabel[d.value].en}
+                active={difficultyFilter === d.value}
+                onClick={() => setDifficultyFilter(difficultyFilter === d.value ? null : d.value)}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {filteredBooks.length === 0 ? (
