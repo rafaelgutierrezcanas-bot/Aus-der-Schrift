@@ -1,6 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function NotFound() {
+  const params = useParams();
+  const locale = (params?.locale as string) ?? "";
+  const homeHref = locale ? `/${locale}` : "/";
+
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
       <p
@@ -22,7 +29,7 @@ export default function NotFound() {
         Die gesuchte Seite existiert nicht oder wurde verschoben.
       </p>
       <Link
-        href="/de"
+        href={homeHref}
         className="text-sm px-4 py-2 rounded-full bg-accent text-white hover:opacity-90 transition-opacity"
         style={{ fontFamily: "var(--font-sans)" }}
       >

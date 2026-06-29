@@ -22,7 +22,7 @@ export function ReadingProgressBar() {
     <div
       style={{
         position: "fixed",
-        bottom: 0,
+        top: "64px",
         left: 0,
         width: "100%",
         height: "3px",

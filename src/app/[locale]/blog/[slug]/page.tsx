@@ -17,6 +17,10 @@ import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/s
 import { formatChicago, type Source } from "@/lib/formatChicago";
 import { PaperLayout } from "@/components/PaperLayout";
 import { CommentsSection } from "@/components/CommentsSection";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { AuthorCard } from "@/components/AuthorCard";
+import { BackToTop } from "@/components/BackToTop";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -293,6 +297,14 @@ export default async function ArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ReadingProgressBar />
+      <BackToTop />
+      <Breadcrumb
+        items={[
+          { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },
+          { label: locale === "de" ? "Alle Artikel" : "All Articles", href: `/${locale}/blog` },
+          { label: title },
+        ]}
+      />
       {/* Article Header */}
       <header className="max-w-prose mx-auto mb-12">
         <div className="flex items-center flex-wrap gap-3 mb-6">
@@ -336,6 +348,20 @@ export default async function ArticlePage({
               style={{ fontFamily: "var(--font-sans)" }}
             >
               · {(article.author as Record<string, unknown>).name as string}
+            </span>
+          )}
+          {!!(article._updatedAt && article.publishedAt) &&
+            Math.abs(
+              new Date(article._updatedAt as string).getTime() -
+                new Date(article.publishedAt as string).getTime()
+            ) >
+              7 * 24 * 60 * 60 * 1000 && (
+            <span
+              className="text-xs text-muted"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              · {locale === "de" ? "Aktualisiert am" : "Updated"}{" "}
+              {formatDate(article._updatedAt as string, locale)}
             </span>
           )}
           <ShareButton
@@ -399,6 +425,9 @@ export default async function ArticlePage({
           </ol>
         </section>
       )}
+
+      <AuthorCard locale={locale} />
+      <NewsletterSignup locale={locale} />
 
       {/* Related Posts */}
       {related.length > 0 && (

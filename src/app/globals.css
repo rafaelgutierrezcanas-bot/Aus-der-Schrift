@@ -23,6 +23,12 @@
   letter-spacing: 0.06em;
 }
 
+.prose p, .prose li, .prose blockquote {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+
 @layer base {
   html, body {
     overflow-x: hidden;

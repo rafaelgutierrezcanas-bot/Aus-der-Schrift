@@ -11,7 +11,7 @@ export default async function ZuMeinerPersonPage({
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Rafael",
+    name: "Rafael Gutierrez",
     url: absoluteUrl(`/${locale}/zu-meiner-person`),
     worksFor: {
       "@type": "Organization",
@@ -20,8 +20,9 @@ export default async function ZuMeinerPersonPage({
     },
     description:
       locale === "de"
-        ? "Theologe und Autor des Blogs Theologik zu Bibelauslegung, Kirchengeschichte und Apologetik."
-        : "Theologian and author of the Theologik blog on biblical interpretation, church history, and apologetics.",
+        ? "Autor von Theologik – schreibt über reformierte Theologie, Bibelauslegung und Kirchengeschichte."
+        : "Author of Theologik – writing about Reformed theology, biblical exegesis, and church history.",
+    knowsAbout: ["Theology", "Biblical Exegesis", "Church History", "Reformed Theology"],
   };
 
   return (
