@@ -45,26 +45,11 @@ interface Project {
   articleCount?: number;
 }
 
-const STATUS_LABEL: Record<string, { de: string; en: string; color: string }> =
-  {
-    laufend: {
-      de: "Laufend",
-      en: "Ongoing",
-      color:
-        "text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950",
-    },
-    abgeschlossen: {
-      de: "Abgeschlossen",
-      en: "Completed",
-      color: "text-muted bg-surface",
-    },
-    pausiert: {
-      de: "Pausiert",
-      en: "Paused",
-      color:
-        "text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-950",
-    },
-  };
+const STATUS_CONFIG: Record<string, { de: string; en: string; dot: string }> = {
+  laufend: { de: "Laufend", en: "Ongoing", dot: "bg-emerald-500" },
+  abgeschlossen: { de: "Abgeschlossen", en: "Completed", dot: "bg-border" },
+  pausiert: { de: "Pausiert", en: "Paused", dot: "bg-amber-400" },
+};
 
 function formatStartDate(iso: string, locale: string) {
   const d = new Date(iso);
@@ -74,81 +59,61 @@ function formatStartDate(iso: string, locale: string) {
   });
 }
 
-function ProjectCard({
-  project,
-  locale,
-}: {
-  project: Project;
-  locale: string;
-}) {
-  const t = project.status
-    ? STATUS_LABEL[project.status]
-    : STATUS_LABEL.laufend;
-  const displayTitle =
-    locale === "en" && project.titleEn ? project.titleEn : project.title;
-  const displayDesc =
-    locale === "en" && project.descriptionEn
-      ? project.descriptionEn
-      : project.description;
-  const displayQ =
-    locale === "en" && project.researchQuestionEn
-      ? project.researchQuestionEn
-      : project.researchQuestionDe;
+function ProjectRow({ project, locale }: { project: Project; locale: string }) {
+  const s = project.status ? STATUS_CONFIG[project.status] : STATUS_CONFIG.laufend;
+  const displayTitle = locale === "en" && project.titleEn ? project.titleEn : project.title;
+  const displayDesc = locale === "en" && project.descriptionEn ? project.descriptionEn : project.description;
+  const displayQ = locale === "en" && project.researchQuestionEn ? project.researchQuestionEn : project.researchQuestionDe;
+  const href = project.slug?.current ? `/${locale}/projekte/${project.slug.current}` : undefined;
 
-  const href = project.slug?.current
-    ? `/${locale}/projekte/${project.slug.current}`
-    : undefined;
-
-  const inner = (
-    <div className="border border-border rounded-sm p-6 space-y-3 hover:border-accent/50 transition-colors">
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-4">
+  const content = (
+    <article className={`group py-8 border-b border-border${href ? " cursor-pointer" : ""}`}>
+      {/* Title + meta */}
+      <div className="mb-1">
         <h2
-          className="text-base font-semibold leading-snug"
+          className={`text-2xl md:text-3xl font-bold leading-tight mb-2${href ? " group-hover:text-accent transition-colors" : ""}`}
           style={{ fontFamily: "var(--font-serif)" }}
         >
           {displayTitle}
         </h2>
-        <span
-          className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wide ${t.color}`}
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          {locale === "de" ? t.de : t.en}
-        </span>
+        <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-sans)" }}>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot}`} />
+          <span className="text-[11px] text-muted uppercase tracking-[0.12em]">
+            {locale === "de" ? s.de : s.en}
+          </span>
+          {project.startedAt && (
+            <>
+              <span className="text-muted text-[11px]">·</span>
+              <span className="text-[11px] text-muted">
+                {locale === "de" ? "Begonnen" : "Started"}{" "}
+                {formatStartDate(project.startedAt, locale)}
+              </span>
+            </>
+          )}
+        </div>
       </div>
-
-      {/* Start date */}
-      {project.startedAt && (
-        <p
-          className="text-xs text-muted"
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          {locale === "de" ? "Begonnen:" : "Started:"}{" "}
-          {formatStartDate(project.startedAt, locale)}
-        </p>
-      )}
 
       {/* Description */}
       {displayDesc && (
         <p
-          className="text-sm leading-relaxed text-foreground/80"
+          className="text-muted leading-relaxed mt-4 mb-4 max-w-prose"
           style={{ fontFamily: "var(--font-body-serif)" }}
         >
           {displayDesc}
         </p>
       )}
 
-      {/* Research question */}
+      {/* Research question — prominent */}
       {displayQ && (
-        <div className="border-l-2 border-accent/30 pl-3">
+        <div className="border-l-2 border-accent pl-4 my-4 max-w-prose">
           <p
-            className="text-[10px] uppercase tracking-widest text-muted mb-1"
+            className="text-[10px] uppercase tracking-widest text-muted mb-1.5"
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {locale === "de" ? "Leitfrage" : "Research Question"}
           </p>
           <p
-            className="text-sm italic leading-relaxed"
+            className="text-base italic leading-relaxed"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {displayQ}
@@ -156,9 +121,9 @@ function ProjectCard({
         </div>
       )}
 
-      {/* Footer row */}
+      {/* Footer */}
       <div
-        className="flex items-center gap-4 pt-1"
+        className="flex items-center justify-between mt-4"
         style={{ fontFamily: "var(--font-sans)" }}
       >
         {project.plannedOutput && (
@@ -169,43 +134,39 @@ function ProjectCard({
             {project.plannedOutput}
           </p>
         )}
-        {typeof project.articleCount === "number" && project.slug?.current && (
+        {typeof project.articleCount === "number" && href && (
           <span className="text-xs text-accent ml-auto">
             {project.articleCount > 0
               ? `${project.articleCount} ${locale === "de" ? "Artikel" : project.articleCount === 1 ? "article" : "articles"}`
-              : locale === "de" ? "Noch keine Artikel" : "No articles yet"}{" →"}
+              : locale === "de"
+              ? "Noch keine Artikel"
+              : "No articles yet"}{" "}→
           </span>
         )}
       </div>
-    </div>
+    </article>
   );
 
-  return href ? <Link href={href}>{inner}</Link> : inner;
+  return href ? <Link href={href} className="block">{content}</Link> : content;
 }
 
-function Section({
-  title,
-  items,
-  locale,
-}: {
-  title: string;
-  items: Project[];
-  locale: string;
-}) {
+function Section({ title, items, locale }: { title: string; items: Project[]; locale: string }) {
   if (items.length === 0) return null;
   return (
-    <section className="space-y-4">
-      <h2
-        className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        {title}
-      </h2>
-      <div className="space-y-4">
-        {items.map((p) => (
-          <ProjectCard key={p._id} project={p} locale={locale} />
-        ))}
+    <section className="mb-12">
+      {/* Section label */}
+      <div className="flex items-center gap-4 mb-0">
+        <span
+          className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent shrink-0"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          {title}
+        </span>
+        <div className="flex-1 h-px bg-border" />
       </div>
+      {items.map((p) => (
+        <ProjectRow key={p._id} project={p} locale={locale} />
+      ))}
     </section>
   );
 }
@@ -229,39 +190,41 @@ export default async function ProjektePage({
   const completed = projects.filter((p) => p.status === "abgeschlossen");
 
   return (
-    <div className="max-w-prose mx-auto px-6 py-16">
-      <p
-        className="text-xs uppercase tracking-widest text-accent mb-2"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        Theologik
-      </p>
-      <h1
-        className="text-3xl font-bold mb-4"
-        style={{ fontFamily: "var(--font-serif)" }}
-      >
-        {locale === "de" ? "Forschungsprojekte" : "Research Projects"}
-      </h1>
-      <p
-        className="text-muted mb-12 leading-relaxed"
-        style={{ fontFamily: "var(--font-body-serif)" }}
-      >
-        {locale === "de"
-          ? "Auf dieser Seite halte ich fest, woran ich gerade arbeite — und was ich abgeschlossen oder zurückgestellt habe. Jedes Projekt verfolgt eine theologische Leitfrage und bündelt die dazugehörigen Artikel."
-          : "Here I keep track of what I am currently working on — and what I have completed or set aside. Each project follows a central theological question and gathers the articles that belong to it."}
-      </p>
+    <div className="max-w-4xl mx-auto px-6 py-16">
+      {/* Page header — matching blog/category style */}
+      <div className="mb-12">
+        <div className="w-8 h-0.5 bg-accent mb-4" />
+        <p
+          className="text-xs uppercase tracking-[0.15em] text-accent mb-2"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          Theologik
+        </p>
+        <h1
+          className="text-4xl md:text-5xl font-bold leading-tight mb-5"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {locale === "de" ? "Forschungsprojekte" : "Research Projects"}
+        </h1>
+        <p
+          className="text-muted text-lg leading-relaxed max-w-prose"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          {locale === "de"
+            ? "Auf dieser Seite halte ich fest, woran ich gerade arbeite — und was ich abgeschlossen oder zurückgestellt habe. Jedes Projekt verfolgt eine theologische Leitfrage und bündelt die dazugehörigen Artikel."
+            : "Here I keep track of what I am currently working on — and what I have completed or set aside. Each project follows a central theological question and gathers the articles that belong to it."}
+        </p>
+      </div>
 
       {projects.length === 0 ? (
         <p
           className="text-muted text-sm italic"
           style={{ fontFamily: "var(--font-body-serif)" }}
         >
-          {locale === "de"
-            ? "Noch keine Projekte vorhanden."
-            : "No projects available yet."}
+          {locale === "de" ? "Noch keine Projekte vorhanden." : "No projects available yet."}
         </p>
       ) : (
-        <div className="space-y-12">
+        <div>
           <Section
             title={locale === "de" ? "Laufende Projekte" : "Ongoing Projects"}
             items={ongoing}
@@ -273,11 +236,7 @@ export default async function ProjektePage({
             locale={locale}
           />
           <Section
-            title={
-              locale === "de"
-                ? "Abgeschlossene Projekte"
-                : "Completed Projects"
-            }
+            title={locale === "de" ? "Abgeschlossene Projekte" : "Completed Projects"}
             items={completed}
             locale={locale}
           />
