@@ -149,8 +149,8 @@ export default async function HomePage({
           <div className="hidden md:block relative">
             <div className="aspect-[4/5] overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=900&q=85"
-                alt={locale === "de" ? "Altes Manuskript" : "Ancient manuscript"}
+                src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Codex_Sinaiticus_Matthew_6%2C4-32.JPG"
+                alt={locale === "de" ? "Codex Sinaiticus – griechisches Pergamentmanuskript, 4. Jahrhundert" : "Codex Sinaiticus – Greek parchment manuscript, 4th century"}
                 width={900}
                 height={1125}
                 className="w-full h-full object-cover"
