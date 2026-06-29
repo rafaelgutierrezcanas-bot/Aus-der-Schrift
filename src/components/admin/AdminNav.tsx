@@ -60,6 +60,17 @@ function LibraryIcon() {
     </svg>
   );
 }
+function FileTextIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 1h5.5L12 3.5V14H3V1h1z"/>
+      <path d="M8.5 1v3H12"/>
+      <line x1="5" y1="7" x2="10" y2="7"/>
+      <line x1="5" y1="9.5" x2="10" y2="9.5"/>
+      <line x1="5" y1="12" x2="8" y2="12"/>
+    </svg>
+  );
+}
 function StarIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -77,6 +88,7 @@ const navItems = [
   { href: "/admin/projekte", label: "Projekte", Icon: FolderIcon },
   { href: "/admin/buecher", label: "Bücher", Icon: LibraryIcon },
   { href: "/admin/zitate", label: "Zitate", Icon: QuoteIcon },
+  { href: "/admin/ausarbeitungen", label: "Ausarbeitungen", Icon: FileTextIcon },
 ];
 
 export function AdminNav() {
