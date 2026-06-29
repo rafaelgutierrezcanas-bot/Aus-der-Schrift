@@ -6,9 +6,10 @@ export default defineType({
   type: "document",
   fields: [
     defineField({
-      name: "articleId",
-      title: "Artikel-ID",
-      type: "string",
+      name: "article",
+      title: "Artikel",
+      type: "reference",
+      to: [{ type: "article" }],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
