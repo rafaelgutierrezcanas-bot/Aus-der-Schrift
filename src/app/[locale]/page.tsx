@@ -117,8 +117,10 @@ export default async function HomePage({
               className="text-5xl md:text-6xl font-bold leading-[1.1] mb-6"
               style={{ fontFamily: "var(--font-serif)" }}
             >
-              Theologie<br />
-              <em className="not-italic text-accent">aus der Schrift.</em>
+              {locale === "de" ? "Theologie" : "Theology"}<br />
+              <em className="not-italic text-accent">
+                {locale === "de" ? "aus der Schrift." : "from Scripture."}
+              </em>
             </h1>
 
             <p
@@ -143,7 +145,7 @@ export default async function HomePage({
             <div className="aspect-[4/5] overflow-hidden">
               <Image
                 src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=900&q=85"
-                alt="Altes Manuskript"
+                alt={locale === "de" ? "Altes Manuskript" : "Ancient manuscript"}
                 width={900}
                 height={1125}
                 className="w-full h-full object-cover"
