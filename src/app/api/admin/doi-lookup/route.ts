@@ -54,6 +54,12 @@ export async function GET(request: NextRequest) {
   const doi = request.nextUrl.searchParams.get("doi");
   if (!doi) return NextResponse.json({ error: "DOI required" }, { status: 400 });
 
+  // Basic DOI format validation: must start with "10." and have a suffix
+  const DOI_REGEX = /^10\.\d{4,}\/\S+$/;
+  if (!DOI_REGEX.test(doi)) {
+    return NextResponse.json({ error: "Invalid DOI format" }, { status: 400 });
+  }
+
   try {
     const res = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`, {
       headers: { "User-Agent": "Theologik/1.0 (mailto:admin@theologik.org)" },

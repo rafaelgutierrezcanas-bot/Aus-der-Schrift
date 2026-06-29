@@ -62,6 +62,11 @@ export async function POST(request: NextRequest) {
   const { text } = await request.json();
   if (!text?.trim()) return NextResponse.json({ changes: [] });
 
+  const MAX_TEXT_LENGTH = 50_000; // ~50k chars ≈ ~25k tokens max
+  if (typeof text !== "string" || text.length > MAX_TEXT_LENGTH) {
+    return NextResponse.json({ error: "Text zu lang (max. 50.000 Zeichen)" }, { status: 413 });
+  }
+
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const message = await client.messages.create({
