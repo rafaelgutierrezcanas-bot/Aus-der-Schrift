@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LanguageToggle } from "./LanguageToggle";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { TheologikLogo } from "./TheologikLogo";
@@ -30,16 +31,21 @@ const CREAM_MUTED = "rgba(237,229,216,0.6)";
 
 export function Header({ locale }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [atTop, setAtTop] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHomepage = pathname === `/${locale}` || pathname === `/${locale}/`;
 
   useEffect(() => {
     function onScroll() {
-      setAtTop(window.scrollY < 10);
+      setScrolled(window.scrollY > 10);
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Transparent only on homepage when not yet scrolled
+  const atTop = isHomepage && !scrolled;
 
   return (
     <header
