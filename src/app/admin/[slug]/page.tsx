@@ -687,31 +687,32 @@ export default function EditArticlePage() {
         )}
       </div>
 
-      {(language === "de" || language === "both") && (
-        <div>
-          <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
-          <TiptapEditor
-            content={bodyDe}
-            onChange={setBodyDe}
-            placeholder="Schreibe auf Deutsch..."
-            sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-            entwurf={entwurf}
-            onEntwurfChange={setEntwurf}
-          />
-        </div>
-      )}
+      <div>
+        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
+        <TiptapEditor
+          content={bodyDe}
+          onChange={setBodyDe}
+          placeholder="Schreibe auf Deutsch..."
+          sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+          entwurf={entwurf}
+          onEntwurfChange={setEntwurf}
+        />
+      </div>
 
-      {(language === "en" || language === "both") && (
-        <div>
-          <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Content (EN)</h2>
-          <TiptapEditor
-            content={bodyEn}
-            onChange={setBodyEn}
-            placeholder="Write in English..."
-            sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-          />
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <h2 className="font-serif text-base text-[var(--color-foreground)]">Content (EN)</h2>
+          <span className="text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
+            Englische Übersetzung
+          </span>
         </div>
-      )}
+        <TiptapEditor
+          content={bodyEn}
+          onChange={(val) => { setBodyEn(val); if (language === "de") setLanguage("both"); }}
+          placeholder="Write in English..."
+          sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
+        />
+      </div>
     </div>
   );
 }
