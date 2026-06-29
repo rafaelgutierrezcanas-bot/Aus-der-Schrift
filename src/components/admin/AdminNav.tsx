@@ -43,6 +43,23 @@ function FolderIcon() {
     </svg>
   );
 }
+function QuoteIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 4h4v4H2V4z"/><path d="M2 8c0 2 1 3 4 3"/>
+      <path d="M9 4h4v4H9V4z"/><path d="M9 8c0 2 1 3 4 3"/>
+    </svg>
+  );
+}
+function LibraryIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="2" width="3" height="11" rx="0.5"/>
+      <rect x="6" y="2" width="3" height="11" rx="0.5"/>
+      <rect x="11" y="2" width="3" height="11" rx="0.5"/>
+    </svg>
+  );
+}
 function StarIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -58,6 +75,8 @@ const navItems = [
   { href: "/admin/quellen", label: "Quellen", Icon: BookIcon },
   { href: "/admin/ideen", label: "Ideen", Icon: BulbIcon },
   { href: "/admin/projekte", label: "Projekte", Icon: FolderIcon },
+  { href: "/admin/buecher", label: "Bücher", Icon: LibraryIcon },
+  { href: "/admin/zitate", label: "Zitate", Icon: QuoteIcon },
 ];
 
 export function AdminNav() {
