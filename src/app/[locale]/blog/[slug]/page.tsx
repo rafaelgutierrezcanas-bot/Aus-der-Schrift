@@ -16,6 +16,7 @@ import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
 import { formatChicago, type Source } from "@/lib/formatChicago";
 import { PaperLayout } from "@/components/PaperLayout";
+import { CommentsSection } from "@/components/CommentsSection";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -415,6 +416,9 @@ export default async function ArticlePage({
           </div>
         </section>
       )}
+
+      {/* Comments */}
+      <CommentsSection articleId={article._id as string} locale={locale} />
     </div>
   );
 }
