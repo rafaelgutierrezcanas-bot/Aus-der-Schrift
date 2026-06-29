@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 
@@ -31,5 +32,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const doc = await writeClient.create({ _type: "bookRecommendation", ...body });
+  revalidatePath("/de/ressourcen");
+  revalidatePath("/en/ressourcen");
   return NextResponse.json(doc, { status: 201 });
 }
