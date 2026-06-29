@@ -1,9 +1,8 @@
 import { client } from "@/sanity/client";
 import { allArticlesQuery, allCategoriesQuery } from "@/sanity/queries";
-import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getLocalizedCategoryTitle } from "@/lib/utils";
+import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, formatDate } from "@/lib/utils";
 import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
@@ -73,50 +72,117 @@ export default async function BlogPage({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <Script
         id={`schema-blog-index-${locale}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1
-        className="text-3xl font-bold mb-8"
-        style={{ fontFamily: "var(--font-serif)" }}
-      >
-        {t("allPosts")}
-      </h1>
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-3 mb-12">
-        <Link
-          href={`/${locale}/blog`}
-          className="text-sm px-4 py-1.5 border border-accent text-accent rounded-full hover:bg-accent hover:text-white transition-colors"
-          style={{ fontFamily: "var(--font-sans)" }}
+      {/* Header */}
+      <div className="mb-10">
+        <div className="w-8 h-0.5 bg-accent mb-4" />
+        <h1
+          className="text-4xl md:text-5xl font-bold leading-tight"
+          style={{ fontFamily: "var(--font-serif)" }}
         >
           {t("allPosts")}
-        </Link>
-        {categories.map((cat) => (
-          <Link
-            key={cat._id as string}
-            href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
-            className="text-sm px-4 py-1.5 border border-border text-muted rounded-full hover:border-accent hover:text-accent transition-colors"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {getLocalizedCategoryTitle(cat, locale)}
-          </Link>
-        ))}
+        </h1>
       </div>
 
+      {/* Category Filter — dot separated */}
+      <nav className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-12 pb-5 border-b border-border" style={{ fontFamily: "var(--font-sans)" }}>
+        <Link
+          href={`/${locale}/blog`}
+          className="text-xs font-semibold uppercase tracking-[0.12em] text-accent border-b border-accent pb-px"
+        >
+          {locale === "de" ? "Alle" : "All"}
+        </Link>
+        {categories.map((cat) => (
+          <>
+            <span key={`dot-${cat._id as string}`} className="text-border select-none">·</span>
+            <Link
+              key={cat._id as string}
+              href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
+              className="text-xs uppercase tracking-[0.12em] text-muted hover:text-accent transition-colors"
+            >
+              {getLocalizedCategoryTitle(cat, locale)}
+            </Link>
+          </>
+        ))}
+      </nav>
+
       {articles.length === 0 && (
-        <p className="text-muted text-center" style={{ fontFamily: "var(--font-sans)" }}>
+        <p className="text-muted text-center py-16" style={{ fontFamily: "var(--font-sans)" }}>
           {locale === "de" ? "Noch keine Artikel." : "No articles yet."}
         </p>
       )}
 
-      <div className="space-y-10">
-        {articles.map((article) => (
-          <ArticleCard key={article._id as string} article={article} />
-        ))}
+      {/* Article list — broadsheet rows */}
+      <div>
+        {articles.map((article, i) => {
+          const title = getLocalizedTitle(article, locale);
+          const excerpt = getLocalizedExcerpt(article, locale);
+          const category = article.category as Record<string, unknown> | null;
+          const categoryTitle = getLocalizedCategoryTitle(category, locale);
+          const categorySlug = (category?.slug as { current: string })?.current;
+          const slug = (article.slug as { current: string })?.current;
+          const publishedAt = article.publishedAt as string | undefined;
+          const articleHref = `/${locale}/blog/${slug}`;
+          const isFirst = i === 0;
+
+          return (
+            <article
+              key={article._id as string}
+              className="group grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-4 md:gap-8 py-7 border-b border-border"
+            >
+              {/* Metadata column */}
+              <div className="flex flex-col gap-1 pt-0.5">
+                {categoryTitle && (
+                  categorySlug ? (
+                    <Link
+                      href={`/${locale}/kategorien/${categorySlug}`}
+                      className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent hover:underline"
+                      style={{ fontFamily: "var(--font-sans)" }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {categoryTitle}
+                    </Link>
+                  ) : (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+                      {categoryTitle}
+                    </span>
+                  )
+                )}
+                {publishedAt && (
+                  <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+                    {formatDate(publishedAt, locale)}
+                  </span>
+                )}
+              </div>
+
+              {/* Content column */}
+              <div>
+                <Link href={articleHref}>
+                  <h2
+                    className={`font-bold leading-snug mb-2 group-hover:text-accent transition-colors ${isFirst ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    {title}
+                  </h2>
+                  {excerpt && (
+                    <p
+                      className={`text-muted leading-relaxed line-clamp-2 ${isFirst ? "text-base" : "text-sm"}`}
+                      style={{ fontFamily: "var(--font-body-serif)" }}
+                    >
+                      {excerpt}
+                    </p>
+                  )}
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
