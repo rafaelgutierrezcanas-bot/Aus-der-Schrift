@@ -1,8 +1,36 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
 import { BuecherClient } from "@/components/BuecherClient";
+import type { Metadata } from "next";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/ressourcen/buecher",
+    deTitle: "Theologische Bücher",
+    enTitle: "Theological Books",
+    deDescription:
+      "Empfehlenswerte theologische Bücher nach Thema und Schwierigkeitsgrad – kuratiert von Theologik.",
+    enDescription:
+      "Recommended theological books sorted by topic and difficulty – curated by Theologik.",
+    keywords: [
+      "theologische Bücher",
+      "Theologie Bücher Empfehlung",
+      "christliche Literatur",
+      "Bibelkommentar",
+      "Apologetik Bücher",
+      "Kirchengeschichte Bücher",
+    ],
+  });
+}
 
 export default async function BuecherPage({
   params,

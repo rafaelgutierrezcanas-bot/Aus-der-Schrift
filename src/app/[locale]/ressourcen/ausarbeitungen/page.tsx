@@ -1,7 +1,34 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
+import type { Metadata } from "next";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/ressourcen/ausarbeitungen",
+    deTitle: "Theologische Ausarbeitungen",
+    enTitle: "Theological Papers",
+    deDescription:
+      "Eigene theologische Ausarbeitungen und Studien zu Bibelauslegung, Kirchengeschichte und systematischer Theologie.",
+    enDescription:
+      "Original theological papers and studies on biblical interpretation, church history, and systematic theology.",
+    keywords: [
+      "theologische Ausarbeitung",
+      "Theologie Studium",
+      "Bibelauslegung Studie",
+      "systematische Theologie",
+      "Hermeneutik",
+    ],
+  });
+}
 
 interface Ausarbeitung {
   _id: string;

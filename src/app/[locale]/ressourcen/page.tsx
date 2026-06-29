@@ -1,6 +1,33 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/ressourcen",
+    deTitle: "Ressourcen",
+    enTitle: "Resources",
+    deDescription:
+      "Empfehlenswerte theologische Bücher, Zitate bedeutender Denker und eigene Ausarbeitungen zu Theologie und Bibelauslegung.",
+    enDescription:
+      "Recommended theological books, quotes from significant thinkers, and original papers on theology and biblical interpretation.",
+    keywords: [
+      "theologische Ressourcen",
+      "Theologie Bücher",
+      "theologische Zitate",
+      "Bibelauslegung",
+      "Hermeneutik",
+    ],
+  });
+}
 
 export default async function RessourcenPage({
   params,

@@ -4,8 +4,36 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { HermeneutikStep, HermeneutikTextSummary } from "@/lib/hermeneutik";
 import { loc, STEP_COLORS } from "@/lib/hermeneutik";
+import type { Metadata } from "next";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/ressourcen/hermeneutik",
+    deTitle: "Hermeneutik lernen",
+    enTitle: "Learn Hermeneutics",
+    deDescription:
+      "Interaktives Lernprogramm für biblische Textanalyse – lerne die hermeneutische Methode Schritt für Schritt.",
+    enDescription:
+      "Interactive learning program for biblical text analysis – learn the hermeneutical method step by step.",
+    keywords: [
+      "Hermeneutik lernen",
+      "biblische Hermeneutik",
+      "Bibelauslegung Methode",
+      "Textanalyse Bibel",
+      "exegetische Methode",
+      "Schriftauslegung",
+    ],
+  });
+}
 
 export default async function HermeneutikOverview({
   params,

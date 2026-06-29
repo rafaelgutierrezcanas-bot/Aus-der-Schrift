@@ -2,6 +2,7 @@ import { client } from "@/sanity/client";
 import { allProjectsQuery } from "@/sanity/queries";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -11,16 +12,22 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    title:
-      locale === "de"
-        ? "Forschungsprojekte – Theologik"
-        : "Research Projects – Theologik",
-    description:
-      locale === "de"
-        ? "Aktuelle und abgeschlossene Forschungsprojekte von Theologik."
-        : "Current and completed research projects by Theologik.",
-  };
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/projekte",
+    deTitle: "Forschungsprojekte",
+    enTitle: "Research Projects",
+    deDescription:
+      "Aktuelle und abgeschlossene Forschungsprojekte von Theologik zu Theologie, Kirchengeschichte und Bibelauslegung.",
+    enDescription:
+      "Current and completed research projects by Theologik on theology, church history, and biblical interpretation.",
+    keywords: [
+      "theologische Forschung",
+      "Theologie Projekte",
+      "Kirchengeschichte Forschung",
+      "Bibelauslegung",
+    ],
+  });
 }
 
 interface Project {

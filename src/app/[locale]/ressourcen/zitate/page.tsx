@@ -1,8 +1,36 @@
 import Link from "next/link";
 import { client } from "@/sanity/client";
 import { ZitateClient } from "@/components/ZitateClient";
+import type { Metadata } from "next";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: "/ressourcen/zitate",
+    deTitle: "Theologische Zitate",
+    enTitle: "Theological Quotes",
+    deDescription:
+      "Theologische Zitate bedeutender Autoren und Denker, nach Thema geordnet – von Luther bis Spurgeon.",
+    enDescription:
+      "Theological quotes from significant authors and thinkers, organized by topic – from Luther to Spurgeon.",
+    keywords: [
+      "theologische Zitate",
+      "christliche Zitate",
+      "Luther Zitate",
+      "Spurgeon Zitate",
+      "Kirchenväter Zitate",
+      "Reformatoren Zitate",
+    ],
+  });
+}
 
 export default async function ZitatePage({
   params,
