@@ -144,7 +144,6 @@ export default async function BlogPage({
                       href={`/${locale}/kategorien/${categorySlug}`}
                       className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent hover:underline"
                       style={{ fontFamily: "var(--font-sans)" }}
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {categoryTitle}
                     </Link>
