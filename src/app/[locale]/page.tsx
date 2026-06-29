@@ -1,6 +1,5 @@
 import { client } from "@/sanity/client";
 import { recommendedArticlesQuery, latestArticlesQuery } from "@/sanity/queries";
-import { ArticleCard } from "@/components/ArticleCard";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,6 +7,7 @@ import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
+import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, formatDate } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -162,64 +162,178 @@ export default async function HomePage({
       </section>
 
       {/* ── Recommended Articles ── */}
-      {recommended.length > 0 && (
-        <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16">
+      {recommended.length > 0 && (() => {
+        const featured = recommended[0];
+        const secondary = recommended.slice(1, 4);
+        const featuredTitle = getLocalizedTitle(featured, locale);
+        const featuredExcerpt = getLocalizedExcerpt(featured, locale);
+        const featuredCat = featured.category as Record<string, unknown> | null;
+        const featuredCatTitle = getLocalizedCategoryTitle(featuredCat, locale);
+        const featuredCatSlug = (featuredCat?.slug as { current: string })?.current;
+        const featuredSlug = (featured.slug as { current: string })?.current;
 
-            <div className="flex items-center gap-4 mb-10">
-              <span
-                className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                {locale === "de" ? "Empfohlen" : "Featured"}
-              </span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
+        return (
+          <section className="border-b border-border">
+            <div className="max-w-6xl mx-auto px-6 py-16">
 
-            <div className="mb-12">
-              <ArticleCard article={recommended[0]} featured />
-            </div>
-
-            {recommended.slice(1, 4).length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {recommended.slice(1, 4).map((article) => (
-                  <ArticleCard key={article._id as string} article={article} />
-                ))}
+              {/* Section label */}
+              <div className="flex items-center gap-4 mb-10">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+                  {locale === "de" ? "Empfohlen" : "Featured"}
+                </span>
+                <div className="flex-1 h-px bg-border" />
               </div>
-            )}
 
-          </div>
-        </section>
-      )}
+              {/* Featured article — large, no image */}
+              <article className="group mb-10 pb-10 border-b border-border">
+                <div className="max-w-3xl">
+                  {featuredCatTitle && (
+                    featuredCatSlug ? (
+                      <Link href={`/${locale}/kategorien/${featuredCatSlug}`}
+                        className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent hover:underline mb-3 block"
+                        style={{ fontFamily: "var(--font-sans)" }}>
+                        {featuredCatTitle}
+                      </Link>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent mb-3 block" style={{ fontFamily: "var(--font-sans)" }}>
+                        {featuredCatTitle}
+                      </span>
+                    )
+                  )}
+                  <Link href={`/${locale}/blog/${featuredSlug}`} className="group/link">
+                    <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4 group-hover/link:text-accent transition-colors"
+                      style={{ fontFamily: "var(--font-serif)" }}>
+                      {featuredTitle}
+                    </h2>
+                    {featuredExcerpt && (
+                      <p className="text-muted text-lg leading-relaxed mb-5 line-clamp-2"
+                        style={{ fontFamily: "var(--font-body-serif)" }}>
+                        {featuredExcerpt}
+                      </p>
+                    )}
+                  </Link>
+                  <Link href={`/${locale}/blog/${featuredSlug}`}
+                    className="inline-flex items-center gap-2 text-xs text-accent hover:gap-3 transition-all"
+                    style={{ fontFamily: "var(--font-sans)", letterSpacing: "0.08em" }}>
+                    {locale === "de" ? "Artikel lesen" : "Read article"} →
+                  </Link>
+                </div>
+              </article>
+
+              {/* Secondary articles — 3 columns, no images */}
+              {secondary.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
+                  {secondary.map((article) => {
+                    const title = getLocalizedTitle(article, locale);
+                    const excerpt = getLocalizedExcerpt(article, locale);
+                    const cat = article.category as Record<string, unknown> | null;
+                    const catTitle = getLocalizedCategoryTitle(cat, locale);
+                    const catSlug = (cat?.slug as { current: string })?.current;
+                    const slug = (article.slug as { current: string })?.current;
+                    const publishedAt = article.publishedAt as string | undefined;
+                    return (
+                      <article key={article._id as string} className="group py-6 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0">
+                        {catTitle && (
+                          catSlug ? (
+                            <Link href={`/${locale}/kategorien/${catSlug}`}
+                              className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent hover:underline mb-2 block"
+                              style={{ fontFamily: "var(--font-sans)" }}>
+                              {catTitle}
+                            </Link>
+                          ) : (
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent mb-2 block" style={{ fontFamily: "var(--font-sans)" }}>
+                              {catTitle}
+                            </span>
+                          )
+                        )}
+                        <Link href={`/${locale}/blog/${slug}`}>
+                          <h3 className="font-bold leading-snug mb-2 group-hover:text-accent transition-colors text-lg"
+                            style={{ fontFamily: "var(--font-serif)" }}>
+                            {title}
+                          </h3>
+                          {excerpt && (
+                            <p className="text-muted text-sm leading-relaxed line-clamp-2 mb-2"
+                              style={{ fontFamily: "var(--font-body-serif)" }}>
+                              {excerpt}
+                            </p>
+                          )}
+                        </Link>
+                        {publishedAt && (
+                          <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+                            {formatDate(publishedAt, locale)}
+                          </span>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ── Latest Articles ── */}
       {latest.length > 0 && (
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16">
 
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-4">
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent"
-                  style={{ fontFamily: "var(--font-sans)" }}
-                >
-                  {locale === "de" ? "Neueste Artikel" : "Latest Articles"}
-                </span>
-                <div className="w-16 h-px bg-border" />
-              </div>
-              <Link
-                href={`/${locale}/blog`}
-                className="text-xs text-muted hover:text-accent transition-colors flex items-center gap-1"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                {locale === "de" ? "Alle ansehen" : "View all"} →
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+                {locale === "de" ? "Neueste Artikel" : "Latest Articles"}
+              </span>
+              <Link href={`/${locale}/blog`}
+                className="text-xs text-muted hover:text-accent transition-colors"
+                style={{ fontFamily: "var(--font-sans)" }}>
+                {locale === "de" ? "Alle ansehen →" : "View all →"}
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {latest.map((article) => (
-                <ArticleCard key={article._id as string} article={article} />
-              ))}
+            {/* List rows */}
+            <div>
+              {latest.map((article) => {
+                const title = getLocalizedTitle(article, locale);
+                const cat = article.category as Record<string, unknown> | null;
+                const catTitle = getLocalizedCategoryTitle(cat, locale);
+                const catSlug = (cat?.slug as { current: string })?.current;
+                const slug = (article.slug as { current: string })?.current;
+                const publishedAt = article.publishedAt as string | undefined;
+                return (
+                  <article key={article._id as string}
+                    className="group grid grid-cols-[120px_1fr_auto] md:grid-cols-[160px_1fr_auto] items-baseline gap-4 py-4 border-b border-border last:border-0">
+                    {/* Category */}
+                    <div>
+                      {catTitle && (
+                        catSlug ? (
+                          <Link href={`/${locale}/kategorien/${catSlug}`}
+                            className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent hover:underline"
+                            style={{ fontFamily: "var(--font-sans)" }}>
+                            {catTitle}
+                          </Link>
+                        ) : (
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
+                            {catTitle}
+                          </span>
+                        )
+                      )}
+                    </div>
+                    {/* Title */}
+                    <Link href={`/${locale}/blog/${slug}`}
+                      className="font-semibold leading-snug group-hover:text-accent transition-colors"
+                      style={{ fontFamily: "var(--font-serif)" }}>
+                      {title}
+                    </Link>
+                    {/* Date */}
+                    {publishedAt && (
+                      <span className="text-[11px] text-muted whitespace-nowrap" style={{ fontFamily: "var(--font-sans)" }}>
+                        {formatDate(publishedAt, locale)}
+                      </span>
+                    )}
+                  </article>
+                );
+              })}
             </div>
 
           </div>
