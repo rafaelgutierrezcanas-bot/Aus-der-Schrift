@@ -7,8 +7,8 @@ interface Props {
 export function AuthorCard({ locale }: Props) {
   const bio =
     locale === "de"
-      ? "Rafael schreibt über reformierte Theologie, Bibelauslegung und Kirchengeschichte — gründlich, ehrlich und alltagstauglich."
-      : "Rafael writes about Reformed theology, biblical exegesis, and church history — thorough, honest, and practically grounded.";
+      ? "Rafael schreibt über Theologie, Bibelauslegung und Kirchengeschichte."
+      : "Rafael writes about theology, biblical exegesis, and church history.";
 
   const linkLabel =
     locale === "de" ? "Mehr über Rafael" : "More about Rafael";
