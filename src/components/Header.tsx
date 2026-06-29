@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LanguageToggle } from "./LanguageToggle";
 import { DarkModeToggle } from "./DarkModeToggle";
@@ -25,11 +25,30 @@ const themen: Record<string, { de: string; en: string; slug: string }[]> = {
   ],
 };
 
+const CREAM = "#EDE5D8";
+const CREAM_MUTED = "rgba(237,229,216,0.6)";
+
 export function Header({ locale }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [atTop, setAtTop] = useState(true);
+
+  useEffect(() => {
+    function onScroll() {
+      setAtTop(window.scrollY < 10);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-background shadow-sm border-b border-border">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        atTop
+          ? "border-b border-transparent"
+          : "bg-background shadow-sm border-b border-border"
+      }`}
+    >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
 
         {/* Logo */}
@@ -38,17 +57,27 @@ export function Header({ locale }: HeaderProps) {
           className="shrink-0 hover:opacity-75 transition-opacity"
           aria-label={locale === "de" ? "Theologik – Startseite" : "Theologik – Home"}
         >
-          <TheologikLogo className="h-7 w-auto text-foreground" />
+          <TheologikLogo
+            className="h-7 w-auto transition-colors duration-300"
+            style={{ color: atTop ? CREAM : "var(--color-foreground)" }}
+          />
         </Link>
 
         {/* Category nav — pill container */}
-        <nav className="hidden lg:flex items-center border border-border rounded-full px-1 py-1 gap-0">
+        <nav
+          className={`hidden lg:flex items-center border rounded-full px-1 py-1 gap-0 transition-all duration-300 ${
+            atTop ? "border-white/20" : "border-border"
+          }`}
+        >
 
           {/* Über mich dropdown */}
           <div className="relative group">
             <span
-              className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
-              style={{ fontFamily: "var(--font-sans)" }}
+              className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
+              style={{
+                fontFamily: "var(--font-sans)",
+                color: atTop ? CREAM : "var(--color-muted)",
+              }}
             >
               {locale === "de" ? "Über mich" : "About me"}
               <svg width="8" height="5" viewBox="0 0 8 5" fill="none" className="opacity-50">
@@ -73,13 +102,16 @@ export function Header({ locale }: HeaderProps) {
             </div>
           </div>
 
-          <span className="w-px h-3 bg-border shrink-0" />
+          <span className={`w-px h-3 shrink-0 transition-colors duration-300 ${atTop ? "bg-white/20" : "bg-border"}`} />
 
           {/* Themen dropdown */}
           <div className="relative group">
             <span
-              className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
-              style={{ fontFamily: "var(--font-sans)" }}
+              className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap flex items-center gap-1 cursor-default"
+              style={{
+                fontFamily: "var(--font-sans)",
+                color: atTop ? CREAM : "var(--color-muted)",
+              }}
             >
               {locale === "de" ? "Themen" : "Topics"}
               <svg width="8" height="5" viewBox="0 0 8 5" fill="none" className="opacity-50">
@@ -100,24 +132,30 @@ export function Header({ locale }: HeaderProps) {
             </div>
           </div>
 
-          <span className="w-px h-3 bg-border shrink-0" />
+          <span className={`w-px h-3 shrink-0 transition-colors duration-300 ${atTop ? "bg-white/20" : "bg-border"}`} />
 
           {/* Projekte */}
           <Link
             href={`/${locale}/projekte`}
-            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
-            style={{ fontFamily: "var(--font-sans)" }}
+            className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap"
+            style={{
+              fontFamily: "var(--font-sans)",
+              color: atTop ? CREAM : "var(--color-muted)",
+            }}
           >
             {locale === "de" ? "Projekte" : "Projects"}
           </Link>
 
-          <span className="w-px h-3 bg-border shrink-0" />
+          <span className={`w-px h-3 shrink-0 transition-colors duration-300 ${atTop ? "bg-white/20" : "bg-border"}`} />
 
           {/* Ressourcen */}
           <Link
             href={`/${locale}/ressourcen`}
-            className="text-xs px-4 py-1.5 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors whitespace-nowrap"
-            style={{ fontFamily: "var(--font-sans)" }}
+            className="text-xs px-4 py-1.5 rounded-full hover:bg-surface transition-colors whitespace-nowrap"
+            style={{
+              fontFamily: "var(--font-sans)",
+              color: atTop ? CREAM : "var(--color-muted)",
+            }}
           >
             {locale === "de" ? "Ressourcen" : "Resources"}
           </Link>
@@ -128,8 +166,12 @@ export function Header({ locale }: HeaderProps) {
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href={`/${locale}/kontakt`}
-            className="hidden md:inline-flex items-center text-xs px-4 py-1.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition-colors"
-            style={{ fontFamily: "var(--font-sans)" }}
+            className="hidden md:inline-flex items-center text-xs px-4 py-1.5 rounded-full border transition-colors"
+            style={{
+              fontFamily: "var(--font-sans)",
+              borderColor: atTop ? "rgba(237,229,216,0.5)" : "var(--color-accent)",
+              color: atTop ? CREAM : "var(--color-accent)",
+            }}
           >
             {locale === "de" ? "Kontakt" : "Contact"}
           </Link>
@@ -138,9 +180,10 @@ export function Header({ locale }: HeaderProps) {
           {/* Admin-Zugang */}
           <Link
             href="/admin"
-            className="text-muted hover:text-foreground transition-colors opacity-40 hover:opacity-100"
+            className="transition-colors opacity-40 hover:opacity-100"
             aria-label="Admin"
             title="Admin"
+            style={{ color: atTop ? CREAM_MUTED : "var(--color-muted)" }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -149,10 +192,11 @@ export function Header({ locale }: HeaderProps) {
           </Link>
           {/* Hamburger button — mobile only */}
           <button
-            className="lg:hidden flex items-center justify-center w-8 h-8 text-muted hover:text-foreground transition-colors"
+            className="lg:hidden flex items-center justify-center w-8 h-8 transition-colors"
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-label={mobileOpen ? "Menu schließen" : "Menu öffnen"}
             aria-expanded={mobileOpen}
+            style={{ color: atTop ? CREAM : "var(--color-muted)" }}
           >
             {mobileOpen ? (
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -171,7 +215,7 @@ export function Header({ locale }: HeaderProps) {
 
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — always solid */}
       {mobileOpen && (
         <div
           className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-40 px-6 py-5 space-y-5"

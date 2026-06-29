@@ -100,7 +100,7 @@ export default async function HomePage({
       />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden min-h-[520px] md:min-h-[600px] flex items-center">
+      <section className="relative h-screen -mt-16 flex items-center overflow-hidden">
         {/* Background: Codex Sinaiticus */}
         <Image
           src="https://upload.wikimedia.org/wikipedia/commons/b/be/Codex_Sinaiticus_Matthew_6%2C4-32.JPG"
@@ -115,12 +115,6 @@ export default async function HomePage({
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: "linear-gradient(to right, rgba(28,24,18,0.93) 0%, rgba(28,24,18,0.80) 40%, rgba(28,24,18,0.30) 70%, rgba(28,24,18,0.10) 100%)" }}
-        />
-
-        {/* Bottom fade to page background */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-          style={{ background: "linear-gradient(to bottom, transparent, var(--color-background))" }}
         />
 
         {/* Content */}

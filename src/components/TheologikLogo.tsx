@@ -1,5 +1,8 @@
+import type { CSSProperties } from "react";
+
 interface TheologikLogoProps {
   className?: string;
+  style?: CSSProperties;
 }
 
 /**
@@ -8,7 +11,7 @@ interface TheologikLogoProps {
  * – 4th O contains a compass needle + N/S dots
  * Uses currentColor so it adapts to dark/light mode automatically.
  */
-export function TheologikLogo({ className }: TheologikLogoProps) {
+export function TheologikLogo({ className, style }: TheologikLogoProps) {
   return (
     <svg
       viewBox="0 0 460 100"
@@ -16,6 +19,7 @@ export function TheologikLogo({ className }: TheologikLogoProps) {
       fill="currentColor"
       aria-label="Theologik"
       className={className}
+      style={style}
     >
       {/* ── T (cross) ── */}
       {/* crossbar at cap-top */}

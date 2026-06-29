@@ -19,7 +19,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <Header locale={locale} />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen pt-16">{children}</main>
       <footer className="border-t border-border">
   {/* Main footer */}
   <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
