@@ -20,7 +20,6 @@ import { CommentsSection } from "@/components/CommentsSection";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -427,7 +426,6 @@ export default async function ArticlePage({
       )}
 
       <AuthorCard locale={locale} />
-      <NewsletterSignup locale={locale} />
 
       {/* Related Posts */}
       {related.length > 0 && (
