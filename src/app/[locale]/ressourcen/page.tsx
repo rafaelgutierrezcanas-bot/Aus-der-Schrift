@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { client } from "@/sanity/client";
-import { RessourcenClient } from "@/components/RessourcenClient";
 
 export const revalidate = 60;
 
@@ -10,24 +8,6 @@ export default async function RessourcenPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  const [books, quotes] = await Promise.all([
-    client.fetch(
-      `*[_type == "bookRecommendation"] | order(_createdAt desc) {
-        _id, title, author, year, description, difficulty, topics, buyLink
-      }`,
-      {},
-      { next: { tags: ["ressourcen"], revalidate: 60 } }
-    ),
-    client.fetch(
-      `*[_type == "quote"] | order(_createdAt desc) {
-        _id, text, author, topics,
-        "source": source->{ title, author, year }
-      }`,
-      {},
-      { next: { tags: ["ressourcen"], revalidate: 60 } }
-    ),
-  ]);
 
   return (
     <div className="max-w-prose mx-auto px-6 py-16">
@@ -48,8 +28,8 @@ export default async function RessourcenPage({
         style={{ fontFamily: "var(--font-body-serif)" }}
       >
         {locale === "de"
-          ? "Hier findest du eine Auswahl empfehlenswerter Bücher und theologischer Zitate."
-          : "Here you will find a selection of recommended books and theological quotes."}
+          ? "Hier findest du empfehlenswerte Bücher, theologische Zitate und eigene Ausarbeitungen."
+          : "Here you will find recommended books, theological quotes, and my own papers."}
       </p>
 
       {/* Hermeneutik Program — only shown when enabled */}
@@ -76,7 +56,71 @@ export default async function RessourcenPage({
         </Link>
       )}
 
-      <RessourcenClient books={books} quotes={quotes} locale={locale} />
+      {/* Category cards */}
+      <div className="grid grid-cols-1 gap-6">
+        <Link
+          href={`/${locale}/ressourcen/buecher`}
+          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
+          style={{
+            borderColor: "var(--color-border)",
+            background: "var(--color-surface)",
+          }}
+        >
+          <h2
+            className="text-2xl font-semibold mb-2"
+            style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
+          >
+            {locale === "de" ? "Bücher" : "Books"}
+          </h2>
+          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+            {locale === "de"
+              ? "Empfehlenswerte theologische Bücher mit Einordnung nach Thema und Schwierigkeitsgrad."
+              : "Recommended theological books categorized by topic and difficulty level."}
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/ressourcen/zitate`}
+          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
+          style={{
+            borderColor: "var(--color-border)",
+            background: "var(--color-surface)",
+          }}
+        >
+          <h2
+            className="text-2xl font-semibold mb-2"
+            style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
+          >
+            {locale === "de" ? "Zitate" : "Quotes"}
+          </h2>
+          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+            {locale === "de"
+              ? "Theologische Zitate bedeutender Autoren und Denker, nach Thema geordnet."
+              : "Theological quotes from significant authors and thinkers, organized by topic."}
+          </p>
+        </Link>
+
+        <Link
+          href={`/${locale}/ressourcen/ausarbeitungen`}
+          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
+          style={{
+            borderColor: "var(--color-border)",
+            background: "var(--color-surface)",
+          }}
+        >
+          <h2
+            className="text-2xl font-semibold mb-2"
+            style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
+          >
+            {locale === "de" ? "Ausarbeitungen" : "Papers"}
+          </h2>
+          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+            {locale === "de"
+              ? "Eigene theologische Ausarbeitungen und Studien zu ausgewählten Themen."
+              : "My own theological papers and studies on selected topics."}
+          </p>
+        </Link>
+      </div>
     </div>
   );
 }
