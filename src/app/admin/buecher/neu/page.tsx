@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DIFFICULTY_OPTIONS, TOPIC_OPTIONS } from "@/lib/ressourcen";
+import { DIFFICULTY_OPTIONS, TOPIC_OPTIONS, BOOK_TYPE_OPTIONS } from "@/lib/ressourcen";
 
 const inputClass = "w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]";
 
@@ -15,6 +15,7 @@ export default function NeuesBuchPage() {
   const [difficulty, setDifficulty] = useState("einsteiger");
   const [topics, setTopics] = useState<string[]>([]);
   const [buyLink, setBuyLink] = useState("");
+  const [bookType, setBookType] = useState("");
   const [saving, setSaving] = useState(false);
 
   function toggleTopic(value: string) {
@@ -37,6 +38,7 @@ export default function NeuesBuchPage() {
         difficulty,
         topics,
         buyLink: buyLink.trim() || undefined,
+        bookType: bookType || undefined,
       }),
     });
     router.push("/admin/buecher");
@@ -79,6 +81,26 @@ export default function NeuesBuchPage() {
                 style={{ fontFamily: "var(--font-sans)" }}
               >
                 {d.title}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-2">Buchtyp (optional)</label>
+          <div className="flex flex-wrap gap-2">
+            {BOOK_TYPE_OPTIONS.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setBookType(bookType === t.value ? "" : t.value)}
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                  bookType === t.value
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
+                    : "border-[var(--color-border)] text-[var(--color-muted)] hover:border-[var(--color-accent)]"
+                }`}
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {t.title}
               </button>
             ))}
           </div>

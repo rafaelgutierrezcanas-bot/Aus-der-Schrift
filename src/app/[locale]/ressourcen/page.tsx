@@ -10,7 +10,7 @@ export default async function RessourcenPage({
   const { locale } = await params;
 
   return (
-    <div className="max-w-prose mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16">
       <p
         className="text-xs uppercase tracking-widest text-accent mb-2"
         style={{ fontFamily: "var(--font-sans)" }}
@@ -56,68 +56,112 @@ export default async function RessourcenPage({
         </Link>
       )}
 
-      {/* Category cards */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* Category cards — 3-column grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Bücher */}
         <Link
           href={`/${locale}/ressourcen/buecher`}
-          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
-          style={{
-            borderColor: "var(--color-border)",
-            background: "var(--color-surface)",
-          }}
+          className="group flex flex-col rounded-2xl border p-8 transition-all hover:scale-[1.01] hover:shadow-sm"
+          style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
         >
+          <div className="mb-4 text-[var(--color-muted)]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+          </div>
           <h2
-            className="text-2xl font-semibold mb-2"
+            className="text-lg font-semibold mb-2"
             style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
           >
             {locale === "de" ? "Bücher" : "Books"}
           </h2>
-          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+          <p
+            className="text-sm leading-relaxed flex-1"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}
+          >
             {locale === "de"
               ? "Empfehlenswerte theologische Bücher mit Einordnung nach Thema und Schwierigkeitsgrad."
               : "Recommended theological books categorized by topic and difficulty level."}
           </p>
+          <p
+            className="text-xs mt-4 transition-colors group-hover:text-[var(--color-accent)]"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Bücher durchstöbern →" : "Browse books →"}
+          </p>
         </Link>
 
+        {/* Zitate — highlighted */}
         <Link
           href={`/${locale}/ressourcen/zitate`}
-          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
-          style={{
-            borderColor: "var(--color-border)",
-            background: "var(--color-surface)",
-          }}
+          className="group flex flex-col rounded-2xl border p-8 transition-all hover:scale-[1.01] hover:shadow-sm"
+          style={{ borderColor: "var(--color-accent)", background: "var(--color-surface)" }}
         >
+          <div className="mb-4">
+            <span
+              className="text-4xl leading-none select-none"
+              style={{ color: "var(--color-accent)", fontFamily: "var(--font-serif)" }}
+            >
+              &ldquo;
+            </span>
+          </div>
           <h2
-            className="text-2xl font-semibold mb-2"
+            className="text-lg font-semibold mb-2"
             style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
           >
             {locale === "de" ? "Zitate" : "Quotes"}
           </h2>
-          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+          <p
+            className="text-sm leading-relaxed flex-1"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}
+          >
             {locale === "de"
               ? "Theologische Zitate bedeutender Autoren und Denker, nach Thema geordnet."
               : "Theological quotes from significant authors and thinkers, organized by topic."}
           </p>
+          <p
+            className="text-xs mt-4 transition-colors"
+            style={{ color: "var(--color-accent)", fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Zitate entdecken →" : "Discover quotes →"}
+          </p>
         </Link>
 
+        {/* Ausarbeitungen */}
         <Link
           href={`/${locale}/ressourcen/ausarbeitungen`}
-          className="group block rounded-2xl border p-8 transition-all hover:scale-[1.01]"
-          style={{
-            borderColor: "var(--color-border)",
-            background: "var(--color-surface)",
-          }}
+          className="group flex flex-col rounded-2xl border p-8 transition-all hover:scale-[1.01] hover:shadow-sm"
+          style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
         >
+          <div className="mb-4 text-[var(--color-muted)]">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
           <h2
-            className="text-2xl font-semibold mb-2"
+            className="text-lg font-semibold mb-2"
             style={{ fontFamily: "var(--font-serif)", color: "var(--color-foreground)" }}
           >
             {locale === "de" ? "Ausarbeitungen" : "Papers"}
           </h2>
-          <p style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}>
+          <p
+            className="text-sm leading-relaxed flex-1"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}
+          >
             {locale === "de"
               ? "Eigene theologische Ausarbeitungen und Studien zu ausgewählten Themen."
               : "My own theological papers and studies on selected topics."}
+          </p>
+          <p
+            className="text-xs mt-4 transition-colors group-hover:text-[var(--color-accent)]"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Studien lesen →" : "Read papers →"}
           </p>
         </Link>
       </div>

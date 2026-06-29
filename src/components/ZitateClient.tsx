@@ -44,17 +44,34 @@ function FilterChip({
 export function ZitateClient({ quotes, locale }: Props) {
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [authorFilter, setAuthorFilter] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const quoteAuthors = Array.from(new Set(quotes.map((q) => q.author))).sort();
 
   const filteredQuotes = quotes.filter((q) => {
     if (topicFilter && !q.topics?.includes(topicFilter)) return false;
     if (authorFilter && q.author !== authorFilter) return false;
+    if (search.trim()) {
+      const s = search.trim().toLowerCase();
+      if (!q.text.toLowerCase().includes(s) && !q.author.toLowerCase().includes(s)) return false;
+    }
     return true;
   });
 
   return (
     <div>
+      {/* Search */}
+      <div className="mb-6">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={locale === "de" ? "Zitate durchsuchen…" : "Search quotes…"}
+          className="w-full px-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]"
+          style={{ fontFamily: "var(--font-sans)" }}
+        />
+      </div>
+
       {/* Topic filters */}
       <div className="flex flex-wrap gap-2 mb-6">
         <FilterChip

@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS } from "@/lib/ressourcen";
+import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS, BOOK_TYPE_OPTIONS } from "@/lib/ressourcen";
 
 export default defineType({
   name: "bookRecommendation",
@@ -37,6 +37,15 @@ export default defineType({
         layout: "grid",
       },
       validation: (r) => r.required().min(1),
+    }),
+    defineField({
+      name: "bookType",
+      title: "Buchtyp",
+      type: "string",
+      options: {
+        list: [...BOOK_TYPE_OPTIONS],
+        layout: "radio",
+      },
     }),
     defineField({ name: "buyLink", title: "Kauflink", type: "url" }),
   ],

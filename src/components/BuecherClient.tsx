@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS } from "@/lib/ressourcen";
+import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS, BOOK_TYPE_OPTIONS } from "@/lib/ressourcen";
 
 export interface BookRecommendation {
   _id: string;
@@ -10,6 +10,7 @@ export interface BookRecommendation {
   year?: number;
   description: string;
   difficulty: string;
+  bookType?: string;
   topics: string[];
   buyLink?: string;
 }
@@ -64,15 +65,34 @@ function FilterChip({
 export function BuecherClient({ books, locale }: Props) {
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
   const filteredBooks = books.filter((b) => {
     if (topicFilter && !b.topics?.includes(topicFilter)) return false;
     if (difficultyFilter && b.difficulty !== difficultyFilter) return false;
+    if (typeFilter && b.bookType !== typeFilter) return false;
     return true;
   });
 
   return (
     <div>
+      {/* Book type filters */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <FilterChip
+          label={locale === "de" ? "Alle Typen" : "All Types"}
+          active={typeFilter === null}
+          onClick={() => setTypeFilter(null)}
+        />
+        {BOOK_TYPE_OPTIONS.map((t) => (
+          <FilterChip
+            key={t.value}
+            label={t.title}
+            active={typeFilter === t.value}
+            onClick={() => setTypeFilter(typeFilter === t.value ? null : t.value)}
+          />
+        ))}
+      </div>
+
       {/* Topic filters */}
       <div className="flex flex-wrap gap-2 mb-6">
         <FilterChip
@@ -134,16 +154,26 @@ export function BuecherClient({ books, locale }: Props) {
                     {book.year ? ` · ${book.year}` : ""}
                   </p>
                 </div>
-                {book.difficulty && difficultyTextColor[book.difficulty] && (
-                  <span
-                    className={`shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full border ${difficultyTextColor[book.difficulty]}`}
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {locale === "de"
-                      ? difficultyLabel[book.difficulty].de
-                      : difficultyLabel[book.difficulty].en}
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {book.bookType && (
+                    <span
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[var(--color-border)] text-[var(--color-muted)]"
+                      style={{ fontFamily: "var(--font-sans)" }}
+                    >
+                      {BOOK_TYPE_OPTIONS.find((t) => t.value === book.bookType)?.title ?? book.bookType}
+                    </span>
+                  )}
+                  {book.difficulty && difficultyTextColor[book.difficulty] && (
+                    <span
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${difficultyTextColor[book.difficulty]}`}
+                      style={{ fontFamily: "var(--font-sans)" }}
+                    >
+                      {locale === "de"
+                        ? difficultyLabel[book.difficulty].de
+                        : difficultyLabel[book.difficulty].en}
+                    </span>
+                  )}
+                </div>
               </div>
               <p
                 className="text-sm text-[var(--color-muted)] leading-relaxed mb-4"

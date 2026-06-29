@@ -13,7 +13,7 @@ export default async function BuecherPage({
 
   const books = await client.fetch(
     `*[_type == "bookRecommendation"] | order(_createdAt desc) {
-      _id, title, author, year, description, difficulty, topics, buyLink
+      _id, title, author, year, description, difficulty, bookType, topics, buyLink
     }`,
     {},
     { next: { tags: ["ressourcen"], revalidate: 60 } }
