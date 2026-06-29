@@ -41,7 +41,7 @@ export default async function BuecherPage({
 
   const books = await client.fetch(
     `*[_type == "bookRecommendation"] | order(_createdAt desc) {
-      _id, title, author, year, description, difficulty, bookType, topics, buyLink
+      _id, title, author, year, description, difficulty, bookType, topics, buyLink, reviewSlug
     }`,
     {},
     { next: { tags: ["ressourcen"], revalidate: 60 } }

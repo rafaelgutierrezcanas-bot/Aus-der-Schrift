@@ -48,6 +48,12 @@ export default defineType({
       },
     }),
     defineField({ name: "buyLink", title: "Kauflink", type: "url" }),
+    defineField({
+      name: "reviewSlug",
+      title: "Rezensions-Artikel (Slug)",
+      type: "string",
+      description: "Slug des Blog-Artikels, der eine Rezension dieses Buches enthält (z. B. 'meine-rezension-zu-x').",
+    }),
   ],
   preview: {
     select: { title: "title", subtitle: "author", media: "coverImage" },

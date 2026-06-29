@@ -16,6 +16,7 @@ export default function EditBuchPage() {
   const [difficulty, setDifficulty] = useState("einsteiger");
   const [topics, setTopics] = useState<string[]>([]);
   const [buyLink, setBuyLink] = useState("");
+  const [reviewSlug, setReviewSlug] = useState("");
   const [bookType, setBookType] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,7 @@ export default function EditBuchPage() {
         setTopics(data.topics ?? []);
         setBuyLink(data.buyLink ?? "");
         setBookType(data.bookType ?? "");
+        setReviewSlug(data.reviewSlug ?? "");
         setLoading(false);
       });
   }, [id]);
@@ -57,6 +59,7 @@ export default function EditBuchPage() {
         topics,
         buyLink: buyLink.trim() || null,
         bookType: bookType || null,
+        reviewSlug: reviewSlug.trim() || null,
       }),
     });
     setSaving(false);
@@ -143,6 +146,11 @@ export default function EditBuchPage() {
         <div>
           <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Kauflink (optional)</label>
           <input type="url" value={buyLink} onChange={(e) => setBuyLink(e.target.value)} className={inputClass} placeholder="https://..." />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Rezensions-Artikel Slug (optional)</label>
+          <input type="text" value={reviewSlug} onChange={(e) => setReviewSlug(e.target.value)} className={inputClass} placeholder="meine-rezension-zu-x" />
+          <p className="text-[10px] text-[var(--color-muted)] mt-1">Slug des Blog-Artikels mit deiner Rezension</p>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={save} disabled={saving || !title.trim() || !author.trim() || !description.trim() || topics.length === 0}

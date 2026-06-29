@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { TOPIC_OPTIONS, DIFFICULTY_OPTIONS, BOOK_TYPE_OPTIONS } from "@/lib/ressourcen";
 
 export interface BookRecommendation {
@@ -13,6 +14,7 @@ export interface BookRecommendation {
   bookType?: string;
   topics: string[];
   buyLink?: string;
+  reviewSlug?: string;
 }
 
 interface Props {
@@ -215,17 +217,28 @@ export function BuecherClient({ books, locale }: Props) {
                     </span>
                   ))}
                 </div>
-                {book.buyLink && (
-                  <a
-                    href={book.buyLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-colors"
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {locale === "de" ? "Kaufen →" : "Buy →"}
-                  </a>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  {book.reviewSlug && (
+                    <Link
+                      href={`/${locale}/blog/${book.reviewSlug}`}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+                      style={{ fontFamily: "var(--font-sans)" }}
+                    >
+                      {locale === "de" ? "Rezension →" : "Review →"}
+                    </Link>
+                  )}
+                  {book.buyLink && (
+                    <a
+                      href={book.buyLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-colors"
+                      style={{ fontFamily: "var(--font-sans)" }}
+                    >
+                      {locale === "de" ? "Kaufen →" : "Buy →"}
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ))}
