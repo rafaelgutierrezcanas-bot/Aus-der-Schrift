@@ -54,12 +54,15 @@ export function AdminMobileNav() {
     exact ? pathname === href : pathname.startsWith(href);
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-background)] border-t border-[var(--color-border)] flex">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-background)] border-t border-[var(--color-border)] overflow-x-auto flex"
+      style={{ scrollbarWidth: "none" }}
+    >
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
+          className={`shrink-0 flex flex-col items-center gap-1 py-3 px-4 text-[10px] transition-colors ${
             isActive(item.href, item.exact)
               ? "text-[var(--color-accent)]"
               : "text-[var(--color-muted)]"
@@ -67,7 +70,7 @@ export function AdminMobileNav() {
           style={{ fontFamily: "var(--font-sans)" }}
         >
           <item.Icon />
-          {item.label}
+          <span className="whitespace-nowrap">{item.label}</span>
         </Link>
       ))}
     </nav>

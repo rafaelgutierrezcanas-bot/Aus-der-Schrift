@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import { client } from "@/sanity/client";
 import { allArticlesQuery, allCategoriesQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
@@ -92,7 +91,7 @@ export default async function BlogPage({
       </div>
 
       {/* Category Filter — dot separated */}
-      <nav className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-12 pb-5 border-b border-border" style={{ fontFamily: "var(--font-sans)" }}>
+      <nav className="flex flex-wrap items-center gap-x-0 gap-y-2 mb-12 pb-5 border-b border-border" style={{ fontFamily: "var(--font-sans)" }}>
         <Link
           href={`/${locale}/blog`}
           className="text-xs font-semibold uppercase tracking-[0.12em] text-accent border-b border-accent pb-px"
@@ -100,15 +99,14 @@ export default async function BlogPage({
           {locale === "de" ? "Alle" : "All"}
         </Link>
         {categories.map((cat) => (
-          <Fragment key={cat._id as string}>
-            <span className="text-border select-none">·</span>
-            <Link
-              href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
-              className="text-xs uppercase tracking-[0.12em] text-muted hover:text-accent transition-colors"
-            >
-              {getLocalizedCategoryTitle(cat, locale)}
-            </Link>
-          </Fragment>
+          <Link
+            key={cat._id as string}
+            href={`/${locale}/kategorien/${(cat.slug as { current: string }).current}`}
+            className="text-xs uppercase tracking-[0.12em] text-muted hover:text-accent transition-colors whitespace-nowrap"
+          >
+            <span className="text-border select-none mx-3" aria-hidden>·</span>
+            {getLocalizedCategoryTitle(cat, locale)}
+          </Link>
         ))}
       </nav>
 

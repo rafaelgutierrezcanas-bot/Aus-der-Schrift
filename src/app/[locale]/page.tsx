@@ -302,9 +302,9 @@ export default async function HomePage({
                 const publishedAt = article.publishedAt as string | undefined;
                 return (
                   <article key={article._id as string}
-                    className="group grid grid-cols-[auto_1fr] md:grid-cols-[160px_1fr_auto] items-baseline gap-3 md:gap-4 py-4 border-b border-border last:border-0">
+                    className="group py-4 border-b border-border last:border-0 md:grid md:grid-cols-[160px_1fr_auto] md:items-baseline md:gap-4">
                     {/* Category */}
-                    <div className="shrink-0">
+                    <div className="mb-1 md:mb-0 shrink-0">
                       {catTitle && (
                         catSlug ? (
                           <Link href={`/${locale}/kategorien/${catSlug}`}
@@ -321,7 +321,7 @@ export default async function HomePage({
                     </div>
                     {/* Title */}
                     <Link href={`/${locale}/blog/${slug}`}
-                      className="min-w-0 font-semibold leading-snug group-hover:text-accent transition-colors"
+                      className="min-w-0 font-semibold leading-snug group-hover:text-accent transition-colors block"
                       style={{ fontFamily: "var(--font-serif)" }}>
                       {title}
                     </Link>
