@@ -131,24 +131,56 @@ export default function EditAusarbeitungPage() {
             ))}
           </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">PDF-Datei (optional, nur zum Ersetzen)</label>
-          {currentFileUrl && (
-            <a
-              href={currentFileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-xs text-[var(--color-accent)] hover:opacity-80 transition-opacity mb-2"
-            >
-              Aktuelle Datei herunterladen ↗
-            </a>
+        {/* PDF replacement section */}
+        <div className="border border-[var(--color-border)] rounded-lg p-4">
+          <p className="text-xs font-medium text-[var(--color-foreground)] mb-3">PDF-Datei</p>
+
+          {/* Current file */}
+          {currentFileUrl && !file && (
+            <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+              <span className="text-lg">📄</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-[var(--color-muted)]">Aktuelle Datei</p>
+                <a
+                  href={currentFileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[var(--color-accent)] hover:underline truncate block"
+                >
+                  PDF anzeigen ↗
+                </a>
+              </div>
+            </div>
           )}
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm text-[var(--color-foreground)] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-[var(--color-border)] file:text-xs file:text-[var(--color-muted)] file:bg-[var(--color-surface)] hover:file:text-[var(--color-foreground)] file:cursor-pointer cursor-pointer"
-          />
+
+          {/* New file selected */}
+          {file && (
+            <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-[var(--color-accent)]/10 border border-[var(--color-accent)]">
+              <span className="text-lg">📄</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-[var(--color-accent)] font-medium">Neue Datei ausgewählt</p>
+                <p className="text-xs text-[var(--color-foreground)] truncate">{file.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFile(null)}
+                className="text-xs text-[var(--color-muted)] hover:text-red-500 transition-colors shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-[var(--color-border)] text-xs text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-accent)] transition-colors">
+            <span>📎</span>
+            {file ? "Andere Datei wählen" : currentFileUrl ? "PDF ersetzen" : "PDF hochladen"}
+            <input
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
         </div>
         <div className="flex items-center gap-3">
           <button
