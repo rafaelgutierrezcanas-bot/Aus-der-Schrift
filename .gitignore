@@ -42,3 +42,4 @@ next-env.d.ts
 
 # migration data — never commit Blogspot export
 scripts/blogspot-export.xml
+.env*.local

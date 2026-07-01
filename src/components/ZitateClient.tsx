@@ -3,6 +3,46 @@
 import { useState } from "react";
 import { TOPIC_OPTIONS } from "@/lib/ressourcen";
 
+function CopyButton({ quote, locale }: { quote: Quote; locale: string }) {
+  const [state, setState] = useState<"idle" | "copied">("idle");
+
+  const handleCopy = async () => {
+    const source = quote.source
+      ? `, ${quote.source.title}${quote.source.year ? ` (${quote.source.year})` : ""}`
+      : quote.customSource
+      ? `, ${quote.customSource}`
+      : "";
+    const text = `„${quote.text}" — ${quote.author}${source}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setState("copied");
+      setTimeout(() => setState("idle"), 2500);
+    } catch {
+      // silently ignore
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      title={locale === "de" ? "Zitat kopieren" : "Copy quote"}
+      className="text-[10px] uppercase tracking-widest transition-colors"
+      style={{
+        color: state === "copied" ? "var(--color-accent)" : "var(--color-muted)",
+        fontFamily: "var(--font-sans)",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+      }}
+    >
+      {state === "copied"
+        ? (locale === "de" ? "Kopiert ✓" : "Copied ✓")
+        : (locale === "de" ? "Kopieren" : "Copy")}
+    </button>
+  );
+}
+
 export interface Quote {
   _id: string;
   text: string;
@@ -125,22 +165,25 @@ export function ZitateClient({ quotes, locale }: Props) {
               >
                 &ldquo;{quote.text}&rdquo;
               </p>
-              <footer
-                className="text-sm text-[var(--color-muted)]"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                — {quote.author}
-                {quote.source ? (
-                  <span className="text-[var(--color-muted)]/70">
-                    , <em>{quote.source.title}</em>
-                    {quote.source.year ? ` (${quote.source.year})` : ""}
-                  </span>
-                ) : quote.customSource ? (
-                  <span className="text-[var(--color-muted)]/70">
-                    , <em>{quote.customSource}</em>
-                  </span>
-                ) : null}
-              </footer>
+              <div className="flex items-end justify-between gap-4">
+                <footer
+                  className="text-sm text-[var(--color-muted)]"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  — {quote.author}
+                  {quote.source ? (
+                    <span className="text-[var(--color-muted)]/70">
+                      , <em>{quote.source.title}</em>
+                      {quote.source.year ? ` (${quote.source.year})` : ""}
+                    </span>
+                  ) : quote.customSource ? (
+                    <span className="text-[var(--color-muted)]/70">
+                      , <em>{quote.customSource}</em>
+                    </span>
+                  ) : null}
+                </footer>
+                <CopyButton quote={quote} locale={locale} />
+              </div>
             </blockquote>
           ))}
         </div>
