@@ -30,9 +30,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (denied) return denied;
   const { id } = await params;
   const body = await request.json();
+  const { fileAssetId, ...rest } = body;
+  const processed = {
+    ...rest,
+    ...(fileAssetId ? {
+      file: { _type: "file", asset: { _type: "reference", _ref: fileAssetId } },
+    } : {}),
+  };
   const toSet: Record<string, unknown> = {};
   const toUnset: string[] = [];
-  for (const [key, value] of Object.entries(body)) {
+  for (const [key, value] of Object.entries(processed)) {
     if (value === null || value === undefined) toUnset.push(key);
     else toSet[key] = value;
   }

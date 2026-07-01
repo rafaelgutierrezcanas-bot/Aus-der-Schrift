@@ -31,7 +31,14 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
 
   const body = await request.json();
-  const doc = await writeClient.create({ _type: "ausarbeitung", ...body });
+  const { fileAssetId, ...rest } = body;
+  const doc = await writeClient.create({
+    _type: "ausarbeitung",
+    ...rest,
+    ...(fileAssetId ? {
+      file: { _type: "file", asset: { _type: "reference", _ref: fileAssetId } },
+    } : {}),
+  });
   revalidatePath("/de/ressourcen/ausarbeitungen");
   revalidatePath("/en/ressourcen/ausarbeitungen");
   return NextResponse.json(doc, { status: 201 });
