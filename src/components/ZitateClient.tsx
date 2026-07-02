@@ -165,20 +165,20 @@ export function ZitateClient({ quotes, locale }: Props) {
               >
                 &ldquo;{quote.text}&rdquo;
               </p>
-              <div className="flex items-end justify-between gap-4">
+              <div className="flex items-start justify-between gap-4">
                 <footer
-                  className="text-sm text-[var(--color-muted)]"
+                  className="text-sm text-[var(--color-muted)] min-w-0"
                   style={{ fontFamily: "var(--font-sans)" }}
                 >
-                  — {quote.author}
+                  <span>— {quote.author}</span>
                   {quote.source ? (
                     <span className="text-[var(--color-muted)]/70">
                       , <em>{quote.source.title}</em>
                       {quote.source.year ? ` (${quote.source.year})` : ""}
                     </span>
                   ) : quote.customSource ? (
-                    <span className="text-[var(--color-muted)]/70">
-                      , <em>{quote.customSource}</em>
+                    <span className="block text-xs text-[var(--color-muted)]/70 mt-1 break-words" style={{ fontFamily: "var(--font-sans)" }}>
+                      <em>{quote.customSource}</em>
                     </span>
                   ) : null}
                 </footer>
