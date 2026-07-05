@@ -2,6 +2,7 @@ import { PortableText } from "@portabletext/react";
 import type { PortableTextComponents } from "@portabletext/react";
 import { BibleVerse } from "./BibleVerse";
 import { InfoCardPopover } from "./InfoCardPopover";
+import { FootnoteTooltip } from "./FootnoteTooltip";
 import Image from "next/image";
 import Link from "next/link";
 import { urlFor } from "@/sanity/image";
@@ -11,7 +12,7 @@ function firstSpanText(value: unknown): string {
   return v?.children?.[0]?.text ?? "";
 }
 
-function buildComponents(locale: string): PortableTextComponents {
+function buildComponents(locale: string, footnotesMap?: Map<number, string>): PortableTextComponents {
   return {
   marks: {
     infocard: ({ children, value }) => (
@@ -33,13 +34,20 @@ function buildComponents(locale: string): PortableTextComponents {
   },
   types: {
     footnote: ({ value }: { value: Record<string, unknown> }) => {
-      const n = (value._fnIndex as number | undefined) ?? "?";
-      return (
+      const n = (value._fnIndex as number | undefined) ?? 0;
+      const tooltipText = footnotesMap?.get(n);
+      const anchor = (
         <sup className="text-accent font-medium text-xs leading-none" style={{ fontFamily: "var(--font-sans)" }}>
           <a href={`#fn-${n}`} id={`fnref-${n}`} aria-label={locale === "de" ? `Fußnote ${n}` : `Footnote ${n}`}>
             [{n}]
           </a>
         </sup>
+      );
+      if (!tooltipText) return anchor;
+      return (
+        <FootnoteTooltip index={n} text={tooltipText}>
+          {anchor}
+        </FootnoteTooltip>
       );
     },
     image: ({ value }: { value: Record<string, unknown> }) => {
@@ -224,11 +232,19 @@ function buildComponents(locale: string): PortableTextComponents {
   };
 }
 
-export function PortableTextRenderer({ value, locale = "de" }: { value: unknown[]; locale?: string }) {
+export function PortableTextRenderer({
+  value,
+  locale = "de",
+  footnotesMap,
+}: {
+  value: unknown[];
+  locale?: string;
+  footnotesMap?: Map<number, string>;
+}) {
   return (
     <PortableText
       value={value as Parameters<typeof PortableText>[0]["value"]}
-      components={buildComponents(locale)}
+      components={buildComponents(locale, footnotesMap)}
     />
   );
 }

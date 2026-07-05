@@ -167,6 +167,18 @@ export default async function ArticlePage({
     ? article.bodyEn
     : article.bodyDe) as unknown[];
   const { annotated: body, footnotes } = annotateFootnotes(rawBody ?? []);
+  const footnotesMap = new Map<number, string>();
+  for (const fn of footnotes) {
+    if (fn.text) {
+      footnotesMap.set(fn._fnIndex!, fn.text);
+    } else if (fn.sourceId) {
+      const source = (article.sources as Source[] | undefined)?.find((s) => s._id === fn.sourceId);
+      if (source) {
+        const pages = fn.pages ? `, S. ${fn.pages}` : "";
+        footnotesMap.set(fn._fnIndex!, formatChicago(source) + pages);
+      }
+    }
+  }
   const sourcesMap = new Map<string, Source>(
     ((article.sources ?? []) as Source[]).map((s) => [s._id, s])
   );
@@ -377,7 +389,7 @@ export default async function ArticlePage({
       {/* Article Body with ToC */}
       <div className="flex items-start">
         <div className="max-w-prose mx-auto flex-1 min-w-0">
-          {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} />}
+          {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} footnotesMap={footnotesMap} />}
         </div>
         {body && body.length > 0 && (
           <TableOfContents
