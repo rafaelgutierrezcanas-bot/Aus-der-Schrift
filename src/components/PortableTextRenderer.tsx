@@ -3,8 +3,8 @@ import type { PortableTextComponents } from "@portabletext/react";
 import { BibleVerse } from "./BibleVerse";
 import { InfoCardPopover } from "./InfoCardPopover";
 import { FootnoteTooltip } from "./FootnoteTooltip";
+import { InternalLinkPreview } from "./InternalLinkPreview";
 import Image from "next/image";
-import Link from "next/link";
 import { urlFor } from "@/sanity/image";
 
 function firstSpanText(value: unknown): string {
@@ -23,12 +23,9 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
     internalLink: ({ children, value }) => {
       const slug = (value as Record<string, unknown>).slug as string ?? "";
       return (
-        <Link
-          href={`/${locale}/blog/${slug}`}
-          className="text-accent underline underline-offset-2 hover:opacity-75 transition-opacity"
-        >
+        <InternalLinkPreview slug={slug}>
           {children}
-        </Link>
+        </InternalLinkPreview>
       );
     },
   },
