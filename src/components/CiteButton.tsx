@@ -16,12 +16,16 @@ export function CiteButton({ author, title, publishedAt, url, locale }: CiteButt
   const year = new Date(publishedAt).getFullYear();
   const citation = locale === "de"
     ? `${author}: „${title}". Theologik, ${year}. ${url}`
-    : `${author}: "${title}". Theologik, ${year}. ${url}`;
+    : `${author}: \u201c${title}\u201d. Theologik, ${year}. ${url}`;
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(citation);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(citation);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable — silently ignore
+    }
   }
 
   return (
