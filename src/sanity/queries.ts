@@ -13,7 +13,9 @@ export const allArticlesQuery = groq`
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
-    "author": author->{ name }
+    "author": author->{ name },
+    bodyDe[] { _type, _key, style, children[] { text } },
+    bodyEn[] { _type, _key, style, children[] { text } }
   }
 `;
 
@@ -55,7 +57,9 @@ export const articlesByCategoryQuery = groq`
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
-    "author": author->{ name }
+    "author": author->{ name },
+    bodyDe[] { _type, _key, style, children[] { text } },
+    bodyEn[] { _type, _key, style, children[] { text } }
   }
 `;
 
@@ -70,7 +74,9 @@ export const relatedArticlesQuery = groq`
     excerptEn,
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
-    "category": category->{ titleDe, titleEn, slug }
+    "category": category->{ titleDe, titleEn, slug },
+    bodyDe[] { _type, _key, style, children[] { text } },
+    bodyEn[] { _type, _key, style, children[] { text } }
   }
 `;
 
@@ -102,7 +108,9 @@ export const recommendedArticlesQuery = groq`
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
-    "author": author->{ name }
+    "author": author->{ name },
+    bodyDe[] { _type, _key, style, children[] { text } },
+    bodyEn[] { _type, _key, style, children[] { text } }
   }
 `;
 
@@ -119,7 +127,9 @@ export const latestArticlesQuery = groq`
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
-    "author": author->{ name }
+    "author": author->{ name },
+    bodyDe[] { _type, _key, style, children[] { text } },
+    bodyEn[] { _type, _key, style, children[] { text } }
   }
 `;
 

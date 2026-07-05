@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import { urlFor } from "@/sanity/image";
-import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle } from "@/lib/utils";
+import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, estimateReadingTime } from "@/lib/utils";
 
 interface ArticleCardProps {
   article: Record<string, unknown>;
@@ -21,6 +21,10 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   const difficulty = article.difficulty as string | undefined;
   const slug = (article.slug as { current: string })?.current;
   const publishedAt = article.publishedAt as string | undefined;
+  const body = (locale === "en" && (article.bodyEn as unknown[])?.length
+    ? article.bodyEn
+    : article.bodyDe) as unknown[] | undefined;
+  const readingTime = body ? estimateReadingTime(body) : null;
   const hasImage = !!article.featuredImage;
   const articleHref = `/${locale}/blog/${slug}`;
   const categoryHref = categorySlug ? `/${locale}/kategorien/${categorySlug}` : null;
@@ -88,6 +92,11 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
                 {formatDate(publishedAt, locale)}
               </span>
             )}
+            {readingTime && (
+              <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+                {readingTime} min
+              </span>
+            )}
           </div>
           <Link href={articleHref}>
             <h3 className="font-semibold leading-snug mb-1 group-hover:text-accent transition-colors text-base" style={{ fontFamily: "var(--font-serif)" }}>
@@ -121,6 +130,11 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
           {publishedAt && (
             <span className="text-xs text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
+            </span>
+          )}
+          {readingTime && (
+            <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+              {readingTime} min
             </span>
           )}
         </div>
@@ -161,6 +175,11 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
           {publishedAt && (
             <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
+            </span>
+          )}
+          {readingTime && (
+            <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+              {readingTime} min
             </span>
           )}
         </div>
