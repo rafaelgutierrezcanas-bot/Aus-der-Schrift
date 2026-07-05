@@ -1,5 +1,3 @@
-"use client";
-
 interface Sidenote {
   index: number;
   text: string;
