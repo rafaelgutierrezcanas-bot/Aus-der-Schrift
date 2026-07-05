@@ -2,7 +2,8 @@ import { client } from "@/sanity/client";
 import { allArticlesQuery, allCategoriesQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, formatDate } from "@/lib/utils";
+import { getLocalizedCategoryTitle } from "@/lib/utils";
+import { BlogSearchList } from "@/components/BlogSearchList";
 import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
@@ -110,77 +111,15 @@ export default async function BlogPage({
         ))}
       </nav>
 
-      {articles.length === 0 && (
-        <p className="text-muted text-center py-16" style={{ fontFamily: "var(--font-sans)" }}>
-          {locale === "de" ? "Noch keine Artikel." : "No articles yet."}
-        </p>
-      )}
-
-      {/* Article list — broadsheet rows */}
-      <div>
-        {articles.map((article, i) => {
-          const title = getLocalizedTitle(article, locale);
-          const excerpt = getLocalizedExcerpt(article, locale);
-          const category = article.category as Record<string, unknown> | null;
-          const categoryTitle = getLocalizedCategoryTitle(category, locale);
-          const categorySlug = (category?.slug as { current: string })?.current;
-          const slug = (article.slug as { current: string })?.current;
-          const publishedAt = article.publishedAt as string | undefined;
-          const articleHref = `/${locale}/blog/${slug}`;
-          const isFirst = i === 0;
-
-          return (
-            <article
-              key={article._id as string}
-              className="group py-6 border-b border-border md:grid md:grid-cols-[180px_1fr] md:gap-8 md:py-7"
-            >
-              {/* Metadata: inline row on mobile, column on desktop */}
-              <div className="flex items-center gap-2 mb-2 md:flex-col md:items-start md:gap-1 md:pt-0.5 md:mb-0">
-                {categoryTitle && (
-                  categorySlug ? (
-                    <Link
-                      href={`/${locale}/kategorien/${categorySlug}`}
-                      className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent hover:underline"
-                      style={{ fontFamily: "var(--font-sans)" }}
-                    >
-                      {categoryTitle}
-                    </Link>
-                  ) : (
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent" style={{ fontFamily: "var(--font-sans)" }}>
-                      {categoryTitle}
-                    </span>
-                  )
-                )}
-                {publishedAt && (
-                  <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                    <span className="md:hidden">· </span>{formatDate(publishedAt, locale)}
-                  </span>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="min-w-0">
-                <Link href={articleHref}>
-                  <h2
-                    className={`font-bold leading-snug mb-2 group-hover:text-accent transition-colors ${isFirst ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {title}
-                  </h2>
-                  {excerpt && (
-                    <p
-                      className={`text-muted leading-relaxed line-clamp-2 ${isFirst ? "text-base" : "text-sm"}`}
-                      style={{ fontFamily: "var(--font-body-serif)" }}
-                    >
-                      {excerpt}
-                    </p>
-                  )}
-                </Link>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      <BlogSearchList
+        articles={articles}
+        locale={locale}
+        labels={{
+          searchPlaceholder: locale === "de" ? "Artikel suchen…" : "Search articles…",
+          noResults: locale === "de" ? "Keine Artikel gefunden für" : "No articles found for",
+          noArticles: locale === "de" ? "Noch keine Artikel." : "No articles yet.",
+        }}
+      />
     </div>
   );
 }
