@@ -11,6 +11,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ReadingProgressBar } from "@/components/ReadingProgressBar";
 import { ShareButton } from "@/components/ShareButton";
+import { CiteButton } from "@/components/CiteButton";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
@@ -366,10 +367,17 @@ export default async function ArticlePage({
         >
           {title}
         </h1>
-        <div className="mb-6">
+        <div className="mb-6 flex items-center gap-4">
           <ShareButton
             url={absoluteUrl(localePath(locale, `/blog/${slug}`))}
             title={title}
+          />
+          <CiteButton
+            author={(article.author as { name?: string } | null)?.name ?? "Theologik"}
+            title={getLocalizedTitle(article, locale)}
+            publishedAt={article.publishedAt as string}
+            url={absoluteUrl(`/${locale}/blog/${slug}`)}
+            locale={locale}
           />
         </div>
         {!!article.featuredImage && (
