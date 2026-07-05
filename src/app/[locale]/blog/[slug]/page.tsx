@@ -380,7 +380,7 @@ export default async function ArticlePage({
         >
           {title}
         </h1>
-        {article.tags && (article.tags as string[]).length > 0 && (
+        {Array.isArray(article.tags) && (article.tags as string[]).length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {(article.tags as string[]).map((tag) => (
               <span
