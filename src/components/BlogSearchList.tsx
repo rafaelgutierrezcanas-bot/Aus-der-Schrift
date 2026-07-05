@@ -44,7 +44,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
       <div className="relative mb-8">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
         <input
-          type="search"
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={labels.searchPlaceholder}
@@ -53,6 +53,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
         />
         {query && (
           <button
+            type="button"
             onClick={() => setQuery("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground"
             aria-label="Clear search"
