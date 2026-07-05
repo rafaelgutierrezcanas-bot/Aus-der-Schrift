@@ -21,6 +21,7 @@ import { CommentsSection } from "@/components/CommentsSection";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
+import { SidenotesColumn } from "@/components/SidenotesColumn";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -179,6 +180,10 @@ export default async function ArticlePage({
       }
     }
   }
+  const sidenotes = footnotes.map((fn) => ({
+    index: fn._fnIndex!,
+    text: footnotesMap.get(fn._fnIndex!) ?? fn.text ?? "—",
+  }));
   const sourcesMap = new Map<string, Source>(
     ((article.sources ?? []) as Source[]).map((s) => [s._id, s])
   );
@@ -411,12 +416,15 @@ export default async function ArticlePage({
         <div className="prose dark:prose-invert max-w-prose mx-auto flex-1 min-w-0">
           {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} footnotesMap={footnotesMap} />}
         </div>
-        {body && body.length > 0 && (
-          <TableOfContents
-            body={body as Parameters<typeof TableOfContents>[0]["body"]}
-            label={locale === "de" ? "Inhalt" : "Contents"}
-          />
-        )}
+        <div className="flex items-start shrink-0">
+          {body && body.length > 0 && (
+            <TableOfContents
+              body={body as Parameters<typeof TableOfContents>[0]["body"]}
+              label={locale === "de" ? "Inhalt" : "Contents"}
+            />
+          )}
+          {sidenotes.length > 0 && <SidenotesColumn sidenotes={sidenotes} locale={locale} />}
+        </div>
       </div>
 
       {/* Footnotes */}
