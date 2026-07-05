@@ -35,7 +35,7 @@ export function InternalLinkPreview({ slug, children }: InternalLinkPreviewProps
     if (!fetchedRef.current) {
       fetchedRef.current = true;
       try {
-        const res = await fetch(`/api/preview/${slug}`);
+        const res = await fetch(`/api/preview/${encodeURIComponent(slug)}`);
         if (res.ok) setData(await res.json());
       } catch {
         // silent fail
@@ -60,6 +60,7 @@ export function InternalLinkPreview({ slug, children }: InternalLinkPreviewProps
       </Link>
       {open && (
         <span
+          role="tooltip"
           className="absolute z-50 bottom-full left-0 mb-2 w-72 max-w-xs rounded-sm border border-border bg-surface shadow-lg px-4 py-3"
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}

@@ -4,8 +4,7 @@ import { groq } from "next-sanity";
 
 const previewQuery = groq`
   *[_type == "article" && slug.current == $slug && (status == "published" || !defined(status))][0] {
-    titleDe, titleEn, excerptDe, excerptEn, publishedAt,
-    "category": category->{ titleDe, titleEn }
+    titleDe, titleEn, excerptDe, excerptEn
   }
 `;
 
