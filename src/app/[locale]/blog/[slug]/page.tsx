@@ -482,7 +482,7 @@ export default async function ArticlePage({
                 >
                   {getLocalizedTitle(ref, locale)}
                 </Link>
-                {ref.publishedAt && (
+                {typeof ref.publishedAt === "string" && (
                   <span className="text-[11px] text-muted ml-2" style={{ fontFamily: "var(--font-sans)" }}>
                     {formatDate(ref.publishedAt as string, locale)}
                   </span>
