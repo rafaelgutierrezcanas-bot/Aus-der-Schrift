@@ -66,11 +66,13 @@ export function TableOfContents({
       </p>
       <ul className="space-y-2">
         {headings.map((h) => (
-          <li key={h.id} className={h.level === 3 ? "pl-3" : ""}>
+          <li key={h.id} className={h.level === 3 ? "ml-3" : ""}>
             <a
               href={`#${h.id}`}
-              className={`text-xs leading-relaxed hover:text-accent transition-colors ${
-                active === h.id ? "text-accent" : "text-muted"
+              className={`block text-xs leading-relaxed transition-colors pl-3 border-l-2 ${
+                active === h.id
+                  ? "text-accent border-accent"
+                  : "text-muted border-transparent hover:text-foreground hover:border-border"
               }`}
               style={{ fontFamily: "var(--font-sans)" }}
             >
