@@ -193,6 +193,19 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
             </p>
           )}
         </Link>
+        {article.tags && (article.tags as string[]).length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {(article.tags as string[]).slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="text-[9px] px-1.5 py-0.5 rounded-full border border-border text-muted"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </article>
   );

@@ -211,6 +211,16 @@ export default defineType({
       options: { layout: "tags" },
       description: "Schlüsselwörter für SEO und Metadaten",
     }),
+    defineField({
+      name: "tags",
+      title: "Tags / Schlagworte",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Spezifische Schlagworte (z.B. Taufe, Didache, Trinitätslehre)",
+      options: {
+        layout: "tags",
+      },
+    }),
   ],
   preview: {
     select: { title: "titleDe", media: "featuredImage" },

@@ -367,6 +367,19 @@ export default async function ArticlePage({
         >
           {title}
         </h1>
+        {article.tags && (article.tags as string[]).length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {(article.tags as string[]).map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mb-6 flex items-center gap-4">
           <ShareButton
             url={absoluteUrl(localePath(locale, `/blog/${slug}`))}

@@ -11,6 +11,7 @@ export const allArticlesQuery = groq`
     excerptEn,
     language,
     difficulty,
+    tags,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
@@ -40,6 +41,7 @@ export const articleBySlugQuery = groq`
     abstractDe,
     abstractEn,
     keywords,
+    tags,
     difficulty
   }
 `;
@@ -55,6 +57,7 @@ export const articlesByCategoryQuery = groq`
     excerptEn,
     language,
     difficulty,
+    tags,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
@@ -73,6 +76,7 @@ export const relatedArticlesQuery = groq`
     excerptDe,
     excerptEn,
     difficulty,
+    tags,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     bodyDe[] { _type, children[] { text } },
@@ -106,6 +110,7 @@ export const recommendedArticlesQuery = groq`
     excerptEn,
     language,
     difficulty,
+    tags,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
@@ -125,6 +130,7 @@ export const latestArticlesQuery = groq`
     excerptEn,
     language,
     difficulty,
+    tags,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
