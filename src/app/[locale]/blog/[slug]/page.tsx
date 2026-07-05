@@ -22,6 +22,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
 import { SidenotesColumn } from "@/components/SidenotesColumn";
+import { FontSizeControls } from "@/components/FontSizeControls";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -397,6 +398,7 @@ export default async function ArticlePage({
             url={absoluteUrl(`/${locale}/blog/${slug}`)}
             locale={locale}
           />
+          <FontSizeControls />
         </div>
         {!!article.featuredImage && (
           <div className="aspect-[16/9] overflow-hidden rounded-sm mb-8">
@@ -413,7 +415,7 @@ export default async function ArticlePage({
 
       {/* Article Body with ToC */}
       <div className="flex items-start">
-        <div className="prose dark:prose-invert max-w-prose mx-auto flex-1 min-w-0">
+        <div id="article-body" className="prose dark:prose-invert max-w-prose mx-auto flex-1 min-w-0">
           {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} footnotesMap={footnotesMap} />}
         </div>
         <div className="flex items-start shrink-0">
