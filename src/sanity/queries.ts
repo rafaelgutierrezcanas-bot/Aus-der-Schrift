@@ -14,8 +14,8 @@ export const allArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
-    bodyDe[] { _type, _key, style, children[] { text } },
-    bodyEn[] { _type, _key, style, children[] { text } }
+    bodyDe[] { _type, children[] { text } },
+    bodyEn[] { _type, children[] { text } }
   }
 `;
 
@@ -58,8 +58,8 @@ export const articlesByCategoryQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
-    bodyDe[] { _type, _key, style, children[] { text } },
-    bodyEn[] { _type, _key, style, children[] { text } }
+    bodyDe[] { _type, children[] { text } },
+    bodyEn[] { _type, children[] { text } }
   }
 `;
 
@@ -75,8 +75,8 @@ export const relatedArticlesQuery = groq`
     difficulty,
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
-    bodyDe[] { _type, _key, style, children[] { text } },
-    bodyEn[] { _type, _key, style, children[] { text } }
+    bodyDe[] { _type, children[] { text } },
+    bodyEn[] { _type, children[] { text } }
   }
 `;
 
@@ -109,8 +109,8 @@ export const recommendedArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
-    bodyDe[] { _type, _key, style, children[] { text } },
-    bodyEn[] { _type, _key, style, children[] { text } }
+    bodyDe[] { _type, children[] { text } },
+    bodyEn[] { _type, children[] { text } }
   }
 `;
 
@@ -128,8 +128,8 @@ export const latestArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
-    bodyDe[] { _type, _key, style, children[] { text } },
-    bodyEn[] { _type, _key, style, children[] { text } }
+    bodyDe[] { _type, children[] { text } },
+    bodyEn[] { _type, children[] { text } }
   }
 `;
 

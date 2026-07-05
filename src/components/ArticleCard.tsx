@@ -128,7 +128,7 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
           <CategoryLabel />
           <DifficultyBadge />
           {publishedAt && (
-            <span className="text-xs text-muted" style={{ fontFamily: "var(--font-sans)" }}>
+            <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
             </span>
           )}
