@@ -1,5 +1,5 @@
 import { client } from "@/sanity/client";
-import { articleBySlugQuery, allArticleSlugsQuery, relatedArticlesQuery } from "@/sanity/queries";
+import { articleBySlugQuery, allArticleSlugsQuery, relatedArticlesQuery, backlinksQuery } from "@/sanity/queries";
 import { PortableTextRenderer } from "@/components/PortableTextRenderer";
 import { TableOfContents } from "@/components/TableOfContents";
 import { ArticleCard } from "@/components/ArticleCard";
@@ -204,16 +204,23 @@ export default async function ArticlePage({
   const readingTime = estimateReadingTime(body || []);
 
   let related: Record<string, unknown>[] = [];
+  let backlinks: Record<string, unknown>[] = [];
   try {
     const catSlug = (category?.slug as { current: string })?.current;
-    if (catSlug) {
-      related = await client.fetch(relatedArticlesQuery, {
-        categorySlug: catSlug,
-        currentSlug: slug,
-      }, { next: { tags: ["articles"], revalidate: 60 } });
-    }
+    const [relatedResult, backlinksResult] = await Promise.all([
+      catSlug
+        ? client.fetch(relatedArticlesQuery, {
+            categorySlug: catSlug,
+            currentSlug: slug,
+          }, { next: { tags: ["articles"], revalidate: 60 } })
+        : Promise.resolve([]),
+      client.fetch(backlinksQuery, { slug }, { next: { revalidate: 3600 } }),
+    ]);
+    related = relatedResult as Record<string, unknown>[];
+    backlinks = (backlinksResult as Record<string, unknown>[]) ?? [];
   } catch {
     related = [];
+    backlinks = [];
   }
 
   const articleJsonLd = {
@@ -455,6 +462,36 @@ export default async function ArticlePage({
       )}
 
       <AuthorCard locale={locale} />
+
+      {/* Backlinks */}
+      {backlinks.length > 0 && (
+        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto">
+          <p
+            className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-4"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Referenziert in" : "Referenced in"}
+          </p>
+          <ul className="space-y-2">
+            {backlinks.map((ref) => (
+              <li key={ref._id as string}>
+                <Link
+                  href={`/${locale}/blog/${(ref.slug as { current: string }).current}`}
+                  className="text-sm text-accent hover:underline"
+                  style={{ fontFamily: "var(--font-body-serif)" }}
+                >
+                  {getLocalizedTitle(ref, locale)}
+                </Link>
+                {ref.publishedAt && (
+                  <span className="text-[11px] text-muted ml-2" style={{ fontFamily: "var(--font-sans)" }}>
+                    {formatDate(ref.publishedAt as string, locale)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Related Posts */}
       {related.length > 0 && (

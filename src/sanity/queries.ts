@@ -190,6 +190,17 @@ export const allProjectsQuery = groq`
   }
 `;
 
+export const backlinksQuery = groq`
+  *[_type == "article" && (status == "published" || !defined(status)) && slug.current != $slug &&
+    (
+      count(bodyDe[_type == "block"].markDefs[_type == "internalLink" && slug == $slug]) > 0 ||
+      count(bodyEn[_type == "block"].markDefs[_type == "internalLink" && slug == $slug]) > 0
+    )
+  ] | order(publishedAt desc) [0..9] {
+    _id, titleDe, titleEn, slug, publishedAt
+  }
+`;
+
 // ── Hermeneutik ──────────────────────────────────────────
 
 export const allHermeneutikStepsQuery = groq`
