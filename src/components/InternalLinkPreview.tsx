@@ -61,9 +61,7 @@ export function InternalLinkPreview({ slug, children }: InternalLinkPreviewProps
       {open && (
         <span
           role="tooltip"
-          className="absolute z-50 bottom-full left-0 mb-2 w-72 max-w-xs rounded-sm border border-border bg-surface shadow-lg px-4 py-3"
-          onMouseEnter={handleEnter}
-          onMouseLeave={handleLeave}
+          className="absolute z-50 bottom-full left-0 mb-2 w-72 max-w-xs rounded-sm border border-border bg-surface shadow-lg px-4 py-3 pointer-events-none"
         >
           {title ? (
             <>
