@@ -55,3 +55,19 @@
     --color-surface:    #211D18;
   }
 }
+
+/* ── Link type indicators ─────────────────────────────── */
+/* External links (not pointing to own domain) */
+.prose a[href^="http"]:not([href*="theologik.org"])::after,
+.prose a[href^="https"]:not([href*="theologik.org"])::after {
+  content: " ↗";
+  font-size: 0.75em;
+  opacity: 0.6;
+}
+
+/* PDF links */
+.prose a[href$=".pdf"]::after {
+  content: " PDF↗" !important;
+  font-size: 0.75em;
+  opacity: 0.6;
+}
