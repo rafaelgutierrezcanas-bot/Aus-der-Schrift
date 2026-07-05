@@ -174,8 +174,7 @@ export default async function ArticlePage({
     } else if (fn.sourceId) {
       const source = (article.sources as Source[] | undefined)?.find((s) => s._id === fn.sourceId);
       if (source) {
-        const pages = fn.pages ? `, S. ${fn.pages}` : "";
-        footnotesMap.set(fn._fnIndex!, formatChicago(source) + pages);
+        footnotesMap.set(fn._fnIndex!, formatChicago(source, fn.pages));
       }
     }
   }
