@@ -214,7 +214,7 @@ export default async function ArticlePage({
             currentSlug: slug,
           }, { next: { tags: ["articles"], revalidate: 60 } })
         : Promise.resolve([]),
-      client.fetch(backlinksQuery, { slug }, { next: { revalidate: 3600 } }),
+      client.fetch(backlinksQuery, { slug }, { next: { tags: ["articles"], revalidate: 3600 } }),
     ]);
     related = relatedResult as Record<string, unknown>[];
     backlinks = (backlinksResult as Record<string, unknown>[]) ?? [];
