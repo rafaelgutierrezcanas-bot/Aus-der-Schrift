@@ -71,3 +71,174 @@
   font-size: 0.75em;
   opacity: 0.6;
 }
+
+/* ── Print styles ─────────────────────────────────────── */
+@media print {
+  /* ── Base ── */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    font-family: Georgia, "Source Serif 4", serif;
+  }
+
+  /* ── Hide site header (fixed <header> with z-50, class="fixed top-0 …")
+        Source: src/components/Header.tsx line 51–57 */
+  body > header,
+  header.fixed {
+    display: none !important;
+  }
+
+  /* ── Hide reading progress bar (fixed <div> with position:fixed, top:0, z-index:50)
+        Source: src/components/ReadingProgressBar.tsx lines 22–33 */
+  div[style*="position: fixed"][style*="height: 3px"],
+  div[style*="position:fixed"][style*="height:3px"] {
+    display: none !important;
+  }
+
+  /* ── Hide back-to-top button (<button> with class="fixed bottom-8 right-6 z-40 …")
+        Source: src/components/BackToTop.tsx line 21–24 */
+  button[aria-label="Zurück nach oben"] {
+    display: none !important;
+  }
+
+  /* ── Hide breadcrumb nav (<nav aria-label="breadcrumb">)
+        Source: src/components/Breadcrumb.tsx line 14 */
+  nav[aria-label="breadcrumb"] {
+    display: none !important;
+  }
+
+  /* ── Hide table of contents sidebar (<nav aria-label="Table of contents">)
+        Source: src/components/TableOfContents.tsx line 57–60 */
+  nav[aria-label="Table of contents"] {
+    display: none !important;
+  }
+
+  /* ── Hide sidenotes column (<aside aria-label="Randnotizen|Sidenotes">)
+        Source: src/components/SidenotesColumn.tsx lines 15–18 */
+  aside[aria-label="Randnotizen"],
+  aside[aria-label="Sidenotes"] {
+    display: none !important;
+  }
+
+  /* ── Hide share buttons (<div class="inline-flex items-center gap-3"> wrapping ShareButton)
+        and cite button (<button> with title="Zitation kopieren|Copy citation")
+        Source: src/components/ShareButton.tsx line 46,
+                src/components/CiteButton.tsx line 32–37 */
+  .inline-flex.items-center.gap-3 {
+    display: none !important;
+  }
+  button[title="Zitation kopieren"],
+  button[title="Copy citation"] {
+    display: none !important;
+  }
+
+  /* ── Hide comments section (<section class="mt-20 pt-12 …"> containing CommentForm)
+        Source: src/components/CommentsSection.tsx line 28 — identify by heading text
+        Target the section that contains the comment form via its sibling context;
+        use a data attribute approach. Since we cannot add data attrs here, we target
+        the section that immediately follows the AuthorCard by hiding any section
+        that contains a form (comment form).
+        Source: src/components/CommentsSection.tsx — wraps <CommentForm> */
+  section:has(form) {
+    display: none !important;
+  }
+
+  /* ── Hide related articles section — it appears as a <section class="mt-20 pt-12 …">
+        just before the CommentsSection; target by its containing ArticleCard links.
+        We identify it via its child <h2> that contains relatedPosts text — but since
+        we cannot rely on text, we target sections that contain ArticleCard anchors
+        (card links have the article slug pattern). Use a broader rule: hide the
+        related section by targeting any section after the footnotes that has an h2
+        followed by article cards. The safest reliable selector: any section that
+        contains an <a> wrapping an article card layout. */
+  section:has(> h2 ~ div > a[href*="/blog/"]) {
+    display: none !important;
+  }
+
+  /* ── Full-width article content ── */
+  .prose,
+  article,
+  main {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* The article page outer wrapper: <div class="max-w-5xl mx-auto px-6 py-16">
+     Source: src/app/[locale]/blog/[slug]/page.tsx line 304 */
+  .max-w-5xl {
+    max-width: 100% !important;
+    padding: 0 1cm !important;
+    margin: 0 !important;
+  }
+
+  /* Article body flex row: collapse the flex layout so prose is full-width
+     Source: page.tsx line 415 — <div class="flex items-start"> */
+  .flex.items-start {
+    display: block !important;
+  }
+
+  .prose {
+    max-width: 100% !important;
+  }
+
+  /* ── Show URLs after external links (overrides the screen ↗ indicator) ── */
+  .prose a[href^="http"]::after,
+  .prose a[href^="https"]::after {
+    content: " (" attr(href) ")" !important;
+    font-size: 0.75em;
+    color: #555;
+    font-style: italic;
+    opacity: 1;
+  }
+
+  /* Suppress URL display for footnote back-links and fragment anchors */
+  a[href^="#"]::after {
+    content: none !important;
+  }
+
+  /* ── Page-break rules ── */
+  p, li {
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Keep footnote list items together */
+  #fn-1, ol > li {
+    page-break-inside: avoid;
+  }
+
+  /* ── Footnotes section — keep visible, clean up border color ──
+     Source: page.tsx lines 431–453 — <section class="mt-12 pt-8 border-t …"> */
+  section.mt-12 {
+    border-top-color: #ccc !important;
+    margin-top: 1.5cm !important;
+    padding-top: 0.5cm !important;
+    max-width: 100% !important;
+  }
+
+  /* ── Images: constrain to page width ── */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* ── Remove box shadows, transitions, interactive states ── */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Suppress fixed/sticky positioned elements generically as a safety net */
+  [style*="position: fixed"],
+  [style*="position:fixed"] {
+    display: none !important;
+  }
+}
