@@ -41,7 +41,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       isPaper,
       abstractDe,
       abstractEn,
-      keywords
+      keywords,
+      tags
     }
   `, { slug });
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
