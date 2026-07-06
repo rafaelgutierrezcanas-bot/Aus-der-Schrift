@@ -24,6 +24,34 @@
 }
 
 .prose {
+  --tw-prose-body:        var(--color-foreground);
+  --tw-prose-headings:    var(--color-foreground);
+  --tw-prose-lead:        var(--color-muted);
+  --tw-prose-bold:        var(--color-foreground);
+  --tw-prose-counters:    var(--color-muted);
+  --tw-prose-bullets:     var(--color-muted);
+  --tw-prose-hr:          var(--color-border);
+  --tw-prose-quotes:      var(--color-foreground);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions:    var(--color-muted);
+  --tw-prose-code:        var(--color-foreground);
+  --tw-prose-links:       var(--color-accent);
+  color: var(--color-foreground);
+}
+
+.dark .prose {
+  --tw-prose-body:        var(--color-foreground);
+  --tw-prose-headings:    var(--color-foreground);
+  --tw-prose-lead:        var(--color-muted);
+  --tw-prose-bold:        var(--color-foreground);
+  --tw-prose-counters:    var(--color-muted);
+  --tw-prose-bullets:     var(--color-muted);
+  --tw-prose-hr:          var(--color-border);
+  --tw-prose-quotes:      var(--color-foreground);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions:    var(--color-muted);
+  --tw-prose-code:        var(--color-foreground);
+  --tw-prose-links:       var(--color-accent);
   color: var(--color-foreground);
 }
 
