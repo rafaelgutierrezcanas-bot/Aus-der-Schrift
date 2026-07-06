@@ -436,9 +436,9 @@ export default async function ArticlePage({
         </div>
       </div>
 
-      {/* Footnotes */}
+      {/* Footnotes — hidden on xl where sidenotes already show the same content */}
       {footnotes.length > 0 && (
-        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto">
+        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto xl:hidden">
           <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-4" style={{ fontFamily: "var(--font-sans)" }}>
             {locale === "de" ? "Fußnoten" : "Footnotes"}
           </p>

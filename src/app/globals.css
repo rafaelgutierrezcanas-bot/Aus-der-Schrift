@@ -23,10 +23,20 @@
   letter-spacing: 0.06em;
 }
 
+.prose {
+  color: var(--color-foreground);
+}
+
 .prose p, .prose li, .prose blockquote {
   hyphens: auto;
   -webkit-hyphens: auto;
   overflow-wrap: break-word;
+}
+
+/* Allow font-size controls to override Tailwind utility classes */
+#article-body p,
+#article-body li {
+  font-size: inherit;
 }
 
 @layer base {
