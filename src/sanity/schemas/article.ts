@@ -99,6 +99,7 @@ export default defineType({
           { title: "Bereit", value: "ready" },
           { title: "Veröffentlicht", value: "published" },
           { title: "Archiviert", value: "archived" },
+          { title: "Papierkorb", value: "trashed" },
         ],
         layout: "radio",
       },

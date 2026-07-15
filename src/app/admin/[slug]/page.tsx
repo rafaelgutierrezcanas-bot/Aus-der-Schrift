@@ -225,7 +225,11 @@ export default function EditArticlePage() {
 
   async function handleDelete() {
     try {
-      const res = await fetch(`/api/admin/articles/${slug}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/articles/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "trashed" }),
+      });
       if (!res.ok) throw new Error("Löschen fehlgeschlagen");
       localStorage.removeItem(`artikel-backup-${slug}`);
       setIsDirty(false);
@@ -697,6 +701,7 @@ export default function EditArticlePage() {
           sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
           entwurf={entwurf}
           onEntwurfChange={setEntwurf}
+          saveStatus={autoSaved === "saving" ? "saving" : autoSaved === "saved" && !isDirty ? "saved" : null}
         />
       </div>
 

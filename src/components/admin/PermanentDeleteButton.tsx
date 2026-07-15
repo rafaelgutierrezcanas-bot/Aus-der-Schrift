@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function DeleteArticleButton({ slug, title }: { slug: string; title: string }) {
+export function PermanentDeleteButton({ slug, title }: { slug: string; title: string }) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -10,12 +10,8 @@ export function DeleteArticleButton({ slug, title }: { slug: string; title: stri
   async function handleDelete() {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/articles/${slug}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "trashed" }),
-      });
-      if (!res.ok) throw new Error("Löschen fehlgeschlagen");
+      const res = await fetch(`/api/admin/articles/${slug}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
       router.refresh();
     } catch {
       setDeleting(false);
@@ -27,7 +23,7 @@ export function DeleteArticleButton({ slug, title }: { slug: string; title: stri
     return (
       <div className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
         <span className="text-xs text-red-600" style={{ fontFamily: "var(--font-sans)" }}>
-          Löschen?
+          Endgültig?
         </span>
         <button
           onClick={handleDelete}
@@ -51,9 +47,9 @@ export function DeleteArticleButton({ slug, title }: { slug: string; title: stri
   return (
     <button
       onClick={(e) => { e.preventDefault(); setConfirming(true); }}
-      title={`„${title}" löschen`}
+      title={`„${title}" endgültig löschen`}
       className="text-[var(--color-muted)] hover:text-red-600 transition-colors p-1 rounded"
-      aria-label="Artikel löschen"
+      aria-label="Endgültig löschen"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="3 6 5 6 21 6" />

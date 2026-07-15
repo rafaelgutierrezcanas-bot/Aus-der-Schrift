@@ -26,6 +26,7 @@ interface Props {
   sources?: Source[];
   entwurf?: EntwurfThema[];
   onEntwurfChange?: (entwurf: EntwurfThema[]) => void;
+  saveStatus?: "saving" | "saved" | null;
 }
 
 // Extract plain text from Tiptap JSON, replacing footnote nodes with ⟨N⟩ markers
@@ -87,7 +88,7 @@ function applyTextChange(
   return { node, found: false };
 }
 
-export default function TiptapEditor({ content, onChange, placeholder, sources = [], entwurf, onEntwurfChange }: Props) {
+export default function TiptapEditor({ content, onChange, placeholder, sources = [], entwurf, onEntwurfChange, saveStatus }: Props) {
   const [lektoratLoading, setLektoratLoading] = useState(false);
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
   const [lektoratError, setLektoratError] = useState<string | null>(null);
@@ -268,6 +269,12 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
             </>
           );
         })()}
+        {saveStatus === "saving" && (
+          <span className="text-amber-500">Speichert…</span>
+        )}
+        {saveStatus === "saved" && (
+          <span className="text-green-600">Gespeichert</span>
+        )}
         <span className="ml-auto" />
         <button
           onClick={handleExport}
