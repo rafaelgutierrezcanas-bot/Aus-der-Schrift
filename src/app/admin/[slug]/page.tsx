@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
 import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
 import type { Source, EntwurfThema } from "@/components/admin/TiptapEditor";
+import { tiptapToMarkdown } from "@/lib/tiptapToMarkdown";
 import { urlFor } from "@/sanity/image";
 
 interface LocalBackup {
@@ -705,6 +706,24 @@ export default function EditArticlePage() {
           <span className="text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
             Englische Übersetzung
           </span>
+          {bodyDe && (
+            <button
+              onClick={() => {
+                const selectedSources = allSources.filter((s) => selectedSourceIds.includes(s._id));
+                const md = tiptapToMarkdown(bodyDe as any, selectedSources);
+                navigator.clipboard.writeText(md).then(() => {
+                  alert("Deutscher Text mit Fußnoten-Markern kopiert.\n\nÜbersetze ihn und importiere das Ergebnis im EN-Editor (↑ Import).");
+                }).catch(() => {
+                  prompt("Kopiere diesen Text, übersetze ihn, und importiere das Ergebnis im EN-Editor:", md);
+                });
+              }}
+              className="text-xs px-3 py-1 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+              style={{ fontFamily: "var(--font-sans)" }}
+              title="Exportiert den DE-Text als Markdown mit Fußnoten-Markern in die Zwischenablage"
+            >
+              Fußnoten von DE übernehmen
+            </button>
+          )}
         </div>
         <TiptapEditor
           content={bodyEn}

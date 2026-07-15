@@ -13,6 +13,8 @@ import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
 export type { EntwurfThema } from "./EntwurfSidebar";
 import { formatChicago } from "@/lib/formatChicago";
+import { tiptapToMarkdown } from "@/lib/tiptapToMarkdown";
+import { markdownToTiptap } from "@/lib/markdownToTiptap";
 
 export type { Source } from "@/lib/formatChicago";
 import type { Source } from "@/lib/formatChicago";
@@ -90,6 +92,11 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
   const [lektoratError, setLektoratError] = useState<string | null>(null);
   const [showEntwurf, setShowEntwurf] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [exportText, setExportText] = useState("");
+  const [importText, setImportText] = useState("");
+  const [copyFeedback, setCopyFeedback] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -148,6 +155,25 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
       editor.commands.setContent(result.node);
     }
     return result.found;
+  }
+
+  function handleExport() {
+    if (!editor) return;
+    const md = tiptapToMarkdown(editor.getJSON() as any, sources);
+    setExportText(md);
+    setShowExportModal(true);
+    navigator.clipboard.writeText(md).then(() => {
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 2000);
+    }).catch(() => {});
+  }
+
+  function handleImport() {
+    if (!editor || !importText.trim()) return;
+    const doc = markdownToTiptap(importText);
+    editor.commands.setContent(doc);
+    setShowImportModal(false);
+    setImportText("");
   }
 
   // Collect footnotes for the footnote list
@@ -224,7 +250,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         />
       )}
 
-      {/* Word count */}
+      {/* Word count + Export/Import */}
       <div
         className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400"
         style={{ fontFamily: "var(--font-sans)" }}
@@ -240,7 +266,86 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
             </>
           );
         })()}
+        <span className="ml-auto" />
+        <button
+          onClick={handleExport}
+          className="hover:text-stone-600 transition-colors"
+          title="Als Markdown exportieren"
+        >
+          ↓ Export
+        </button>
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="hover:text-stone-600 transition-colors"
+          title="Markdown importieren"
+        >
+          ↑ Import
+        </button>
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowExportModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()} style={{ fontFamily: "var(--font-sans)" }}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-stone-200">
+              <h3 className="text-sm font-medium text-stone-700">Markdown Export</h3>
+              <div className="flex items-center gap-2">
+                {copyFeedback && <span className="text-xs text-green-600">Kopiert!</span>}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(exportText).then(() => {
+                      setCopyFeedback(true);
+                      setTimeout(() => setCopyFeedback(false), 2000);
+                    });
+                  }}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
+                >
+                  Kopieren
+                </button>
+                <button onClick={() => setShowExportModal(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">×</button>
+              </div>
+            </div>
+            <textarea
+              readOnly
+              value={exportText}
+              className="flex-1 px-5 py-4 text-sm text-stone-700 font-mono resize-none focus:outline-none min-h-[300px] overflow-auto"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowImportModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()} style={{ fontFamily: "var(--font-sans)" }}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-stone-200">
+              <h3 className="text-sm font-medium text-stone-700">Markdown Import</h3>
+              <button onClick={() => setShowImportModal(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">×</button>
+            </div>
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              placeholder="Markdown hier einfügen..."
+              className="flex-1 px-5 py-4 text-sm text-stone-700 font-mono resize-none focus:outline-none min-h-[300px] overflow-auto"
+            />
+            <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-stone-200">
+              <button
+                onClick={() => { setShowImportModal(false); setImportText(""); }}
+                className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleImport}
+                disabled={!importText.trim()}
+                className="text-xs px-4 py-1.5 rounded-lg bg-stone-800 text-white hover:bg-stone-900 disabled:opacity-40 transition-colors"
+              >
+                Importieren
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
