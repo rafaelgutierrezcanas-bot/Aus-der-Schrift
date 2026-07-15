@@ -195,8 +195,8 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     `px-3 py-1.5 rounded text-sm font-medium transition-colors ${active ? "bg-stone-800 text-white" : "bg-stone-100 text-stone-700 hover:bg-stone-200"}`;
 
   return (
-    <div className="relative">
-      <div className="flex flex-wrap gap-1.5 p-3 border-b border-stone-200 bg-stone-50">
+    <div className="sticky top-0 z-20">
+      <div className="flex flex-wrap gap-1.5 p-3 border-b border-stone-200 bg-stone-50 rounded-t-xl">
         <button onClick={() => editor.chain().focus().toggleBold().run()} className={btn(editor.isActive("bold"))}>B</button>
         <button onClick={() => editor.chain().focus().toggleItalic().run()} className={btn(editor.isActive("italic"))}>I</button>
         <div className="w-px bg-stone-200 mx-1" />

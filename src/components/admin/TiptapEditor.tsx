@@ -190,7 +190,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
   });
 
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+    <div className="border border-stone-200 rounded-xl bg-white">
       <EditorToolbar
         editor={editor}
         sources={sources}
@@ -199,60 +199,62 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         showEntwurf={showEntwurf}
         onToggleEntwurf={onEntwurfChange ? () => setShowEntwurf((v) => !v) : undefined}
       />
-      <div className="flex">
-        <div className="flex-1 min-w-0">
-          <EditorContent editor={editor} />
+      <div className="max-h-[70vh] overflow-y-auto">
+        <div className="flex">
+          <div className="flex-1 min-w-0">
+            <EditorContent editor={editor} />
+          </div>
+          {showEntwurf && onEntwurfChange && entwurf !== undefined && (
+            <EntwurfSidebar
+              editor={editor}
+              sources={sources}
+              entwurf={entwurf}
+              onChange={onEntwurfChange}
+            />
+          )}
         </div>
-        {showEntwurf && onEntwurfChange && entwurf !== undefined && (
-          <EntwurfSidebar
-            editor={editor}
-            sources={sources}
-            entwurf={entwurf}
-            onChange={onEntwurfChange}
+
+        {/* Footnote list */}
+        {footnotes.length > 0 && (
+          <div className="border-t border-stone-200 px-6 py-4" style={{ fontFamily: "var(--font-sans)" }}>
+            <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-3">Fußnoten</p>
+            <ol className="space-y-1.5">
+              {footnotes.map((fn, i) => {
+                const src = fn.sourceId ? sources.find((s) => s._id === fn.sourceId) : null;
+                return (
+                  <li key={i} className="text-sm text-stone-600 flex gap-2.5">
+                    <span className="text-stone-400 shrink-0 tabular-nums">[{i + 1}]</span>
+                    <span>{src ? formatChicago(src, fn.pages) : fn.text || "—"}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+
+        {/* Lektorat error */}
+        {lektoratError && (
+          <div className="border-t border-stone-200 px-6 py-4 flex items-start justify-between gap-4" style={{ fontFamily: "var(--font-sans)" }}>
+            <p className="text-sm text-red-600">
+              <span className="font-medium">Lektorat-Fehler:</span> {lektoratError}
+            </p>
+            <button onClick={() => setLektoratError(null)} className="text-xs text-stone-400 hover:text-stone-600 shrink-0">Schließen</button>
+          </div>
+        )}
+
+        {/* Lektorat panel */}
+        {lektoratChanges !== null && (
+          <LektoratPanel
+            changes={lektoratChanges}
+            onApply={applyChange}
+            onClose={() => setLektoratChanges(null)}
           />
         )}
       </div>
 
-      {/* Footnote list */}
-      {footnotes.length > 0 && (
-        <div className="border-t border-stone-200 px-6 py-4" style={{ fontFamily: "var(--font-sans)" }}>
-          <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-3">Fußnoten</p>
-          <ol className="space-y-1.5">
-            {footnotes.map((fn, i) => {
-              const src = fn.sourceId ? sources.find((s) => s._id === fn.sourceId) : null;
-              return (
-                <li key={i} className="text-sm text-stone-600 flex gap-2.5">
-                  <span className="text-stone-400 shrink-0 tabular-nums">[{i + 1}]</span>
-                  <span>{src ? formatChicago(src, fn.pages) : fn.text || "—"}</span>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-      )}
-
-      {/* Lektorat error */}
-      {lektoratError && (
-        <div className="border-t border-stone-200 px-6 py-4 flex items-start justify-between gap-4" style={{ fontFamily: "var(--font-sans)" }}>
-          <p className="text-sm text-red-600">
-            <span className="font-medium">Lektorat-Fehler:</span> {lektoratError}
-          </p>
-          <button onClick={() => setLektoratError(null)} className="text-xs text-stone-400 hover:text-stone-600 shrink-0">Schließen</button>
-        </div>
-      )}
-
-      {/* Lektorat panel */}
-      {lektoratChanges !== null && (
-        <LektoratPanel
-          changes={lektoratChanges}
-          onApply={applyChange}
-          onClose={() => setLektoratChanges(null)}
-        />
-      )}
-
       {/* Word count + Export/Import */}
       <div
-        className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400"
+        className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400 rounded-b-xl"
         style={{ fontFamily: "var(--font-sans)" }}
       >
         {(() => {
