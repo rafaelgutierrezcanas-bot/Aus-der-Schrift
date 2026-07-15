@@ -199,7 +199,7 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         showEntwurf={showEntwurf}
         onToggleEntwurf={onEntwurfChange ? () => setShowEntwurf((v) => !v) : undefined}
       />
-      <div className="max-h-[70vh] overflow-y-auto">
+      <div>
         <div className="flex">
           <div className="flex-1 min-w-0">
             <EditorContent editor={editor} />
