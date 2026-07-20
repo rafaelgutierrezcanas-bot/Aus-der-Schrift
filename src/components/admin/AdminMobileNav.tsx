@@ -47,6 +47,10 @@ const navItems = [
   { href: "/admin/kommentare", label: "Kommentare", Icon: ChatIcon },
 ];
 
+function GlobeIcon() {
+  return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="7.5" cy="7.5" r="6"/><path d="M1.5 7.5h12"/><path d="M7.5 1.5c2 2.5 2 9 0 12"/><path d="M7.5 1.5c-2 2.5-2 9 0 12"/></svg>;
+}
+
 export function AdminMobileNav() {
   const pathname = usePathname();
 
@@ -73,6 +77,16 @@ export function AdminMobileNav() {
           <span className="whitespace-nowrap">{item.label}</span>
         </Link>
       ))}
+      <a
+        href="/de"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="shrink-0 flex flex-col items-center gap-1 py-3 px-4 text-[10px] text-[var(--color-muted)] transition-colors"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        <GlobeIcon />
+        <span className="whitespace-nowrap">Website</span>
+      </a>
     </nav>
   );
 }

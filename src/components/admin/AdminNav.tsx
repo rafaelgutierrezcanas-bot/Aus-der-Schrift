@@ -136,7 +136,21 @@ export function AdminNav() {
         ))}
       </nav>
 
-      <div className="px-3 mt-4 border-t border-[var(--color-border)] pt-4">
+      <div className="px-3 mt-4 border-t border-[var(--color-border)] pt-4 flex flex-col gap-1">
+        <a
+          href="/de"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface)] transition-colors"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 3h11v9H2z"/>
+            <path d="M5 6l2 2-2 2"/>
+            <line x1="8" y1="10" x2="11" y2="10"/>
+          </svg>
+          Website ansehen
+        </a>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface)] transition-colors"
