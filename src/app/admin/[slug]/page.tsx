@@ -7,6 +7,10 @@ import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
 import type { Source, EntwurfThema } from "@/components/admin/TiptapEditor";
 import { tiptapToMarkdown } from "@/lib/tiptapToMarkdown";
 import { urlFor } from "@/sanity/image";
+import { ArticleTabs, useArticleTab } from "@/components/admin/ArticleTabs";
+import ResearchPanel from "@/components/admin/ResearchPanel";
+import { extractTextWithMarkers } from "@/lib/extractText";
+import type { Editor } from "@tiptap/react";
 
 interface LocalBackup {
   titleDe: string;
@@ -83,6 +87,9 @@ export default function EditArticlePage() {
   const [slugInput, setSlugInput] = useState("");
   const [slugUpdating, setSlugUpdating] = useState(false);
   const [slugError, setSlugError] = useState("");
+  const [activeTab, setActiveTab] = useArticleTab();
+  const [editorDe, setEditorDe] = useState<Editor | null>(null);
+  const [autoMetaLoading, setAutoMetaLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -361,8 +368,10 @@ export default function EditArticlePage() {
 
   if (!loaded) return <div className="text-[var(--color-muted)] py-12 text-center text-sm" style={{ fontFamily: "var(--font-sans)" }}>Lädt...</div>;
 
+  const selectedSources = allSources.filter((s) => selectedSourceIds.includes(s._id));
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Backup-Wiederherstellungs-Banner */}
       {localBackup && (
         <div className="flex items-center justify-between gap-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl" style={{ fontFamily: "var(--font-sans)" }}>
@@ -373,67 +382,44 @@ export default function EditArticlePage() {
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleRestoreBackup}
-              className="text-xs px-3 py-1.5 rounded-lg bg-amber-700 text-white hover:bg-amber-800 transition-colors"
-            >
+            <button onClick={handleRestoreBackup} className="text-xs px-3 py-1.5 rounded-lg bg-amber-700 text-white hover:bg-amber-800 transition-colors">
               Wiederherstellen
             </button>
-            <button
-              onClick={handleDismissBackup}
-              className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100 transition-colors"
-            >
+            <button onClick={handleDismissBackup} className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-100 transition-colors">
               Verwerfen
             </button>
           </div>
         </div>
       )}
 
+      {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Artikel bearbeiten</h1>
+          <ArticleTabs activeTab={activeTab} onChange={setActiveTab} />
           {isDirty && autoSaved !== "saved" && (
             <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
               Ungespeichert
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          {autoSaved === "saving" && (
-            <span className="text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-sans)" }}>Speichert…</span>
-          )}
-          {autoSaved === "saved" && !isDirty && (
-            <span className="text-xs text-green-600" style={{ fontFamily: "var(--font-sans)" }}>Automatisch gespeichert</span>
-          )}
-          {/* Löschen-Button — bewusst weit links, visuell getrennt */}
+        <div className="flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
+          {autoSaved === "saving" && <span className="text-xs text-[var(--color-muted)]">Speichert…</span>}
+          {autoSaved === "saved" && !isDirty && <span className="text-xs text-green-600">Gespeichert</span>}
           <div className="mr-4 pl-4 border-l border-[var(--color-border)]">
             {showDeleteConfirm ? (
-              <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-sans)" }}>
-                <span className="text-xs text-red-700 font-medium">Artikel wirklich löschen?</span>
-                <button
-                  onClick={handleDelete}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-                >
-                  Ja, löschen
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
-                >
-                  Abbrechen
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-red-700 font-medium">Wirklich löschen?</span>
+                <button onClick={handleDelete} className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Ja</button>
+                <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Nein</button>
               </div>
             ) : (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-xs px-3 py-1.5 rounded-lg text-[var(--color-muted)] hover:text-red-600 hover:border-red-200 border border-transparent transition-colors"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                Artikel löschen
+              <button onClick={() => setShowDeleteConfirm(true)} className="text-xs px-3 py-1.5 rounded-lg text-[var(--color-muted)] hover:text-red-600 border border-transparent hover:border-red-200 transition-colors">
+                Löschen
               </button>
             )}
           </div>
-          <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity" style={{ fontFamily: "var(--font-sans)" }}>
+          <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity">
             {saving ? "Speichert..." : "Speichern & Zurück"}
           </button>
         </div>
@@ -441,302 +427,315 @@ export default function EditArticlePage() {
 
       {error && <p className="text-red-500 text-sm" style={{ fontFamily: "var(--font-sans)" }}>{error}</p>}
 
-      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Titel (DE)</label>
-          <input value={titleDe} onChange={(e) => setTitleDe(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Title (EN)</label>
-          <input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Kategorie</label>
-          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
-            <option value="">— Keine —</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c._id}>{c.titleDe}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Projekt / Reihe</label>
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
-            <option value="">— Kein Projekt —</option>
-            {projects.map((p) => (
-              <option key={p._id} value={p._id}>{p.title}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Sprache</label>
-          <select value={language} onChange={(e) => setLanguage(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
-            <option value="de">Nur Deutsch</option>
-            <option value="en">Only English</option>
-            <option value="both">Beide / Both</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Status</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
-            <option value="idea">Idee</option>
-            <option value="draft">Entwurf</option>
-            <option value="ready">Bereit</option>
-            <option value="published">Veröffentlicht</option>
-            <option value="archived">Archiviert</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schwierigkeitsgrad</label>
-          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
-            <option value="">— Kein Level —</option>
-            <option value="einfach">Einfach</option>
-            <option value="mittel">Mittel</option>
-            <option value="anspruchsvoll">Anspruchsvoll</option>
-          </select>
-        </div>
-        <div className="col-span-2">
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Veröffentlicht am</label>
-          <input type="datetime-local" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
-        </div>
-        <div className="col-span-2">
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Vorschautext (DE)</label>
-          <textarea value={excerptDe} onChange={(e) => setExcerptDe(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
-        </div>
-        <div className="col-span-2">
-          <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Excerpt (EN)</label>
-          <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
-        </div>
-      </div>
-
-      {/* Slug */}
-      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6" style={{ fontFamily: "var(--font-sans)" }}>
-        <p className="text-sm font-medium text-[var(--color-muted)] mb-3">URL-Slug</p>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[var(--color-muted)] shrink-0">/de/blog/</span>
-          <input
-            value={slugInput}
-            onChange={(e) => setSlugInput(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
-            className={inputClass + " flex-1"}
-            style={{ fontFamily: "var(--font-sans)" }}
-            placeholder={slug}
-          />
-          <button
-            onClick={handleSlugUpdate}
-            disabled={slugUpdating || slugInput === slug || !slugInput}
-            className="shrink-0 text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+      {/* ═══════════ TAB: INHALT ═══════════ */}
+      {activeTab === "inhalt" && (
+        <div className="border border-[var(--color-border)] rounded-xl overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
+          <ResearchPanel
+            editor={editorDe}
+            sources={selectedSources}
+            allSources={allSources}
+            selectedSourceIds={selectedSourceIds}
+            onToggleSource={toggleSource}
+            entwurf={entwurf}
+            onEntwurfChange={setEntwurf}
           >
-            {slugUpdating ? "..." : "Aktualisieren"}
-          </button>
-        </div>
-        {slugError && <p className="text-red-500 text-xs mt-2">{slugError}</p>}
-        <p className="text-xs text-[var(--color-muted)] mt-2">
-          Der alte Link wird automatisch weitergeleitet.
-        </p>
-      </div>
-
-      {/* Paper-Modus */}
-      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 space-y-4">
-        <label className="flex items-center gap-3 cursor-pointer" style={{ fontFamily: "var(--font-sans)" }}>
-          <input
-            type="checkbox"
-            checked={isPaper}
-            onChange={(e) => setIsPaper(e.target.checked)}
-            className="accent-[var(--color-accent)] w-4 h-4"
-          />
-          <span className="text-sm font-medium text-[var(--color-foreground)]">Als akademisches Paper veröffentlichen</span>
-        </label>
-        {isPaper && (
-          <div className="space-y-4 pt-2 border-t border-[var(--color-border)]">
-            <div>
-              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (DE)</label>
-              <textarea
-                value={abstractDe}
-                onChange={(e) => setAbstractDe(e.target.value)}
-                rows={4}
-                placeholder="Kurzzusammenfassung auf Deutsch..."
-                className={inputClass}
-                style={{ fontFamily: "var(--font-sans)" }}
-              />
-            </div>
-            <div>
-              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (EN)</label>
-              <textarea
-                value={abstractEn}
-                onChange={(e) => setAbstractEn(e.target.value)}
-                rows={4}
-                placeholder="Short summary in English..."
-                className={inputClass}
-                style={{ fontFamily: "var(--font-sans)" }}
-              />
-            </div>
-            <div>
-              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schlüsselwörter (kommagetrennt)</label>
-              <input
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-                placeholder="Theologie, Kirchengeschichte, Luthertum, ..."
-                className={inputClass}
-                style={{ fontFamily: "var(--font-sans)" }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Sources picker */}
-      {allSources.length > 0 && (
-        <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
-          <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Quellen</h2>
-          <div className="space-y-1 max-h-64 overflow-y-auto">
-            {allSources.map((s) => (
-              <label key={s._id} className="flex items-center gap-3 py-1.5 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={selectedSourceIds.includes(s._id)}
-                  onChange={() => toggleSource(s._id)}
-                  className="accent-[var(--color-accent)]"
+            <div className="space-y-6 p-4">
+              <div>
+                <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
+                <TiptapEditor
+                  content={bodyDe}
+                  onChange={setBodyDe}
+                  onEditorReady={setEditorDe}
+                  placeholder="Schreibe auf Deutsch..."
+                  sources={selectedSources}
+                  entwurf={entwurf}
+                  onEntwurfChange={setEntwurf}
+                  saveStatus={autoSaved === "saving" ? "saving" : autoSaved === "saved" && !isDirty ? "saved" : null}
                 />
-                <span className="text-sm text-[var(--color-foreground)]" style={{ fontFamily: "var(--font-sans)" }}>
-                  {s.authors} ({s.year}) — <em>{s.title}</em>
-                </span>
-              </label>
-            ))}
-          </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <h2 className="font-serif text-base text-[var(--color-foreground)]">Content (EN)</h2>
+                  <span className="text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
+                    Englische Übersetzung
+                  </span>
+                  {bodyDe && (
+                    <button
+                      onClick={() => {
+                        const md = tiptapToMarkdown(bodyDe as any, selectedSources);
+                        navigator.clipboard.writeText(md).then(() => {
+                          alert("Deutscher Text mit Fußnoten-Markern kopiert.\n\nÜbersetze ihn und importiere das Ergebnis im EN-Editor (↑ Import).");
+                        }).catch(() => {
+                          prompt("Kopiere diesen Text, übersetze ihn, und importiere das Ergebnis im EN-Editor:", md);
+                        });
+                      }}
+                      className="text-xs px-3 py-1 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+                      style={{ fontFamily: "var(--font-sans)" }}
+                    >
+                      Fußnoten von DE übernehmen
+                    </button>
+                  )}
+                </div>
+                <TiptapEditor
+                  content={bodyEn}
+                  onChange={(val) => { setBodyEn(val); if (language === "de") setLanguage("both"); }}
+                  placeholder="Write in English..."
+                  sources={selectedSources}
+                />
+              </div>
+            </div>
+          </ResearchPanel>
         </div>
       )}
 
-      {/* Titelbild */}
-      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
-        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Titelbild</h2>
-        {featuredImage ? (
-          <div className="space-y-2">
-            <div
-              className="relative inline-block cursor-crosshair rounded-lg overflow-hidden max-w-sm w-full"
-              title="Klicken um Fokuspunkt zu setzen"
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width;
-                const y = (e.clientY - rect.top) / rect.height;
-                const updated = {
-                  ...(featuredImage as Record<string, unknown>),
-                  hotspot: { x, y, width: 0.2, height: 0.2 },
-                  crop: { left: 0, top: 0, right: 0, bottom: 0 },
-                };
-                setFeaturedImage(updated);
-                fetch(`/api/admin/articles/${slug}`, {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ featuredImage: updated }),
-                });
-              }}
-            >
-              <img
-                src={urlFor(featuredImage as Parameters<typeof urlFor>[0]).width(600).height(338).fit("crop").url()}
-                alt="Titelbild Vorschau"
-                className="w-full h-auto block"
-              />
-              {/* Hotspot dot */}
-              {(() => {
-                const hs = (featuredImage as Record<string, unknown>).hotspot as { x: number; y: number } | undefined;
-                if (!hs) return null;
-                return (
-                  <div
-                    className="absolute w-5 h-5 rounded-full border-2 border-white shadow-md bg-accent/70 pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                    style={{ left: `${hs.x * 100}%`, top: `${hs.y * 100}%` }}
-                  />
-                );
-              })()}
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleImageRemove(); }}
-                className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
-                title="Bild entfernen"
-              >
-                ×
-              </button>
+      {/* ═══════════ TAB: METADATEN ═══════════ */}
+      {activeTab === "metadaten" && (
+        <div className="space-y-6">
+          <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Titel (DE)</label>
+              <input value={titleDe} onChange={(e) => setTitleDe(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
             </div>
-            <p className="text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
-              Klicke auf das Bild um den Fokuspunkt zu setzen — dieser bestimmt welcher Bereich beim Zuschneiden sichtbar bleibt.
-            </p>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Title (EN)</label>
+              <input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Kategorie</label>
+              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+                <option value="">— Keine —</option>
+                {categories.map((c) => <option key={c._id} value={c._id}>{c.titleDe}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Projekt / Reihe</label>
+              <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+                <option value="">— Kein Projekt —</option>
+                {projects.map((p) => <option key={p._id} value={p._id}>{p.title}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Sprache</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+                <option value="de">Nur Deutsch</option>
+                <option value="en">Only English</option>
+                <option value="both">Beide / Both</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+                <option value="idea">Idee</option>
+                <option value="draft">Entwurf</option>
+                <option value="ready">Bereit</option>
+                <option value="published">Veröffentlicht</option>
+                <option value="archived">Archiviert</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schwierigkeitsgrad</label>
+              <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }}>
+                <option value="">— Kein Level —</option>
+                <option value="einfach">Einfach</option>
+                <option value="mittel">Mittel</option>
+                <option value="anspruchsvoll">Anspruchsvoll</option>
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Vorschautext (DE)</label>
+              <textarea value={excerptDe} onChange={(e) => setExcerptDe(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Excerpt (EN)</label>
+              <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+            </div>
           </div>
-        ) : (
-          <label
-            className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 transition-colors ${
-              imageUploading
-                ? "border-stone-200 bg-stone-50 cursor-not-allowed"
-                : "border-stone-200 hover:border-stone-400 cursor-pointer"
-            }`}
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {imageUploading ? (
-              <span className="text-sm text-stone-400">Lädt hoch…</span>
-            ) : (
-              <>
-                <span className="text-2xl">🖼️</span>
-                <span className="text-sm text-stone-500">Bild auswählen</span>
-                <span className="text-xs text-stone-400">JPG, PNG, WebP</span>
-              </>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              disabled={imageUploading}
-              onChange={handleImageUpload}
-            />
-          </label>
-        )}
-        {imageError && (
-          <p className="mt-2 text-sm text-red-500" style={{ fontFamily: "var(--font-sans)" }}>{imageError}</p>
-        )}
-      </div>
 
-      <div>
-        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
-        <TiptapEditor
-          content={bodyDe}
-          onChange={setBodyDe}
-          placeholder="Schreibe auf Deutsch..."
-          sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-          entwurf={entwurf}
-          onEntwurfChange={setEntwurf}
-          saveStatus={autoSaved === "saving" ? "saving" : autoSaved === "saved" && !isDirty ? "saved" : null}
-        />
-      </div>
-
-      <div>
-        <div className="flex items-center gap-3 mb-3">
-          <h2 className="font-serif text-base text-[var(--color-foreground)]">Content (EN)</h2>
-          <span className="text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
-            Englische Übersetzung
-          </span>
+          {/* Auto-Metadaten */}
           {bodyDe && (
-            <button
-              onClick={() => {
-                const selectedSources = allSources.filter((s) => selectedSourceIds.includes(s._id));
-                const md = tiptapToMarkdown(bodyDe as any, selectedSources);
-                navigator.clipboard.writeText(md).then(() => {
-                  alert("Deutscher Text mit Fußnoten-Markern kopiert.\n\nÜbersetze ihn und importiere das Ergebnis im EN-Editor (↑ Import).");
-                }).catch(() => {
-                  prompt("Kopiere diesen Text, übersetze ihn, und importiere das Ergebnis im EN-Editor:", md);
-                });
-              }}
-              className="text-xs px-3 py-1 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
-              style={{ fontFamily: "var(--font-sans)" }}
-              title="Exportiert den DE-Text als Markdown mit Fußnoten-Markern in die Zwischenablage"
-            >
-              Fußnoten von DE übernehmen
-            </button>
+            <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6" style={{ fontFamily: "var(--font-sans)" }}>
+              <button
+                onClick={async () => {
+                  if (!bodyDe) return;
+                  setAutoMetaLoading(true);
+                  try {
+                    const text = extractTextWithMarkers(bodyDe);
+                    const res = await fetch("/api/admin/auto-metadata", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ text, title: titleDe }),
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      if (data.abstractDe) setAbstractDe(data.abstractDe);
+                      if (data.abstractEn) setAbstractEn(data.abstractEn);
+                      if (data.keywords?.length) setKeywords(data.keywords.join(", "));
+                      if (data.difficulty) setDifficulty(data.difficulty);
+                      setIsPaper(true);
+                    }
+                  } catch { /* ignore */ } finally {
+                    setAutoMetaLoading(false);
+                  }
+                }}
+                disabled={autoMetaLoading}
+                className="text-sm px-4 py-2 rounded-lg border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)]/5 disabled:opacity-50 transition-colors"
+              >
+                {autoMetaLoading ? "Generiert..." : "✦ Metadaten automatisch ausfüllen"}
+              </button>
+              <p className="text-xs text-[var(--color-muted)] mt-2">Generiert Abstract (DE/EN), Keywords und Schwierigkeitsgrad aus dem Artikeltext.</p>
+            </div>
+          )}
+
+          {/* Paper-Modus */}
+          <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer" style={{ fontFamily: "var(--font-sans)" }}>
+              <input type="checkbox" checked={isPaper} onChange={(e) => setIsPaper(e.target.checked)} className="accent-[var(--color-accent)] w-4 h-4" />
+              <span className="text-sm font-medium text-[var(--color-foreground)]">Als akademisches Paper veröffentlichen</span>
+            </label>
+            {isPaper && (
+              <div className="space-y-4 pt-2 border-t border-[var(--color-border)]">
+                <div>
+                  <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (DE)</label>
+                  <textarea value={abstractDe} onChange={(e) => setAbstractDe(e.target.value)} rows={4} placeholder="Kurzzusammenfassung auf Deutsch..." className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+                </div>
+                <div>
+                  <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Abstract (EN)</label>
+                  <textarea value={abstractEn} onChange={(e) => setAbstractEn(e.target.value)} rows={4} placeholder="Short summary in English..." className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+                </div>
+                <div>
+                  <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Schlüsselwörter (kommagetrennt)</label>
+                  <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="Theologie, Kirchengeschichte, Luthertum, ..." className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sources picker */}
+          {allSources.length > 0 && (
+            <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
+              <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Quellen</h2>
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {allSources.map((s) => (
+                  <label key={s._id} className="flex items-center gap-3 py-1.5 cursor-pointer group">
+                    <input type="checkbox" checked={selectedSourceIds.includes(s._id)} onChange={() => toggleSource(s._id)} className="accent-[var(--color-accent)]" />
+                    <span className="text-sm text-[var(--color-foreground)]" style={{ fontFamily: "var(--font-sans)" }}>
+                      {s.authors} ({s.year}) — <em>{s.title}</em>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-        <TiptapEditor
-          content={bodyEn}
-          onChange={(val) => { setBodyEn(val); if (language === "de") setLanguage("both"); }}
-          placeholder="Write in English..."
-          sources={allSources.filter((s) => selectedSourceIds.includes(s._id))}
-        />
-      </div>
+      )}
+
+      {/* ═══════════ TAB: MEDIEN ═══════════ */}
+      {activeTab === "medien" && (
+        <div className="space-y-6">
+          {/* Titelbild */}
+          <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
+            <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Titelbild</h2>
+            {featuredImage ? (
+              <div className="space-y-2">
+                <div
+                  className="relative inline-block cursor-crosshair rounded-lg overflow-hidden max-w-sm w-full"
+                  title="Klicken um Fokuspunkt zu setzen"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    const y = (e.clientY - rect.top) / rect.height;
+                    const updated = {
+                      ...(featuredImage as Record<string, unknown>),
+                      hotspot: { x, y, width: 0.2, height: 0.2 },
+                      crop: { left: 0, top: 0, right: 0, bottom: 0 },
+                    };
+                    setFeaturedImage(updated);
+                    fetch(`/api/admin/articles/${slug}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ featuredImage: updated }),
+                    });
+                  }}
+                >
+                  <img
+                    src={urlFor(featuredImage as Parameters<typeof urlFor>[0]).width(600).height(338).fit("crop").url()}
+                    alt="Titelbild Vorschau"
+                    className="w-full h-auto block"
+                  />
+                  {(() => {
+                    const hs = (featuredImage as Record<string, unknown>).hotspot as { x: number; y: number } | undefined;
+                    if (!hs) return null;
+                    return (
+                      <div
+                        className="absolute w-5 h-5 rounded-full border-2 border-white shadow-md bg-accent/70 pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                        style={{ left: `${hs.x * 100}%`, top: `${hs.y * 100}%` }}
+                      />
+                    );
+                  })()}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleImageRemove(); }}
+                    className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-stone-500 hover:text-red-500 transition-colors text-lg leading-none"
+                    title="Bild entfernen"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p className="text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
+                  Klicke auf das Bild um den Fokuspunkt zu setzen.
+                </p>
+              </div>
+            ) : (
+              <label
+                className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-8 transition-colors ${imageUploading ? "border-stone-200 bg-stone-50 cursor-not-allowed" : "border-stone-200 hover:border-stone-400 cursor-pointer"}`}
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {imageUploading ? (
+                  <span className="text-sm text-stone-400">Lädt hoch…</span>
+                ) : (
+                  <>
+                    <span className="text-2xl">🖼️</span>
+                    <span className="text-sm text-stone-500">Bild auswählen</span>
+                    <span className="text-xs text-stone-400">JPG, PNG, WebP</span>
+                  </>
+                )}
+                <input type="file" accept="image/*" className="hidden" disabled={imageUploading} onChange={handleImageUpload} />
+              </label>
+            )}
+            {imageError && <p className="mt-2 text-sm text-red-500" style={{ fontFamily: "var(--font-sans)" }}>{imageError}</p>}
+          </div>
+
+          {/* URL-Slug */}
+          <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6" style={{ fontFamily: "var(--font-sans)" }}>
+            <p className="text-sm font-medium text-[var(--color-muted)] mb-3">URL-Slug</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[var(--color-muted)] shrink-0">/de/blog/</span>
+              <input
+                value={slugInput}
+                onChange={(e) => setSlugInput(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                className={inputClass + " flex-1"}
+                placeholder={slug}
+              />
+              <button
+                onClick={handleSlugUpdate}
+                disabled={slugUpdating || slugInput === slug || !slugInput}
+                className="shrink-0 text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+              >
+                {slugUpdating ? "..." : "Aktualisieren"}
+              </button>
+            </div>
+            {slugError && <p className="text-red-500 text-xs mt-2">{slugError}</p>}
+            <p className="text-xs text-[var(--color-muted)] mt-2">Der alte Link wird automatisch weitergeleitet.</p>
+          </div>
+
+          {/* Veröffentlicht am */}
+          <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6">
+            <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Veröffentlicht am</label>
+            <input type="datetime-local" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

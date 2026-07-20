@@ -14,11 +14,9 @@ interface Props {
   sources?: Source[];
   onLektorat?: () => void;
   lektoratLoading?: boolean;
-  showEntwurf?: boolean;
-  onToggleEntwurf?: () => void;
 }
 
-export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading, showEntwurf, onToggleEntwurf }: Props) {
+export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading }: Props) {
   const [showFootnotePicker, setShowFootnotePicker] = useState(false);
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
   const [sourcePages, setSourcePages] = useState("");
@@ -333,22 +331,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
             {lektoratLoading ? "Prüft…" : "✦ Lektorat"}
           </button>
         )}
-        {onToggleEntwurf && (
-          <>
-            <div className="w-px bg-stone-200 mx-1" />
-            <button
-              onClick={onToggleEntwurf}
-              title="Entwurf-Sidebar ein-/ausblenden"
-              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors border ${
-                showEntwurf
-                  ? "bg-stone-800 text-white border-stone-800"
-                  : "bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200"
-              }`}
-            >
-              ✎ Entwurf
-            </button>
-          </>
-        )}
+        {/* Entwurf toggle removed — now in ResearchPanel */}
         <div className="w-px bg-stone-200 mx-1" />
         <div className="relative">
           <button ref={footnoteButtonRef} onClick={openPicker} className={btn(showFootnotePicker)} title="Fußnote einfügen (⌘F)">

@@ -120,18 +120,9 @@ export default function EntwurfSidebar({ editor, sources, entwurf, onChange }: P
 
   return (
     <div
-      className="w-72 shrink-0 border-l border-stone-200 flex flex-col overflow-y-auto max-h-[700px]"
+      className="w-full flex flex-col overflow-y-auto"
       style={{ fontFamily: "var(--font-sans)" }}
     >
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
-        <span className="text-xs font-medium text-stone-500 uppercase tracking-widest">Entwurf</span>
-        {entwurf.length > 0 && (
-          <span className="text-xs bg-stone-100 text-stone-400 rounded-full px-2 py-0.5">
-            {entwurf.length} Themen
-          </span>
-        )}
-      </div>
 
       {/* Themes */}
       <div className="flex-1 overflow-y-auto divide-y divide-stone-100">

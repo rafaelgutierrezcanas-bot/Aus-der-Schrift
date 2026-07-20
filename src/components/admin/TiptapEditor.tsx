@@ -2,7 +2,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import EditorToolbar from "./EditorToolbar";
 import { BibleVerseExtension } from "./BibleVerseBlock";
 import { FootnoteExtension } from "./FootnoteExtension";
@@ -15,42 +15,22 @@ export type { EntwurfThema } from "./EntwurfSidebar";
 import { formatChicago } from "@/lib/formatChicago";
 import { tiptapToMarkdown } from "@/lib/tiptapToMarkdown";
 import { markdownToTiptap } from "@/lib/markdownToTiptap";
+import { extractTextWithMarkers } from "@/lib/extractText";
 
 export type { Source } from "@/lib/formatChicago";
 import type { Source } from "@/lib/formatChicago";
 
+import type { Editor } from "@tiptap/react";
+
 interface Props {
   content: object | null;
   onChange: (json: object) => void;
+  onEditorReady?: (editor: Editor) => void;
   placeholder?: string;
   sources?: Source[];
   entwurf?: EntwurfThema[];
   onEntwurfChange?: (entwurf: EntwurfThema[]) => void;
   saveStatus?: "saving" | "saved" | null;
-}
-
-// Extract plain text from Tiptap JSON, replacing footnote nodes with ⟨N⟩ markers
-function extractTextWithMarkers(doc: any): string {
-  let fnCount = 0;
-  const paragraphs: string[] = [];
-
-  function processNode(node: any): string {
-    if (node.type === "text") return node.text ?? "";
-    if (node.type === "footnote") {
-      fnCount++;
-      return `⟨${fnCount}⟩`;
-    }
-    if (node.content) return node.content.map(processNode).join("");
-    return "";
-  }
-
-  for (const block of doc.content ?? []) {
-    if (block.type === "bibleVerse" || block.type === "image" || block.type === "imageBlock") continue;
-    const text = processNode(block).trim();
-    if (text) paragraphs.push(text);
-  }
-
-  return paragraphs.join("\n\n");
 }
 
 // Replace the first occurrence of `original` in Tiptap JSON text nodes
@@ -88,11 +68,10 @@ function applyTextChange(
   return { node, found: false };
 }
 
-export default function TiptapEditor({ content, onChange, placeholder, sources = [], entwurf, onEntwurfChange, saveStatus }: Props) {
+export default function TiptapEditor({ content, onChange, onEditorReady, placeholder, sources = [], entwurf, onEntwurfChange, saveStatus }: Props) {
   const [lektoratLoading, setLektoratLoading] = useState(false);
   const [lektoratChanges, setLektoratChanges] = useState<LektoratChange[] | null>(null);
   const [lektoratError, setLektoratError] = useState<string | null>(null);
-  const [showEntwurf, setShowEntwurf] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [exportText, setExportText] = useState("");
@@ -120,6 +99,15 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
       },
     },
   });
+
+  // Expose editor instance to parent via callback
+  const onEditorReadyRef = useRef(onEditorReady);
+  onEditorReadyRef.current = onEditorReady;
+  useEffect(() => {
+    if (editor && onEditorReadyRef.current) {
+      onEditorReadyRef.current(editor);
+    }
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -197,23 +185,9 @@ export default function TiptapEditor({ content, onChange, placeholder, sources =
         sources={sources}
         onLektorat={runLektorat}
         lektoratLoading={lektoratLoading}
-        showEntwurf={showEntwurf}
-        onToggleEntwurf={onEntwurfChange ? () => setShowEntwurf((v) => !v) : undefined}
       />
       <div>
-        <div className="flex">
-          <div className="flex-1 min-w-0">
-            <EditorContent editor={editor} />
-          </div>
-          {showEntwurf && onEntwurfChange && entwurf !== undefined && (
-            <EntwurfSidebar
-              editor={editor}
-              sources={sources}
-              entwurf={entwurf}
-              onChange={onEntwurfChange}
-            />
-          )}
-        </div>
+        <EditorContent editor={editor} />
 
         {/* Footnote list */}
         {footnotes.length > 0 && (

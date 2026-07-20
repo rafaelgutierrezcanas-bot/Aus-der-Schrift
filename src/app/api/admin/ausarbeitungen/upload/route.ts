@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { writeClient } from "@/sanity/writeClient";
-
-async function requireAuth(): Promise<NextResponse | null> {
-  const cookieStore = await cookies();
-  const auth = cookieStore.get("admin_auth");
-  if (!auth || auth.value !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
-}
+import { requireAuth } from "@/lib/adminAuth";
 
 const ALLOWED_MIME_TYPES = new Set(["application/pdf"]);
 const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
