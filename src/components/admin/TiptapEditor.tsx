@@ -234,7 +234,8 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
           onToggleFullscreen={() => setIsFullscreen((v) => !v)}
         />
       ) : (
-        <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-1 border-b border-stone-100 bg-white/90 backdrop-blur-md">
+        <div className={`sticky top-0 z-20 border-b border-stone-100 bg-white/90 backdrop-blur-md`}>
+        <div className={`flex items-center justify-between px-4 py-1 ${isFullscreen ? "max-w-3xl mx-auto" : ""}`}>
           <button
             onClick={() => setToolbarVisible(true)}
             title="Werkzeugleiste einblenden (⌘⇧T)"
@@ -250,6 +251,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
             {saveStatus === "saving" && <span className="text-amber-500">Speichert…</span>}
             {saveStatus === "saved" && <span className="text-green-600">Gespeichert</span>}
           </div>
+        </div>
         </div>
       )}
 
@@ -299,7 +301,10 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
 
       {/* ── Status bar ─── */}
       <div
-        className="flex items-center gap-4 px-4 py-1.5 border-t border-stone-100 text-xs text-stone-400 rounded-b-xl"
+        className={`border-t border-stone-100 ${isFullscreen ? "" : "rounded-b-xl"}`}
+      >
+      <div
+        className={`flex items-center gap-4 px-4 py-1.5 text-xs text-stone-400 ${isFullscreen ? "max-w-3xl mx-auto" : ""}`}
         style={{ fontFamily: "var(--font-sans)" }}
       >
         <span>{words} Wörter</span>
@@ -314,6 +319,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         <button onClick={() => setShowImportModal(true)} className="hover:text-stone-600 transition-colors" title="Markdown importieren">
           Import
         </button>
+      </div>
       </div>
 
       {/* Export Modal */}

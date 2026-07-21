@@ -242,8 +242,8 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   const popover = "fixed bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50";
 
   return (
-    <div className="sticky top-0 z-20">
-      <div className="flex items-center gap-0.5 px-2.5 py-1.5 border-b border-stone-100 bg-white/90 backdrop-blur-md">
+    <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/90 backdrop-blur-md">
+      <div className={`flex items-center gap-0.5 px-2.5 py-1.5 ${isFullscreen ? "max-w-3xl mx-auto px-4 py-2.5" : ""}`}>
         {/* ── Undo / Redo ─── */}
         <TBtn active={false} onClick={() => editor.chain().focus().undo().run()} title="Rückgängig (⌘Z)" disabled={!editor.can().undo()}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
