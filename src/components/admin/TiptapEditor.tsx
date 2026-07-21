@@ -349,6 +349,9 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
               value={exportText}
               className="flex-1 px-5 py-4 text-sm text-stone-700 font-mono resize-none focus:outline-none min-h-[300px] overflow-auto"
             />
+            <p className="px-5 py-2 text-xs text-stone-400 border-t border-stone-100">
+              Metadaten als HTML-Kommentare eingebettet — beim Bearbeiten bitte nicht entfernen.
+            </p>
           </div>
         </div>
       )}

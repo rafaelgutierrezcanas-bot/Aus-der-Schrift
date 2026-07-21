@@ -14,6 +14,10 @@ interface Footnote {
   pages?: string;
 }
 
+function escapeAttr(value: string): string {
+  return value.replace(/"/g, "&quot;");
+}
+
 export function tiptapToMarkdown(
   doc: { type: string; content?: TipTapNode[] },
   sources?: Source[]
@@ -30,6 +34,22 @@ export function tiptapToMarkdown(
         const isItalic = node.marks?.some((m) => m.type === "italic");
         if (isBold) text = `**${text}**`;
         if (isItalic) text = `*${text}*`;
+
+        // Wrap with infocard mark
+        const infoMark = node.marks?.find((m) => m.type === "infocard");
+        if (infoMark) {
+          const explanation = escapeAttr((infoMark.attrs?.explanation as string) ?? "");
+          text = `<!-- info explanation="${explanation}" -->${text}<!-- /info -->`;
+        }
+
+        // Wrap with internalLink mark
+        const linkMark = node.marks?.find((m) => m.type === "internalLink");
+        if (linkMark) {
+          const slug = escapeAttr((linkMark.attrs?.slug as string) ?? "");
+          const title = escapeAttr((linkMark.attrs?.title as string) ?? "");
+          text = `<!-- link slug="${slug}" title="${title}" -->${text}<!-- /link -->`;
+        }
+
         result += text;
       } else if (node.type === "footnote") {
         footnotes.push({
@@ -94,10 +114,11 @@ export function tiptapToMarkdown(
       }
 
       case "imageBlock": {
-        const alt = (node.attrs?.alt as string) ?? "";
-        const caption = (node.attrs?.caption as string) ?? "";
-        const label = caption || alt || "Bild";
-        return `[${label}]`;
+        const ref = escapeAttr((node.attrs?.src as string) ?? "");
+        const alt = escapeAttr((node.attrs?.alt as string) ?? "");
+        const caption = escapeAttr((node.attrs?.caption as string) ?? "");
+        const layout = escapeAttr((node.attrs?.layout as string) ?? "");
+        return `<!-- img ref="${ref}" alt="${alt}" caption="${caption}" layout="${layout}" -->`;
       }
 
       default:
@@ -130,6 +151,9 @@ export function tiptapToMarkdown(
     }
     result += "\n";
   }
+
+  // Prepend header comment
+  result = `<!-- THEOLOGIK \u2014 Markierungen bitte nicht entfernen -->\n\n${result}`;
 
   return result;
 }
