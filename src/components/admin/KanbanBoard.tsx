@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Article {
@@ -15,51 +15,51 @@ interface Props {
   initialArticles: Article[];
 }
 
-const COLUMNS: { id: string; label: string; color: string }[] = [
-  { id: "idea", label: "Idee", color: "bg-purple-100 text-purple-700 border-purple-200" },
-  { id: "draft", label: "Entwurf", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
-  { id: "ready", label: "Bereit", color: "bg-blue-100 text-blue-700 border-blue-200" },
-  { id: "published", label: "Veröffentlicht", color: "bg-green-100 text-green-700 border-green-200" },
-];
+const STATUSES = [
+  { id: "all", label: "Alle" },
+  { id: "idea", label: "Idee", dot: "bg-purple-400" },
+  { id: "draft", label: "Entwurf", dot: "bg-amber-400" },
+  { id: "ready", label: "Bereit", dot: "bg-blue-400" },
+  { id: "published", label: "Veröffentlicht", dot: "bg-green-400" },
+] as const;
+
+const STATUS_DOT: Record<string, string> = {
+  idea: "bg-purple-400",
+  draft: "bg-amber-400",
+  ready: "bg-blue-400",
+  published: "bg-green-400",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  idea: "Idee",
+  draft: "Entwurf",
+  ready: "Bereit",
+  published: "Veröffentlicht",
+};
 
 export default function KanbanBoard({ initialArticles }: Props) {
   const [articles, setArticles] = useState(initialArticles);
-  const dragRef = useRef<{ id: string; fromStatus: string } | null>(null);
-  const [dragOverCol, setDragOverCol] = useState<string | null>(null);
+  const [filter, setFilter] = useState("all");
   const router = useRouter();
 
-  function handleDragStart(e: React.DragEvent, article: Article) {
-    dragRef.current = { id: article._id, fromStatus: article.status };
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", article._id);
+  const filtered = filter === "all"
+    ? articles
+    : articles.filter((a) => a.status === filter);
+
+  const counts: Record<string, number> = {};
+  for (const a of articles) {
+    counts[a.status] = (counts[a.status] ?? 0) + 1;
   }
 
-  function handleDragOver(e: React.DragEvent, columnId: string) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOverCol(columnId);
-  }
-
-  function handleDragLeave() {
-    setDragOverCol(null);
-  }
-
-  async function handleDrop(e: React.DragEvent, newStatus: string) {
-    e.preventDefault();
-    setDragOverCol(null);
-
-    const drag = dragRef.current;
-    if (!drag || drag.fromStatus === newStatus) return;
-
-    const article = articles.find((a) => a._id === drag.id);
-    if (!article) return;
+  async function updateStatus(article: Article, newStatus: string) {
+    if (article.status === newStatus) return;
+    const oldStatus = article.status;
 
     // Optimistic update
     setArticles((prev) =>
-      prev.map((a) => (a._id === drag.id ? { ...a, status: newStatus } : a))
+      prev.map((a) => (a._id === article._id ? { ...a, status: newStatus } : a))
     );
 
-    // Persist to Sanity
     try {
       const res = await fetch(`/api/admin/articles/${article.slug.current}`, {
         method: "PATCH",
@@ -67,73 +67,106 @@ export default function KanbanBoard({ initialArticles }: Props) {
         body: JSON.stringify({ status: newStatus }),
       });
       if (!res.ok) {
-        // Revert on failure
         setArticles((prev) =>
-          prev.map((a) => (a._id === drag.id ? { ...a, status: drag.fromStatus } : a))
+          prev.map((a) => (a._id === article._id ? { ...a, status: oldStatus } : a))
         );
       }
     } catch {
-      // Revert on error
       setArticles((prev) =>
-        prev.map((a) => (a._id === drag.id ? { ...a, status: drag.fromStatus } : a))
+        prev.map((a) => (a._id === article._id ? { ...a, status: oldStatus } : a))
       );
     }
-
-    dragRef.current = null;
   }
 
   return (
-    <div className="grid grid-cols-4 gap-3" style={{ fontFamily: "var(--font-sans)" }}>
-      {COLUMNS.map((col) => {
-        const colArticles = articles.filter((a) => a.status === col.id);
-        return (
-          <div
-            key={col.id}
-            onDragOver={(e) => handleDragOver(e, col.id)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, col.id)}
-            className={`rounded-xl border p-3 min-h-[200px] transition-colors ${
-              dragOverCol === col.id
-                ? "border-[var(--color-accent)] bg-[var(--color-accent)]/5"
-                : "border-[var(--color-border)] bg-[var(--color-surface)]"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${col.color}`}>
-                {col.label}
-              </span>
-              <span className="text-xs text-[var(--color-muted)]">{colArticles.length}</span>
-            </div>
-            <div className="space-y-2">
-              {colArticles.map((article) => (
-                <div
-                  key={article._id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, article)}
-                  onClick={() => router.push(`/admin/${article.slug.current}`)}
-                  className="bg-white rounded-lg border border-[var(--color-border)] p-3 cursor-grab active:cursor-grabbing hover:border-[var(--color-accent)] transition-colors group"
-                >
-                  <p className="text-sm text-[var(--color-foreground)] font-medium group-hover:text-[var(--color-accent)] transition-colors leading-snug">
-                    {article.titleDe || "Untitled"}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    {article.category && (
-                      <span className="text-xs text-[var(--color-muted)] bg-[var(--color-surface)] px-1.5 py-0.5 rounded">
-                        {article.category.titleDe}
-                      </span>
-                    )}
-                    {article.publishedAt && (
-                      <span className="text-xs text-[var(--color-muted)]">
-                        {new Date(article.publishedAt).toLocaleDateString("de-DE", { day: "numeric", month: "short" })}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+    <div style={{ fontFamily: "var(--font-sans)" }}>
+      {/* Filter tabs */}
+      <div className="flex items-center gap-1 mb-4">
+        {STATUSES.map((s) => {
+          const count = s.id === "all" ? articles.length : (counts[s.id] ?? 0);
+          const isActive = filter === s.id;
+          return (
+            <button
+              key={s.id}
+              onClick={() => setFilter(s.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                isActive
+                  ? "bg-[var(--color-foreground)] text-white"
+                  : "text-[var(--color-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-foreground)]"
+              }`}
+            >
+              {"dot" in s && <span className={`w-2 h-2 rounded-full ${s.dot} ${isActive ? "opacity-80" : ""}`} />}
+              <span>{s.label}</span>
+              <span className={`tabular-nums ${isActive ? "text-white/60" : "text-[var(--color-muted)]/60"}`}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Article list */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+        {/* Header row */}
+        <div className="grid grid-cols-[1fr_140px_140px_120px] gap-2 px-4 py-2 border-b border-[var(--color-border)] text-xs text-[var(--color-muted)] font-medium uppercase tracking-wider">
+          <span>Titel</span>
+          <span>Kategorie</span>
+          <span>Datum</span>
+          <span>Status</span>
+        </div>
+
+        {/* Rows */}
+        {filtered.length === 0 && (
+          <div className="px-4 py-8 text-center text-sm text-[var(--color-muted)]">
+            Keine Artikel in dieser Kategorie.
           </div>
-        );
-      })}
+        )}
+        {filtered.map((article) => (
+          <div
+            key={article._id}
+            className="grid grid-cols-[1fr_140px_140px_120px] gap-2 items-center px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-background)] transition-colors group cursor-pointer"
+            onClick={() => router.push(`/admin/${article.slug.current}`)}
+          >
+            {/* Title with status dot */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[article.status] ?? "bg-stone-300"}`} />
+              <span className="text-sm text-[var(--color-foreground)] font-medium truncate group-hover:text-[var(--color-accent)] transition-colors">
+                {article.titleDe || "Ohne Titel"}
+              </span>
+            </div>
+
+            {/* Category */}
+            <span className="text-xs text-[var(--color-muted)] truncate">
+              {article.category?.titleDe ?? "—"}
+            </span>
+
+            {/* Date */}
+            <span className="text-xs text-[var(--color-muted)] tabular-nums">
+              {article.publishedAt
+                ? new Date(article.publishedAt).toLocaleDateString("de-DE", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "—"}
+            </span>
+
+            {/* Status select */}
+            <select
+              value={article.status}
+              onChange={(e) => {
+                e.stopPropagation();
+                updateStatus(article, e.target.value);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs bg-transparent border border-transparent hover:border-[var(--color-border)] rounded-md px-1.5 py-1 text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors cursor-pointer focus:outline-none focus:border-[var(--color-accent)]"
+            >
+              <option value="idea">Idee</option>
+              <option value="draft">Entwurf</option>
+              <option value="ready">Bereit</option>
+              <option value="published">Veröffentlicht</option>
+            </select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

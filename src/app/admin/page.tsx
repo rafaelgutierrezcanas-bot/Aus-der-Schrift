@@ -3,10 +3,7 @@ import { client } from "@/sanity/client";
 import KanbanBoard from "@/components/admin/KanbanBoard";
 
 async function getDashboardData() {
-  const [articles, allArticles, sources, ideas, totalArticles, drafts] = await Promise.all([
-    client.fetch(`*[_type == "article"] | order(publishedAt desc)[0...5] {
-      _id, titleDe, slug, publishedAt, status
-    }`),
+  const [allArticles, sources, ideas, totalArticles, drafts] = await Promise.all([
     client.fetch(`*[_type == "article" && status in ["idea", "draft", "ready", "published"]] | order(publishedAt desc) {
       _id, titleDe, slug, publishedAt, status, category->{ titleDe }
     }`),
@@ -15,74 +12,60 @@ async function getDashboardData() {
     client.fetch(`count(*[_type == "article"])`),
     client.fetch(`count(*[_type == "article" && status in ["idea", "draft", "ready", "archived"]])`),
   ]);
-  return { articles, allArticles, totalArticles, drafts, sources, ideas };
+  return { allArticles, totalArticles, drafts, sources, ideas };
 }
 
 export default async function AdminDashboard() {
-  const { articles, allArticles, totalArticles, drafts, sources, ideas } = await getDashboardData();
-
-  const stats = [
-    { label: "Artikel gesamt", value: totalArticles, href: "/admin/artikel" },
-    { label: "Entwürfe", value: drafts, href: "/admin/artikel?tab=entwuerfe" },
-    { label: "Quellen", value: sources, href: "/admin/quellen" },
-    { label: "Ideen", value: ideas, href: "/admin/ideen" },
-  ];
-
-  const quickActions = [
-    { label: "Neuer Artikel", href: "/admin/neu" },
-    { label: "Neue Quelle", href: "/admin/quellen/neu" },
-    { label: "Neue Idee", href: "/admin/ideen/neu" },
-  ];
+  const { allArticles, totalArticles, drafts, sources, ideas } = await getDashboardData();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Dashboard</h1>
-        <div className="flex flex-wrap gap-2">
-          {quickActions.map((a) => (
-            <Link
-              key={a.label}
-              href={a.href}
-              className="text-sm px-4 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              {a.label}
-            </Link>
-          ))}
+        <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-sans)" }}>
+          <Link
+            href="/admin/neu"
+            className="text-xs px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity font-medium"
+          >
+            + Neuer Artikel
+          </Link>
+          <Link
+            href="/admin/quellen/neu"
+            className="text-xs px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+          >
+            Neue Quelle
+          </Link>
+          <Link
+            href="/admin/ideen/neu"
+            className="text-xs px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+          >
+            Neue Idee
+          </Link>
         </div>
       </div>
 
-      {/* Theological quote */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-5">
-        <p className="font-serif italic text-sm text-[var(--color-accent)] leading-relaxed">
-          &ldquo;We need a generation of Christians who are gentle toward people and fierce toward ideas.&rdquo;
-        </p>
-        <p className="text-xs text-[var(--color-muted)] mt-2" style={{ fontFamily: "var(--font-sans)" }}>
-          — Gavin Ortlund
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {stats.map((s) => (
+      {/* Stats row */}
+      <div className="grid grid-cols-4 gap-3" style={{ fontFamily: "var(--font-sans)" }}>
+        {[
+          { label: "Artikel", value: totalArticles, href: "/admin/artikel" },
+          { label: "Entwürfe", value: drafts, href: "/admin/artikel?tab=entwuerfe" },
+          { label: "Quellen", value: sources, href: "/admin/quellen" },
+          { label: "Ideen", value: ideas, href: "/admin/ideen" },
+        ].map((s) => (
           <Link
             key={s.label}
             href={s.href}
-            className="bg-[var(--color-surface)] rounded-xl p-4 border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors"
+            className="flex items-center gap-3 bg-[var(--color-surface)] rounded-xl px-4 py-3 border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors"
           >
-            <p className="text-2xl font-semibold text-[var(--color-foreground)]" style={{ fontFamily: "var(--font-sans)" }}>{s.value}</p>
-            <p className="text-xs text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>{s.label}</p>
+            <span className="text-xl font-semibold text-[var(--color-foreground)] tabular-nums">{s.value}</span>
+            <span className="text-xs text-[var(--color-muted)]">{s.label}</span>
           </Link>
         ))}
       </div>
 
-      {/* Kanban Board */}
-      <div>
-        <h2 className="font-serif text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wide mb-3">
-          Artikelübersicht
-        </h2>
-        <KanbanBoard initialArticles={allArticles} />
-      </div>
+      {/* Article list */}
+      <KanbanBoard initialArticles={allArticles} />
     </div>
   );
 }
