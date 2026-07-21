@@ -256,8 +256,8 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       )}
 
       {/* ── Editor content ─── */}
-      <div className={isFullscreen ? "flex-1 overflow-y-auto" : ""}>
-        <div className={isFullscreen ? "max-w-3xl mx-auto" : ""}>
+      <div className={isFullscreen ? "flex-1 overflow-y-auto bg-stone-50" : ""}>
+        <div className={isFullscreen ? "max-w-3xl mx-auto bg-white min-h-full shadow-sm" : ""}>
         <EditorContent editor={editor} />
 
         {/* Footnote list */}
