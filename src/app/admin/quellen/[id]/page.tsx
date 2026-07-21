@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { formatChicago } from "@/lib/formatChicago";
 
+interface Passage {
+  chapter?: string;
+  pages?: string;
+  text: string;
+}
+
 interface Source {
   _id: string;
   type: string;
@@ -21,6 +27,7 @@ interface Source {
   pages?: string;
   notes?: string;
   fileLink?: string;
+  passages?: Passage[];
 }
 
 export default function QuelleEditPage() {
@@ -260,6 +267,81 @@ export default function QuelleEditPage() {
         <div>
           <label className={labelClass}>Eigene Notizen</label>
           <textarea rows={3} value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} className={inputClass + " resize-none"} />
+        </div>
+
+        {/* Passages */}
+        <div className="border-t border-[var(--color-border)] pt-4 mt-2">
+          <div className="flex items-center justify-between mb-3">
+            <label className={labelClass + " mb-0"}>Textabschnitte / Passagen</label>
+            <button
+              onClick={() => {
+                const passages = [...(form.passages ?? []), { chapter: "", pages: "", text: "" }];
+                setForm((f) => f ? { ...f, passages } : f);
+              }}
+              className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+            >
+              + Passage hinzufügen
+            </button>
+          </div>
+          <p className="text-xs text-[var(--color-muted)] mb-3">
+            Füge Abschnitte aus dem Buch hinzu, damit die KI darauf eingehen kann.
+          </p>
+          {(form.passages ?? []).length === 0 && (
+            <p className="text-xs text-[var(--color-muted)] italic py-2">Keine Passagen hinzugefügt.</p>
+          )}
+          <div className="space-y-3">
+            {(form.passages ?? []).map((p, i) => (
+              <div key={i} className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-[var(--color-muted)]">Passage {i + 1}</span>
+                  <button
+                    onClick={() => {
+                      const passages = (form.passages ?? []).filter((_, j) => j !== i);
+                      setForm((f) => f ? { ...f, passages } : f);
+                    }}
+                    className="text-xs text-[var(--color-muted)] hover:text-red-600 transition-colors"
+                  >
+                    Entfernen
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Kapitel / Abschnitt"
+                    value={p.chapter ?? ""}
+                    onChange={(e) => {
+                      const passages = [...(form.passages ?? [])];
+                      passages[i] = { ...passages[i], chapter: e.target.value };
+                      setForm((f) => f ? { ...f, passages } : f);
+                    }}
+                    className={inputClass + " text-xs"}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Seite(n), z. B. 42–45"
+                    value={p.pages ?? ""}
+                    onChange={(e) => {
+                      const passages = [...(form.passages ?? [])];
+                      passages[i] = { ...passages[i], pages: e.target.value };
+                      setForm((f) => f ? { ...f, passages } : f);
+                    }}
+                    className={inputClass + " text-xs"}
+                  />
+                </div>
+                <textarea
+                  rows={4}
+                  placeholder="Textpassage hier einfügen..."
+                  value={p.text ?? ""}
+                  onChange={(e) => {
+                    const passages = [...(form.passages ?? [])];
+                    passages[i] = { ...passages[i], text: e.target.value };
+                    setForm((f) => f ? { ...f, passages } : f);
+                  }}
+                  className={inputClass + " resize-none text-xs leading-relaxed"}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Live preview */}

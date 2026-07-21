@@ -22,6 +22,13 @@ export async function POST(request: NextRequest) {
     .map((s: any, i: number) => {
       let entry = `[Quelle ${i + 1}] ${s.authors} (${s.year}). ${s.title}.`;
       if (s.notes) entry += `\nNotizen: ${s.notes}`;
+      if (s.passages?.length > 0) {
+        entry += "\nTextabschnitte:";
+        for (const p of s.passages) {
+          const loc = [p.chapter, p.pages ? `S. ${p.pages}` : ""].filter(Boolean).join(", ");
+          entry += `\n  [${loc || "o.S."}] ${p.text}`;
+        }
+      }
       if (s.quotes?.length > 0) {
         entry += "\nZitate:";
         for (const q of s.quotes) {

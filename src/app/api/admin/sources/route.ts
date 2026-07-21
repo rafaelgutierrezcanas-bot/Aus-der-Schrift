@@ -11,7 +11,7 @@ export async function GET() {
     *[_type == "source"] | order(authors asc) {
       _id, type, authors, title, year, publisher,
       volume, issue, city, edition,
-      doi, isbn, url, pages, notes, fileLink
+      doi, isbn, url, pages, notes, fileLink, passages
     }
   `);
   return NextResponse.json(sources);

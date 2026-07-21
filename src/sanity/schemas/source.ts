@@ -40,6 +40,30 @@ export default defineType({
     defineField({ name: "pages", title: "Seitenbereich (z. B. 129–150)", type: "string" }),
     defineField({ name: "notes", title: "Eigene Notizen", type: "text", rows: 4 }),
     defineField({ name: "fileLink", title: "Link zur Datei (Google Drive, JSTOR etc.)", type: "url" }),
+    defineField({
+      name: "passages",
+      title: "Textabschnitte / Passagen",
+      description: "Abschnitte aus dem Buch, die du für deine Arbeit nutzt",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "passage",
+          title: "Passage",
+          fields: [
+            { name: "chapter", title: "Kapitel / Abschnitt", type: "string" },
+            { name: "pages", title: "Seite(n)", type: "string" },
+            { name: "text", title: "Textpassage", type: "text", rows: 6 },
+          ],
+          preview: {
+            select: { title: "chapter", subtitle: "pages" },
+            prepare({ title, subtitle }: { title?: string; subtitle?: string }) {
+              return { title: title || "Ohne Kapitel", subtitle: subtitle ? `S. ${subtitle}` : undefined };
+            },
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: { title: "title", subtitle: "authors" },
