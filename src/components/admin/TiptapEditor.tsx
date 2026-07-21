@@ -191,10 +191,30 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     }).catch(() => {});
   }
 
+  const [importSelectionOnly, setImportSelectionOnly] = useState(false);
+
+  function openImportModal() {
+    const hasSelection = editor && !editor.state.selection.empty;
+    setImportSelectionOnly(!!hasSelection);
+    setShowImportModal(true);
+  }
+
   function handleImport() {
     if (!editor || !importText.trim()) return;
     const doc = markdownToTiptap(importText);
-    editor.commands.setContent(doc);
+    if (importSelectionOnly && !editor.state.selection.empty) {
+      // Replace only the selected range with parsed content
+      const nodes = doc.content;
+      const { from, to } = editor.state.selection;
+      editor.chain().focus().deleteRange({ from, to }).run();
+      // Insert parsed nodes at cursor position
+      for (const node of nodes) {
+        const tiptapNode = editor.state.schema.nodeFromJSON(node);
+        editor.commands.insertContent(tiptapNode.toJSON());
+      }
+    } else {
+      editor.commands.setContent(doc);
+    }
     setShowImportModal(false);
     setImportText("");
   }
@@ -316,7 +336,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         <button onClick={handleExport} className="hover:text-stone-600 transition-colors" title="Als Markdown exportieren">
           Export
         </button>
-        <button onClick={() => setShowImportModal(true)} className="hover:text-stone-600 transition-colors" title="Markdown importieren">
+        <button onClick={openImportModal} className="hover:text-stone-600 transition-colors" title="Markdown importieren">
           Import
         </button>
       </div>
@@ -361,9 +381,19 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowImportModal(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()} style={{ fontFamily: "var(--font-sans)" }}>
             <div className="flex items-center justify-between px-5 py-3 border-b border-stone-200">
-              <h3 className="text-sm font-medium text-stone-700">Markdown Import</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-medium text-stone-700">Markdown Import</h3>
+                {importSelectionOnly && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium">Auswahl</span>
+                )}
+              </div>
               <button onClick={() => setShowImportModal(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">×</button>
             </div>
+            {importSelectionOnly && (
+              <p className="px-5 pt-3 pb-0 text-xs text-stone-400">
+                Nur die markierte Auswahl wird ersetzt.
+              </p>
+            )}
             <textarea
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
@@ -382,7 +412,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
                 disabled={!importText.trim()}
                 className="text-xs px-4 py-1.5 rounded-lg bg-stone-800 text-white hover:bg-stone-900 disabled:opacity-40 transition-colors"
               >
-                Importieren
+                {importSelectionOnly ? "Auswahl ersetzen" : "Importieren"}
               </button>
             </div>
           </div>
