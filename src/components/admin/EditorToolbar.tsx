@@ -15,6 +15,8 @@ interface Props {
   onLektorat?: () => void;
   lektoratLoading?: boolean;
   onCollapse?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 /* ── Compact toolbar button ─────────────────────────── */
@@ -56,7 +58,7 @@ function Divider() {
   return <div className="w-px h-4 bg-stone-200 mx-1 shrink-0" />;
 }
 
-export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading, onCollapse }: Props) {
+export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading, onCollapse, isFullscreen, onToggleFullscreen }: Props) {
   /* ── Footnote state ─────────────────────────────────── */
   const [showFootnotePicker, setShowFootnotePicker] = useState(false);
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
@@ -242,6 +244,16 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   return (
     <div className="sticky top-0 z-20">
       <div className="flex items-center gap-0.5 px-2.5 py-1.5 border-b border-stone-100 bg-white/90 backdrop-blur-md">
+        {/* ── Undo / Redo ─── */}
+        <TBtn active={false} onClick={() => editor.chain().focus().undo().run()} title="Rückgängig (⌘Z)" disabled={!editor.can().undo()}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </TBtn>
+        <TBtn active={false} onClick={() => editor.chain().focus().redo().run()} title="Wiederholen (⌘⇧Z)" disabled={!editor.can().redo()}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+        </TBtn>
+
+        <Divider />
+
         {/* ── Text format ─── */}
         <TBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="Fett (⌘B)">
           <span className="font-bold">B</span>
@@ -496,8 +508,27 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
           </TBtn>
         )}
 
+        {/* ── Fullscreen ─── */}
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            title={isFullscreen ? "Fokusmodus beenden (Esc)" : "Fokusmodus (⌘⇧F)"}
+            className={`h-7 w-7 rounded-md transition-all duration-150 flex items-center justify-center shrink-0 ${
+              isFullscreen
+                ? "text-stone-700 bg-stone-100"
+                : "text-stone-400 hover:bg-stone-100 hover:text-stone-600"
+            }`}
+          >
+            {isFullscreen ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            )}
+          </button>
+        )}
+
         {/* ── Collapse ─── */}
-        {onCollapse && (
+        {onCollapse && !isFullscreen && (
           <button
             onClick={onCollapse}
             title="Werkzeugleiste ausblenden (⌘⇧T)"

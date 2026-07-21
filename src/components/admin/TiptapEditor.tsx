@@ -84,19 +84,28 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     if (typeof window === "undefined") return true;
     return localStorage.getItem(TOOLBAR_KEY) !== "false";
   });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Persist toolbar visibility
   useEffect(() => {
     localStorage.setItem(TOOLBAR_KEY, String(toolbarVisible));
   }, [toolbarVisible]);
 
-  // Cmd+Shift+T to toggle toolbar
+  // Cmd+Shift+T to toggle toolbar, Cmd+Shift+F for fullscreen, Escape to exit
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === "t") {
         e.preventDefault();
         e.stopPropagation();
         setToolbarVisible((v) => !v);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsFullscreen((v) => !v);
+      }
+      if (e.key === "Escape" && !e.metaKey && !e.ctrlKey) {
+        setIsFullscreen(false);
       }
     }
     window.addEventListener("keydown", onKeyDown, true);
@@ -207,8 +216,12 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   const minutes = Math.max(1, Math.ceil(words / 200));
 
+  const wrapperClass = isFullscreen
+    ? "fixed inset-0 z-50 bg-white flex flex-col"
+    : "bg-white rounded-xl shadow-sm border border-stone-100";
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-stone-100">
+    <div className={wrapperClass}>
       {/* ── Toolbar / collapsed bar ─── */}
       {toolbarVisible ? (
         <EditorToolbar
@@ -217,6 +230,8 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
           onLektorat={runLektorat}
           lektoratLoading={lektoratLoading}
           onCollapse={() => setToolbarVisible(false)}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setIsFullscreen((v) => !v)}
         />
       ) : (
         <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-1 border-b border-stone-100 bg-white/90 backdrop-blur-md">
@@ -239,7 +254,8 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       )}
 
       {/* ── Editor content ─── */}
-      <div>
+      <div className={isFullscreen ? "flex-1 overflow-y-auto" : ""}>
+        <div className={isFullscreen ? "max-w-3xl mx-auto" : ""}>
         <EditorContent editor={editor} />
 
         {/* Footnote list */}
@@ -278,6 +294,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
             onClose={() => setLektoratChanges(null)}
           />
         )}
+        </div>
       </div>
 
       {/* ── Status bar ─── */}
