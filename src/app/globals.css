@@ -23,6 +23,21 @@
   letter-spacing: 0.06em;
 }
 
+/* Clean editor experience */
+.ProseMirror {
+  font-family: var(--font-body-serif);
+  line-height: 1.8;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #b8b0a4;
+  font-style: italic;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
 .prose {
   --tw-prose-body:        var(--color-foreground);
   --tw-prose-headings:    var(--color-foreground);

@@ -22,6 +22,8 @@ import type { Source } from "@/lib/formatChicago";
 
 import type { Editor } from "@tiptap/react";
 
+const TOOLBAR_KEY = "editor-toolbar-visible";
+
 interface Props {
   content: object | null;
   onChange: (json: object) => void;
@@ -78,6 +80,29 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
   const [importText, setImportText] = useState("");
   const [copyFeedback, setCopyFeedback] = useState(false);
 
+  const [toolbarVisible, setToolbarVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem(TOOLBAR_KEY) !== "false";
+  });
+
+  // Persist toolbar visibility
+  useEffect(() => {
+    localStorage.setItem(TOOLBAR_KEY, String(toolbarVisible));
+  }, [toolbarVisible]);
+
+  // Cmd+Shift+T to toggle toolbar
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        e.stopPropagation();
+        setToolbarVisible((v) => !v);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, []);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -95,7 +120,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     },
     editorProps: {
       attributes: {
-        class: "prose prose-stone max-w-none focus:outline-none min-h-[400px] px-6 py-5",
+        class: "prose prose-stone max-w-none focus:outline-none min-h-[500px] px-8 py-6",
       },
     },
   });
@@ -178,20 +203,48 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     return true;
   });
 
+  const text = editor.getText();
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+
   return (
-    <div className="border border-stone-200 rounded-xl bg-white">
-      <EditorToolbar
-        editor={editor}
-        sources={sources}
-        onLektorat={runLektorat}
-        lektoratLoading={lektoratLoading}
-      />
+    <div className="bg-white rounded-xl shadow-sm border border-stone-100">
+      {/* ── Toolbar / collapsed bar ─── */}
+      {toolbarVisible ? (
+        <EditorToolbar
+          editor={editor}
+          sources={sources}
+          onLektorat={runLektorat}
+          lektoratLoading={lektoratLoading}
+          onCollapse={() => setToolbarVisible(false)}
+        />
+      ) : (
+        <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-1 border-b border-stone-100 bg-white/90 backdrop-blur-md">
+          <button
+            onClick={() => setToolbarVisible(true)}
+            title="Werkzeugleiste einblenden (⌘⇧T)"
+            className="h-6 px-2 rounded-md text-xs text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-all duration-150 flex items-center gap-1.5"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <span>Werkzeugleiste</span>
+          </button>
+          <div className="flex items-center gap-3 text-xs text-stone-400" style={{ fontFamily: "var(--font-sans)" }}>
+            <span>{words} Wörter</span>
+            {saveStatus === "saving" && <span className="text-amber-500">Speichert…</span>}
+            {saveStatus === "saved" && <span className="text-green-600">Gespeichert</span>}
+          </div>
+        </div>
+      )}
+
+      {/* ── Editor content ─── */}
       <div>
         <EditorContent editor={editor} />
 
         {/* Footnote list */}
         {footnotes.length > 0 && (
-          <div className="border-t border-stone-200 px-6 py-4" style={{ fontFamily: "var(--font-sans)" }}>
+          <div className="border-t border-stone-100 px-8 py-5" style={{ fontFamily: "var(--font-sans)" }}>
             <p className="text-xs font-medium text-stone-400 uppercase tracking-widest mb-3">Fußnoten</p>
             <ol className="space-y-1.5">
               {footnotes.map((fn, i) => {
@@ -209,7 +262,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
 
         {/* Lektorat error */}
         {lektoratError && (
-          <div className="border-t border-stone-200 px-6 py-4 flex items-start justify-between gap-4" style={{ fontFamily: "var(--font-sans)" }}>
+          <div className="border-t border-stone-100 px-8 py-4 flex items-start justify-between gap-4" style={{ fontFamily: "var(--font-sans)" }}>
             <p className="text-sm text-red-600">
               <span className="font-medium">Lektorat-Fehler:</span> {lektoratError}
             </p>
@@ -227,42 +280,22 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         )}
       </div>
 
-      {/* Word count + Export/Import */}
+      {/* ── Status bar ─── */}
       <div
-        className="flex items-center gap-4 px-4 py-2 border-t border-stone-200 text-xs text-stone-400 rounded-b-xl"
+        className="flex items-center gap-4 px-4 py-1.5 border-t border-stone-100 text-xs text-stone-400 rounded-b-xl"
         style={{ fontFamily: "var(--font-sans)" }}
       >
-        {(() => {
-          const text = editor.getText();
-          const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-          const minutes = Math.max(1, Math.ceil(words / 200));
-          return (
-            <>
-              <span>{words} Wörter</span>
-              <span>~{minutes} Min. Lesezeit</span>
-            </>
-          );
-        })()}
-        {saveStatus === "saving" && (
-          <span className="text-amber-500">Speichert…</span>
-        )}
-        {saveStatus === "saved" && (
-          <span className="text-green-600">Gespeichert</span>
-        )}
+        <span>{words} Wörter</span>
+        <span className="text-stone-300">·</span>
+        <span>~{minutes} Min.</span>
+        {saveStatus === "saving" && <span className="text-amber-500">Speichert…</span>}
+        {saveStatus === "saved" && <span className="text-green-600">Gespeichert</span>}
         <span className="ml-auto" />
-        <button
-          onClick={handleExport}
-          className="hover:text-stone-600 transition-colors"
-          title="Als Markdown exportieren"
-        >
-          ↓ Export
+        <button onClick={handleExport} className="hover:text-stone-600 transition-colors" title="Als Markdown exportieren">
+          Export
         </button>
-        <button
-          onClick={() => setShowImportModal(true)}
-          className="hover:text-stone-600 transition-colors"
-          title="Markdown importieren"
-        >
-          ↑ Import
+        <button onClick={() => setShowImportModal(true)} className="hover:text-stone-600 transition-colors" title="Markdown importieren">
+          Import
         </button>
       </div>
 
@@ -329,7 +362,6 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -394,33 +394,28 @@ export default function EditArticlePage() {
 
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Artikel bearbeiten</h1>
+        <div className="flex items-center gap-3">
           <ArticleTabs activeTab={activeTab} onChange={setActiveTab} />
           {isDirty && autoSaved !== "saved" && (
-            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
-              Ungespeichert
-            </span>
+            <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" title="Ungespeichert" />
           )}
         </div>
-        <div className="flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
+        <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-sans)" }}>
           {autoSaved === "saving" && <span className="text-xs text-[var(--color-muted)]">Speichert…</span>}
           {autoSaved === "saved" && !isDirty && <span className="text-xs text-green-600">Gespeichert</span>}
-          <div className="mr-4 pl-4 border-l border-[var(--color-border)]">
-            {showDeleteConfirm ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-red-700 font-medium">Wirklich löschen?</span>
-                <button onClick={handleDelete} className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Ja</button>
-                <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Nein</button>
-              </div>
-            ) : (
-              <button onClick={() => setShowDeleteConfirm(true)} className="text-xs px-3 py-1.5 rounded-lg text-[var(--color-muted)] hover:text-red-600 border border-transparent hover:border-red-200 transition-colors">
-                Löschen
-              </button>
-            )}
-          </div>
-          <button onClick={handleSave} disabled={saving} className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity">
-            {saving ? "Speichert..." : "Speichern & Zurück"}
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-red-700 font-medium">Löschen?</span>
+              <button onClick={handleDelete} className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Ja</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Nein</button>
+            </div>
+          ) : (
+            <button onClick={() => setShowDeleteConfirm(true)} className="text-xs px-3 py-1.5 rounded-lg text-[var(--color-muted)] hover:text-red-600 transition-colors">
+              Löschen
+            </button>
+          )}
+          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity font-medium">
+            {saving ? "Speichert..." : "Speichern"}
           </button>
         </div>
       </div>
@@ -429,19 +424,20 @@ export default function EditArticlePage() {
 
       {/* ═══════════ TAB: INHALT ═══════════ */}
       {activeTab === "inhalt" && (
-        <div className="border border-[var(--color-border)] rounded-xl overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
+        <div className="rounded-xl overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
           <ResearchPanel
             editor={editorDe}
             sources={selectedSources}
             allSources={allSources}
             selectedSourceIds={selectedSourceIds}
             onToggleSource={toggleSource}
+            onSourceCreated={(source) => setAllSources((prev) => [...prev, source])}
             entwurf={entwurf}
             onEntwurfChange={setEntwurf}
+            articleTitle={titleDe}
           >
             <div className="space-y-6 p-4">
               <div>
-                <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
                 <TiptapEditor
                   content={bodyDe}
                   onChange={setBodyDe}
@@ -455,8 +451,8 @@ export default function EditArticlePage() {
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-3">
-                  <h2 className="font-serif text-base text-[var(--color-foreground)]">Content (EN)</h2>
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-xs font-medium text-[var(--color-muted)] uppercase tracking-widest" style={{ fontFamily: "var(--font-sans)" }}>Content (EN)</h2>
                   <span className="text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full px-2 py-0.5" style={{ fontFamily: "var(--font-sans)" }}>
                     Englische Übersetzung
                   </span>
