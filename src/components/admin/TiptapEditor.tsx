@@ -143,6 +143,29 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     }
   }, [editor]);
 
+  const [importSelectionOnly, setImportSelectionOnly] = useState(false);
+  const [selectionBubble, setSelectionBubble] = useState<{ top: number; left: number } | null>(null);
+
+  // Track selection changes to show/hide floating replace button
+  useEffect(() => {
+    if (!editor) return;
+    const onSelectionUpdate = () => {
+      try {
+        if (editor.state.selection.empty || !editor.view?.dom) {
+          setSelectionBubble(null);
+          return;
+        }
+        const { from } = editor.state.selection;
+        const coords = editor.view.coordsAtPos(from);
+        setSelectionBubble({ top: coords.top - 40, left: coords.left });
+      } catch {
+        setSelectionBubble(null);
+      }
+    };
+    editor.on("selectionUpdate", onSelectionUpdate);
+    return () => { editor.off("selectionUpdate", onSelectionUpdate); };
+  }, [editor]);
+
   if (!editor) return null;
 
   async function runLektorat() {
@@ -190,29 +213,6 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       setTimeout(() => setCopyFeedback(false), 2000);
     }).catch(() => {});
   }
-
-  const [importSelectionOnly, setImportSelectionOnly] = useState(false);
-  const [selectionBubble, setSelectionBubble] = useState<{ top: number; left: number } | null>(null);
-
-  // Track selection changes to show/hide floating replace button
-  useEffect(() => {
-    if (!editor) return;
-    const onSelectionUpdate = () => {
-      try {
-        if (editor.state.selection.empty || !editor.view?.dom) {
-          setSelectionBubble(null);
-          return;
-        }
-        const { from } = editor.state.selection;
-        const coords = editor.view.coordsAtPos(from);
-        setSelectionBubble({ top: coords.top - 40, left: coords.left });
-      } catch {
-        setSelectionBubble(null);
-      }
-    };
-    editor.on("selectionUpdate", onSelectionUpdate);
-    return () => { editor.off("selectionUpdate", onSelectionUpdate); };
-  }, [editor]);
 
   function openImportModal() {
     const hasSelection = editor && !editor.state.selection.empty;
