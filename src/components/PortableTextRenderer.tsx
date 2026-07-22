@@ -144,8 +144,8 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
     ),
   },
   listItem: {
-    bullet: ({ children }) => <li className="leading-relaxed pl-1">{children}</li>,
-    number: ({ children }) => <li className="leading-relaxed pl-1">{children}</li>,
+    bullet: ({ children }) => <li className="leading-relaxed pl-1 text-[1.0625rem]">{children}</li>,
+    number: ({ children }) => <li className="leading-relaxed pl-1 text-[1.0625rem]">{children}</li>,
   },
   block: {
     h2: ({ children, value }) => (
