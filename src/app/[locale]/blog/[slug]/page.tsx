@@ -21,7 +21,6 @@ import { CommentsSection } from "@/components/CommentsSection";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
-import { SidenotesColumn } from "@/components/SidenotesColumn";
 import { FontSizeControls } from "@/components/FontSizeControls";
 
 export const revalidate = 60;
@@ -181,10 +180,6 @@ export default async function ArticlePage({
       }
     }
   }
-  const sidenotes = footnotes.map((fn) => ({
-    index: fn._fnIndex!,
-    text: footnotesMap.get(fn._fnIndex!) ?? fn.text ?? "—",
-  }));
   const sourcesMap = new Map<string, Source>(
     ((article.sources ?? []) as Source[]).map((s) => [s._id, s])
   );
@@ -425,20 +420,19 @@ export default async function ArticlePage({
         <div id="article-body" className="prose dark:prose-invert max-w-prose mx-auto flex-1 min-w-0">
           {body && body.length > 0 && <PortableTextRenderer value={body} locale={locale} footnotesMap={footnotesMap} />}
         </div>
-        <div className="flex items-start shrink-0">
+        <div className="shrink-0">
           {body && body.length > 0 && (
             <TableOfContents
               body={body as Parameters<typeof TableOfContents>[0]["body"]}
               label={locale === "de" ? "Inhalt" : "Contents"}
             />
           )}
-          {sidenotes.length > 0 && <SidenotesColumn sidenotes={sidenotes} locale={locale} />}
         </div>
       </div>
 
-      {/* Footnotes — hidden on xl where sidenotes already show the same content */}
+      {/* Footnotes */}
       {footnotes.length > 0 && (
-        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto xl:hidden">
+        <section className="mt-12 pt-8 border-t border-border max-w-prose mx-auto">
           <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-4" style={{ fontFamily: "var(--font-sans)" }}>
             {locale === "de" ? "Fußnoten" : "Footnotes"}
           </p>
