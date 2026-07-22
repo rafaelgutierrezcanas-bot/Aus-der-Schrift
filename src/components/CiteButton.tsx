@@ -1,30 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Quote, Check } from "lucide-react";
 
 interface CiteButtonProps {
   author: string;
   title: string;
-  publishedAt: string;
-  url: string;
   locale: string;
 }
 
-export function CiteButton({ author, title, publishedAt, url, locale }: CiteButtonProps) {
+export function CiteButton({ author, title, locale }: CiteButtonProps) {
   const [copied, setCopied] = useState(false);
+  const [hasSelection, setHasSelection] = useState(false);
 
-  const year = new Date(publishedAt).getFullYear();
-  const citation = locale === "de"
-    ? `${author}: „${title}". Theologik, ${year}. ${url}`
-    : `${author}: \u201c${title}\u201d. Theologik, ${year}. ${url}`;
+  const checkSelection = useCallback(() => {
+    const sel = window.getSelection();
+    setHasSelection(!!sel && sel.toString().trim().length > 0);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("selectionchange", checkSelection);
+    return () => document.removeEventListener("selectionchange", checkSelection);
+  }, [checkSelection]);
 
   async function handleCopy() {
+    const sel = window.getSelection();
+    const selectedText = sel?.toString().trim();
+    if (!selectedText) return;
+
+    const citation = locale === "de"
+      ? `„${selectedText}"\n— ${author}, „${title}", Theologik`
+      : `\u201c${selectedText}\u201d\n— ${author}, \u201c${title}\u201d, Theologik`;
+
     try {
       await navigator.clipboard.writeText(citation);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard unavailable — silently ignore
+      // Clipboard unavailable
     }
   }
 
@@ -32,9 +44,14 @@ export function CiteButton({ author, title, publishedAt, url, locale }: CiteButt
     <button
       type="button"
       onClick={handleCopy}
-      className="flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors"
+      disabled={!hasSelection}
+      className="flex items-center gap-1.5 text-xs transition-colors disabled:opacity-30 disabled:cursor-default text-muted hover:text-accent"
       style={{ fontFamily: "var(--font-sans)" }}
-      title={locale === "de" ? "Zitation kopieren" : "Copy citation"}
+      title={
+        hasSelection
+          ? locale === "de" ? "Auswahl als Zitat kopieren" : "Copy selection as quote"
+          : locale === "de" ? "Text auswählen zum Zitieren" : "Select text to cite"
+      }
     >
       {copied ? (
         <>

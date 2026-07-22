@@ -396,8 +396,6 @@ export default async function ArticlePage({
           <CiteButton
             author={(article.author as { name?: string } | null)?.name ?? "Theologik"}
             title={getLocalizedTitle(article, locale)}
-            publishedAt={article.publishedAt as string}
-            url={absoluteUrl(`/${locale}/blog/${slug}`)}
             locale={locale}
           />
           <FontSizeControls />
