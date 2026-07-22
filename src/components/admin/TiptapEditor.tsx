@@ -1,6 +1,5 @@
 "use client";
 import { useEditor, EditorContent } from "@tiptap/react";
-import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useState, useRef, useEffect } from "react";
@@ -193,10 +192,28 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
   }
 
   const [importSelectionOnly, setImportSelectionOnly] = useState(false);
+  const [selectionBubble, setSelectionBubble] = useState<{ top: number; left: number } | null>(null);
+
+  // Track selection changes to show/hide floating replace button
+  useEffect(() => {
+    if (!editor) return;
+    const onSelectionUpdate = () => {
+      if (editor.state.selection.empty) {
+        setSelectionBubble(null);
+        return;
+      }
+      const { from } = editor.state.selection;
+      const coords = editor.view.coordsAtPos(from);
+      setSelectionBubble({ top: coords.top - 40, left: coords.left });
+    };
+    editor.on("selectionUpdate", onSelectionUpdate);
+    return () => { editor.off("selectionUpdate", onSelectionUpdate); };
+  }, [editor]);
 
   function openImportModal() {
     const hasSelection = editor && !editor.state.selection.empty;
     setImportSelectionOnly(!!hasSelection);
+    setSelectionBubble(null);
     setShowImportModal(true);
   }
 
@@ -276,25 +293,21 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         </div>
       )}
 
+      {/* ── Selection floating button ─── */}
+      {selectionBubble && (
+        <button
+          onClick={openImportModal}
+          className="fixed z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 text-white text-xs font-medium shadow-lg hover:bg-stone-900 transition-colors"
+          style={{ top: selectionBubble.top, left: selectionBubble.left, fontFamily: "var(--font-sans)" }}
+        >
+          Ersetzen
+        </button>
+      )}
+
       {/* ── Editor content ─── */}
       <div className={isFullscreen ? "flex-1 overflow-y-auto bg-stone-50" : ""}>
         <div className={isFullscreen ? "max-w-3xl mx-auto bg-white min-h-full shadow-sm" : ""}>
         <EditorContent editor={editor} />
-
-        {editor && (
-          <BubbleMenu editor={editor}>
-            <button
-              onClick={openImportModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 text-white text-xs font-medium shadow-lg hover:bg-stone-900 transition-colors"
-              style={{ fontFamily: "var(--font-sans)" }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3v12M5 10l7 7 7-7" />
-              </svg>
-              Ersetzen
-            </button>
-          </BubbleMenu>
-        )}
 
         {/* Footnote list */}
         {footnotes.length > 0 && (
