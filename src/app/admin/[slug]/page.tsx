@@ -319,6 +319,11 @@ export default function EditArticlePage() {
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      setImageError("Datei zu groß (max. 4 MB). Bitte komprimiere das Bild zuerst.");
+      e.target.value = "";
+      return;
+    }
     setImageUploading(true);
     setImageError("");
     try {

@@ -14,7 +14,16 @@ export async function POST(request: NextRequest) {
     "image/avif",
   ]);
 
-  const formData = await request.formData();
+  let formData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      { error: "Datei zu groß — bitte unter 4 MB (Vercel-Limit)" },
+      { status: 413 }
+    );
+  }
+
   const file = formData.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "Keine Datei" }, { status: 400 });
 
@@ -22,9 +31,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Ungültiger Dateityp" }, { status: 415 });
   }
 
-  const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+  const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4 MB (Vercel serverless limit ~4.5 MB)
   if (file.size > MAX_SIZE_BYTES) {
-    return NextResponse.json({ error: "Datei zu groß (max. 10 MB)" }, { status: 413 });
+    return NextResponse.json({ error: "Datei zu groß (max. 4 MB)" }, { status: 413 });
   }
 
   const arrayBuffer = await file.arrayBuffer();

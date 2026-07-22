@@ -9,13 +9,22 @@ const ALLOWED_MIME_TYPES = new Set([
   "image/gif",
   "image/avif",
 ]);
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4 MB (Vercel serverless limit ~4.5 MB)
 
 export async function POST(request: NextRequest) {
   const denied = await requireAuth();
   if (denied) return denied;
 
-  const formData = await request.formData();
+  let formData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      { error: "Datei zu groß — bitte unter 4 MB (Vercel-Limit)" },
+      { status: 413 }
+    );
+  }
+
   const file = formData.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
@@ -24,7 +33,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (file.size > MAX_SIZE_BYTES) {
-    return NextResponse.json({ error: "Datei zu groß (max. 10 MB)" }, { status: 413 });
+    return NextResponse.json({ error: "Datei zu groß (max. 4 MB)" }, { status: 413 });
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
