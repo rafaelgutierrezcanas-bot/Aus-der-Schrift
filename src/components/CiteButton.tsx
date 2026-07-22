@@ -28,8 +28,8 @@ export function CiteButton({ author, title, locale }: CiteButtonProps) {
     if (!selectedText) return;
 
     const citation = locale === "de"
-      ? `„${selectedText}"\n— ${author}, „${title}", Theologik`
-      : `\u201c${selectedText}\u201d\n— ${author}, \u201c${title}\u201d, Theologik`;
+      ? `„${selectedText}"\n— ${author}, „${title}", theologik.org`
+      : `\u201c${selectedText}\u201d\n— ${author}, \u201c${title}\u201d, theologik.org`;
 
     try {
       await navigator.clipboard.writeText(citation);
