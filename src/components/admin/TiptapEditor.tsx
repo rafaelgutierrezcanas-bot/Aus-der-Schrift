@@ -198,13 +198,17 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
   useEffect(() => {
     if (!editor) return;
     const onSelectionUpdate = () => {
-      if (editor.state.selection.empty) {
+      try {
+        if (editor.state.selection.empty || !editor.view?.dom) {
+          setSelectionBubble(null);
+          return;
+        }
+        const { from } = editor.state.selection;
+        const coords = editor.view.coordsAtPos(from);
+        setSelectionBubble({ top: coords.top - 40, left: coords.left });
+      } catch {
         setSelectionBubble(null);
-        return;
       }
-      const { from } = editor.state.selection;
-      const coords = editor.view.coordsAtPos(from);
-      setSelectionBubble({ top: coords.top - 40, left: coords.left });
     };
     editor.on("selectionUpdate", onSelectionUpdate);
     return () => { editor.off("selectionUpdate", onSelectionUpdate); };
