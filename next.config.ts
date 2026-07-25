@@ -22,6 +22,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        // Block Vercel preview/deployment URLs from being indexed
+        source: "/:path*",
+        has: [{ type: "host", value: "(?!theologik\\.org).*\\.vercel\\.app" }],
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

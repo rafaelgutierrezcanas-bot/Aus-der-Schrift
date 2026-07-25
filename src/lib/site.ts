@@ -3,18 +3,21 @@ export const SITE_TITLE = "Theologik";
 export const DEFAULT_LOCALE = "de";
 export const SUPPORTED_LOCALES = ["de", "en"] as const;
 
-export function getSiteUrl() {
-  const configured =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_URL;
+export const PRODUCTION_URL = "https://theologik.org";
 
-  if (!configured) {
-    return "http://localhost:3000";
+export function getSiteUrl() {
+  // Always use the canonical production URL for metadata, sitemap, hreflang etc.
+  // Falling back to env vars only for local development.
+  if (process.env.NODE_ENV === "production") {
+    return PRODUCTION_URL;
   }
 
-  return configured.startsWith("http") ? configured : `https://${configured}`;
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) {
+    return configured.startsWith("http") ? configured : `https://${configured}`;
+  }
+
+  return "http://localhost:3000";
 }
 
 export function absoluteUrl(path = "") {

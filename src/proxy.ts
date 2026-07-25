@@ -2,9 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
+const CANONICAL_HOST = "theologik.org";
+
 const intlProxy = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
+  const host = request.headers.get("host") ?? "";
+
+  // Redirect Vercel preview/deployment URLs → canonical domain (301)
+  if (host.endsWith(".vercel.app")) {
+    const url = request.nextUrl.clone();
+    url.host = CANONICAL_HOST;
+    url.port = "";
+    url.protocol = "https";
+    return NextResponse.redirect(url, 301);
+  }
+
   const { pathname } = request.nextUrl;
 
   // Admin auth: skip login page and auth API
