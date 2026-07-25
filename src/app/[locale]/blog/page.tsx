@@ -27,12 +27,6 @@ export async function generateMetadata({
       "Alle Artikel auf Theologik: fundierte Beiträge zu Theologie, Bibelauslegung, Kirchengeschichte, Apologetik und geistlichem Leben.",
     enDescription:
       "All articles on Theologik: well-researched posts on theology, biblical interpretation, church history, apologetics, and spiritual life.",
-    keywords: [
-      "Theologik Blog",
-      "Theologie Blog",
-      "Bibelauslegung Blog",
-      "Kirchengeschichte Blog",
-    ],
   });
 }
 

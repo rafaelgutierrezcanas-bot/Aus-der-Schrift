@@ -21,14 +21,6 @@ export async function generateMetadata({
       "Empfehlenswerte theologische Bücher nach Thema und Schwierigkeitsgrad – kuratiert von Theologik.",
     enDescription:
       "Recommended theological books sorted by topic and difficulty – curated by Theologik.",
-    keywords: [
-      "theologische Bücher",
-      "Theologie Bücher Empfehlung",
-      "christliche Literatur",
-      "Bibelkommentar",
-      "Apologetik Bücher",
-      "Kirchengeschichte Bücher",
-    ],
   });
 }
 

@@ -19,13 +19,6 @@ export async function generateMetadata({
       "Empfehlenswerte theologische Bücher, Zitate bedeutender Denker und eigene Ausarbeitungen zu Theologie und Bibelauslegung.",
     enDescription:
       "Recommended theological books, quotes from significant thinkers, and original papers on theology and biblical interpretation.",
-    keywords: [
-      "theologische Ressourcen",
-      "Theologie Bücher",
-      "theologische Zitate",
-      "Bibelauslegung",
-      "Hermeneutik",
-    ],
   });
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 import { requireAuth } from "@/lib/adminAuth";
@@ -54,6 +54,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   await writeClient.delete(article._id);
 
+  revalidateTag("articles", "default");
   revalidatePath(`/de/blog/${slug}`);
   revalidatePath(`/en/blog/${slug}`);
   revalidatePath("/de/blog");
@@ -86,6 +87,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .append("oldSlugs", [slug])
       .set({ slug: { _type: "slug", current: newSlug } });
     const updated = await op.commit();
+    revalidateTag("articles", "default");
     revalidatePath(`/de/blog/${slug}`);
     revalidatePath(`/en/blog/${slug}`);
     revalidatePath(`/de/blog/${newSlug}`);
@@ -109,6 +111,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const updated = await op.commit();
 
   // Invalidate page cache immediately
+  revalidateTag("articles", "default");
   revalidatePath(`/de/blog/${slug}`);
   revalidatePath(`/en/blog/${slug}`);
   revalidatePath("/de/blog");

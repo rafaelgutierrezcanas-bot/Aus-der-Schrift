@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
 
@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    revalidateTag("articles", "default");
+    revalidateTag("categories", "default");
     revalidatePath("/", "layout");
     return Response.json({ revalidated: true, timestamp: new Date().toISOString() });
   } catch {

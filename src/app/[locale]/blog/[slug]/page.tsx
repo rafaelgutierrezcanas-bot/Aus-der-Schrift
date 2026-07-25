@@ -98,15 +98,12 @@ export async function generateMetadata({
       : undefined;
     const path = localePath(locale, `/blog/${slug}`);
 
+    const authorName = (article.author as { name?: string } | null)?.name ?? "Rafael Gutierrez";
+
     return {
       title,
       description,
-      keywords: [
-        ...(Array.isArray(article.keywords) && article.keywords.length > 0
-          ? (article.keywords as string[])
-          : [title, "Theologie", "Bibelauslegung", "Kirchengeschichte"]),
-        "Theologik",
-      ],
+      authors: [{ name: authorName, url: absoluteUrl(`/${locale}/zu-meiner-person`) }],
       alternates: {
         canonical: path,
         ...getLocaleAlternates(`/blog/${slug}`),
@@ -120,6 +117,7 @@ export async function generateMetadata({
         locale: locale === "de" ? "de_DE" : "en_US",
         publishedTime: article.publishedAt as string | undefined,
         modifiedTime: (article._updatedAt ?? article.publishedAt) as string | undefined,
+        authors: [authorName],
         images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
       },
       twitter: {

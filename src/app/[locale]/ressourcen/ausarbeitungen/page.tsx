@@ -21,13 +21,6 @@ export async function generateMetadata({
       "Eigene theologische Ausarbeitungen und Studien zu Bibelauslegung, Kirchengeschichte und systematischer Theologie.",
     enDescription:
       "Original theological papers and studies on biblical interpretation, church history, and systematic theology.",
-    keywords: [
-      "theologische Ausarbeitung",
-      "Theologie Studium",
-      "Bibelauslegung Studie",
-      "systematische Theologie",
-      "Hermeneutik",
-    ],
   });
 }
 

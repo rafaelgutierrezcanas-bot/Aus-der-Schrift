@@ -8,7 +8,6 @@ export function buildLocalizedMetadata({
   enTitle,
   deDescription,
   enDescription,
-  keywords = [],
   type = "website",
 }: {
   locale: string;
@@ -27,7 +26,6 @@ export function buildLocalizedMetadata({
   return {
     title,
     description,
-    keywords,
     alternates: {
       canonical: localizedPath,
       ...getLocaleAlternates(pathname),

@@ -21,14 +21,6 @@ export async function generateMetadata({
       "Theologische Zitate bedeutender Autoren und Denker, nach Thema geordnet – von Luther bis Spurgeon.",
     enDescription:
       "Theological quotes from significant authors and thinkers, organized by topic – from Luther to Spurgeon.",
-    keywords: [
-      "theologische Zitate",
-      "christliche Zitate",
-      "Luther Zitate",
-      "Spurgeon Zitate",
-      "Kirchenväter Zitate",
-      "Reformatoren Zitate",
-    ],
   });
 }
 

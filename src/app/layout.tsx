@@ -43,17 +43,7 @@ export const metadata: Metadata = {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   description: "Theologik – Theologie, Bibelauslegung, Kirchengeschichte und geistliches Leben aus der Heiligen Schrift.",
-  keywords: [
-    "Theologik",
-    "Theologie Blog",
-    "christlicher Blog",
-    "Bibelauslegung",
-    "Kirchengeschichte",
-    "Apologetik",
-    "geistliches Leben",
-    "theologische Artikel",
-  ],
-  authors: [{ name: SITE_NAME, url: absoluteUrl() }],
+  authors: [{ name: "Rafael Gutierrez", url: absoluteUrl() }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
   alternates: {

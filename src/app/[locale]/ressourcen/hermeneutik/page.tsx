@@ -24,14 +24,6 @@ export async function generateMetadata({
       "Interaktives Lernprogramm für biblische Textanalyse – lerne die hermeneutische Methode Schritt für Schritt.",
     enDescription:
       "Interactive learning program for biblical text analysis – learn the hermeneutical method step by step.",
-    keywords: [
-      "Hermeneutik lernen",
-      "biblische Hermeneutik",
-      "Bibelauslegung Methode",
-      "Textanalyse Bibel",
-      "exegetische Methode",
-      "Schriftauslegung",
-    ],
   });
 }
 

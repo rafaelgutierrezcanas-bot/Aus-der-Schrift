@@ -21,12 +21,6 @@ export async function generateMetadata({
       "Aktuelle und abgeschlossene Forschungsprojekte von Theologik zu Theologie, Kirchengeschichte und Bibelauslegung.",
     enDescription:
       "Current and completed research projects by Theologik on theology, church history, and biblical interpretation.",
-    keywords: [
-      "theologische Forschung",
-      "Theologie Projekte",
-      "Kirchengeschichte Forschung",
-      "Bibelauslegung",
-    ],
   });
 }
 

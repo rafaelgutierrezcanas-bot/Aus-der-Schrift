@@ -26,14 +26,6 @@ export async function generateMetadata({
       "Theologik veröffentlicht fundierte Artikel zu Theologie, Bibelauslegung, Kirchengeschichte, Apologetik und geistlichem Leben.",
     enDescription:
       "Theologik publishes well-researched articles on theology, biblical interpretation, church history, apologetics, and spiritual life.",
-    keywords: [
-      "Theologik",
-      "Theologie",
-      "Bibelauslegung",
-      "Kirchengeschichte",
-      "Apologetik",
-      "theologischer Blog",
-    ],
   });
 }
 
@@ -103,7 +95,7 @@ export default async function HomePage({
       <section className="relative h-screen -mt-16 flex items-center overflow-hidden">
         {/* Background: Codex Sinaiticus */}
         <Image
-          src="https://upload.wikimedia.org/wikipedia/commons/b/be/Codex_Sinaiticus_Matthew_6%2C4-32.JPG"
+          src="/hero-codex-sinaiticus.jpg"
           alt={locale === "de" ? "Codex Sinaiticus – griechisches Pergamentmanuskript, 4. Jahrhundert" : "Codex Sinaiticus – Greek parchment manuscript, 4th century"}
           fill
           sizes="100vw"

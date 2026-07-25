@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/writeClient";
 import { requireAuth } from "@/lib/adminAuth";
@@ -29,5 +30,12 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const doc = await writeClient.create({ _type: "article", ...body });
+
+  revalidateTag("articles", "default");
+  revalidatePath("/de/blog");
+  revalidatePath("/en/blog");
+  revalidatePath("/de");
+  revalidatePath("/en");
+
   return NextResponse.json(doc, { status: 201 });
 }
