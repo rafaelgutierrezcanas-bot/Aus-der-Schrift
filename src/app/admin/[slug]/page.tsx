@@ -31,6 +31,7 @@ interface LocalBackup {
   abstractDe: string;
   abstractEn: string;
   keywords: string;
+  bibleReferences: string;
   savedAt: number;
 }
 
@@ -84,6 +85,7 @@ export default function EditArticlePage() {
   const [abstractDe, setAbstractDe] = useState("");
   const [abstractEn, setAbstractEn] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [bibleReferences, setBibleReferences] = useState("");
   const [slugInput, setSlugInput] = useState("");
   const [slugUpdating, setSlugUpdating] = useState(false);
   const [slugError, setSlugError] = useState("");
@@ -117,6 +119,7 @@ export default function EditArticlePage() {
       setAbstractDe(article.abstractDe ?? "");
       setAbstractEn(article.abstractEn ?? "");
       setKeywords((article.keywords ?? []).join(", "));
+      setBibleReferences((article.bibleReferences ?? []).join(", "));
       setSlugInput(article.slug?.current ?? "");
       setCategories(cats);
       setProjects(projs);
@@ -166,14 +169,14 @@ export default function EditArticlePage() {
         titleDe, titleEn, excerptDe, excerptEn,
         bodyDe, bodyEn, categoryId, projectId,
         language, status, publishedAt, selectedSourceIds, entwurf,
-        difficulty, isPaper, abstractDe, abstractEn, keywords,
+        difficulty, isPaper, abstractDe, abstractEn, keywords, bibleReferences,
         savedAt: Date.now(),
       };
       localStorage.setItem(`artikel-backup-${slug}`, JSON.stringify(backup));
     } catch {
       // ignore quota errors
     }
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, bibleReferences, slug]);
 
   // Auto-save 2 seconds after any change
   const buildPatch = useCallback(() => {
@@ -193,13 +196,16 @@ export default function EditArticlePage() {
       keywords: keywords.trim()
         ? keywords.split(",").map((k) => k.trim()).filter(Boolean)
         : null,
+      bibleReferences: bibleReferences.trim()
+        ? bibleReferences.split(",").map((r) => r.trim()).filter(Boolean)
+        : null,
     };
     if (categoryId) patch.category = { _type: "reference", _ref: categoryId };
     else patch.category = null;
     if (projectId) patch.project = { _type: "reference", _ref: projectId };
     else patch.project = null;
     return patch;
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, bibleReferences]);
 
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -222,7 +228,7 @@ export default function EditArticlePage() {
       }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
-  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, slug]);
+  }, [titleDe, titleEn, categoryId, projectId, selectedSourceIds, language, status, publishedAt, excerptDe, excerptEn, bodyDe, bodyEn, featuredImage, entwurf, difficulty, isPaper, abstractDe, abstractEn, keywords, bibleReferences, slug]);
 
   function toggleSource(id: string) {
     setSelectedSourceIds((prev) =>
@@ -288,6 +294,7 @@ export default function EditArticlePage() {
     setAbstractDe(localBackup.abstractDe ?? "");
     setAbstractEn(localBackup.abstractEn ?? "");
     setKeywords(localBackup.keywords ?? "");
+    setBibleReferences(localBackup.bibleReferences ?? "");
     setLocalBackup(null);
   }
 
@@ -550,6 +557,11 @@ export default function EditArticlePage() {
             <div className="col-span-2">
               <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Excerpt (EN)</label>
               <textarea value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={2} className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass} style={{ fontFamily: "var(--font-sans)" }}>Bibelstellen (kommagetrennt)</label>
+              <input value={bibleReferences} onChange={(e) => setBibleReferences(e.target.value)} placeholder="Joh 1,1-5, Röm 8,28-30, 1. Mose 3,15, ..." className={inputClass} style={{ fontFamily: "var(--font-sans)" }} />
+              <p className="text-xs text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>Standard-Kurzform: Joh, Röm, 1. Mose, Mt, Apg, 1. Kor usw.</p>
             </div>
           </div>
 

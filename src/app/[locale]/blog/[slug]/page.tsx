@@ -386,6 +386,25 @@ export default async function ArticlePage({
             ))}
           </div>
         )}
+        {Array.isArray(article.bibleReferences) && (article.bibleReferences as string[]).length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <span
+              className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              {locale === "de" ? "Bibelstellen" : "Scripture"}
+            </span>
+            {(article.bibleReferences as string[]).map((ref) => (
+              <span
+                key={ref}
+                className="text-[10px] px-2 py-0.5 rounded-full border border-accent/30 text-accent"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {ref}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mb-6 flex items-center gap-4">
           <ShareButton
             url={absoluteUrl(localePath(locale, `/blog/${slug}`))}

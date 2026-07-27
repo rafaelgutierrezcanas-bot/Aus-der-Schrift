@@ -33,7 +33,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
       abstractDe,
       abstractEn,
       keywords,
-      tags
+      tags,
+      bibleReferences
     }
   `, { slug });
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });

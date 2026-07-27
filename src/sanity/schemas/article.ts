@@ -222,6 +222,16 @@ export default defineType({
         layout: "tags",
       },
     }),
+    defineField({
+      name: "bibleReferences",
+      title: "Bibelstellen",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Behandelte Bibelstellen (z.B. Joh 1,1-5, Röm 8,28-30, 1. Mose 3,15)",
+      options: {
+        layout: "tags",
+      },
+    }),
   ],
   preview: {
     select: { title: "titleDe", media: "featuredImage" },

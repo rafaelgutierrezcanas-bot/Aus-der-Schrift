@@ -16,19 +16,43 @@ interface BlogSearchListProps {
 
 export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps) {
   const [query, setQuery] = useState("");
+  const [refFilter, setRefFilter] = useState<string | null>(null);
 
-  const filtered = query.trim().length < 2
-    ? articles
-    : articles.filter((article) => {
-        const q = query.toLowerCase();
-        const title = getLocalizedTitle(article, locale).toLowerCase();
-        const excerpt = getLocalizedExcerpt(article, locale).toLowerCase();
-        const category = getLocalizedCategoryTitle(
-          article.category as Record<string, unknown> | null,
-          locale
-        ).toLowerCase();
-        return title.includes(q) || excerpt.includes(q) || category.includes(q);
-      });
+  const allBibleRefs = Array.from(
+    new Set(
+      articles.flatMap((a) => (a.bibleReferences as string[] | undefined) ?? [])
+    )
+  ).sort();
+
+  const filtered = articles.filter((article) => {
+    if (refFilter) {
+      const refs = (article.bibleReferences as string[] | undefined) ?? [];
+      if (!refs.includes(refFilter)) return false;
+    }
+
+    if (query.trim().length >= 2) {
+      const q = query.toLowerCase();
+      const title = getLocalizedTitle(article, locale).toLowerCase();
+      const excerpt = getLocalizedExcerpt(article, locale).toLowerCase();
+      const category = getLocalizedCategoryTitle(
+        article.category as Record<string, unknown> | null,
+        locale
+      ).toLowerCase();
+      const refs = ((article.bibleReferences as string[] | undefined) ?? [])
+        .join(" ")
+        .toLowerCase();
+      if (
+        !title.includes(q) &&
+        !excerpt.includes(q) &&
+        !category.includes(q) &&
+        !refs.includes(q)
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   if (articles.length === 0) {
     return (
@@ -40,6 +64,45 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
 
   return (
     <div>
+      {/* Bible reference filter chips */}
+      {allBibleRefs.length > 0 && (
+        <div className="mb-6">
+          <p
+            className="text-[10px] uppercase tracking-widest text-muted mb-2"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Bibelstelle" : "Scripture"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setRefFilter(null)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                refFilter === null
+                  ? "border-accent bg-accent text-white"
+                  : "border-border text-muted hover:border-accent hover:text-foreground"
+              }`}
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              {locale === "de" ? "Alle" : "All"}
+            </button>
+            {allBibleRefs.map((ref) => (
+              <button
+                key={ref}
+                onClick={() => setRefFilter(refFilter === ref ? null : ref)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  refFilter === ref
+                    ? "border-accent bg-accent text-white"
+                    : "border-border text-muted hover:border-accent hover:text-foreground"
+                }`}
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {ref}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Search input */}
       <div className="relative mb-8">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
@@ -65,7 +128,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
 
       {filtered.length === 0 && (
         <p className="text-muted text-center py-10 text-sm" style={{ fontFamily: "var(--font-sans)" }}>
-          {labels.noResults} „{query}"
+          {labels.noResults} „{query || refFilter}"
         </p>
       )}
 
@@ -80,7 +143,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
           const slug = (article.slug as { current: string })?.current;
           const publishedAt = article.publishedAt as string | undefined;
           const articleHref = `/${locale}/blog/${slug}`;
-          const isFirst = i === 0 && !query;
+          const isFirst = i === 0 && !query && !refFilter;
 
           return (
             <article
