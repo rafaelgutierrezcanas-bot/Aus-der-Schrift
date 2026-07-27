@@ -4,7 +4,7 @@ import { routing } from "./i18n/routing";
 
 const CANONICAL_HOST = "theologik.org";
 
-const intlProxy = createMiddleware(routing);
+const intlMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
@@ -35,8 +35,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // i18n proxy for all other routes
-  return intlProxy(request);
+  // i18n middleware for all other routes
+  return intlMiddleware(request);
 }
 
 export const config = {

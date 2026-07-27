@@ -3,7 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { Playfair_Display, Source_Serif_4, Inter } from "next/font/google";
 import { absoluteUrl, SITE_NAME, SITE_TITLE } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/react";
-import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -87,8 +87,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const locale = headersList.get("x-locale") ?? "de";
+  let locale = "de";
+  try {
+    locale = await getLocale();
+  } catch {
+    // Non-locale routes (admin, studio) fall back to "de"
+  }
 
   return (
     <html lang={locale} suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${inter.variable}`}>
