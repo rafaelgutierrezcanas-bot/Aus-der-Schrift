@@ -1,11 +1,13 @@
-import type { Unit } from "@/lib/bibelstudium/types";
+import type { Unit, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { StationRenderer } from "./StationRenderer";
 
 interface UnitViewProps {
   unit: Unit;
+  bracketStates: Record<string, { content: string; date: string } | null>;
+  getBibEntry: (id: string) => BibliographyEntry | undefined;
 }
 
-export function UnitView({ unit }: UnitViewProps) {
+export function UnitView({ unit, bracketStates, getBibEntry }: UnitViewProps) {
   return (
     <div>
       {/* Unit header */}
@@ -28,7 +30,15 @@ export function UnitView({ unit }: UnitViewProps) {
       {/* Stations */}
       <div>
         {unit.stations.map((station, i) => (
-          <StationRenderer key={station.id} station={station} index={i} />
+          <StationRenderer
+            key={station.id}
+            station={station}
+            index={i}
+            totalStations={unit.stations.length}
+            unitSlug={unit.meta.slug}
+            bracketData={bracketStates[station.id] ?? null}
+            getBibEntry={getBibEntry}
+          />
         ))}
       </div>
     </div>

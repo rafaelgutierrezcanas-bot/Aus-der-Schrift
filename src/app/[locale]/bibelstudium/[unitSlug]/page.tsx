@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
-import { loadUnitBySlug, loadAllUnits } from "@/lib/bibelstudium/content-loader";
+import { cookies } from "next/headers";
+import { loadUnitBySlug, loadAllUnits, getBibliographyEntry } from "@/lib/bibelstudium/content-loader";
 import { UnitView } from "@/components/bibelstudium/UnitView";
+import { kv } from "@/lib/redis";
 import type { Metadata } from "next";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
@@ -43,9 +45,31 @@ export default async function UnitPage({
     notFound();
   }
 
+  // Read session cookie to make page dynamic
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("bs-session")?.value;
+
+  // Load bracket states for all stations
+  const bracketStates: Record<string, { content: string; date: string } | null> = {};
+
+  if (sessionId) {
+    await Promise.all(
+      unit.stations.map(async (station) => {
+        const data = await kv.get<{ content: string; date: string }>(
+          `bracket:${sessionId}:${unitSlug}:${station.id}`
+        );
+        bracketStates[station.id] = data ?? null;
+      })
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
-      <UnitView unit={unit} />
+      <UnitView
+        unit={unit}
+        bracketStates={bracketStates}
+        getBibEntry={getBibliographyEntry}
+      />
     </div>
   );
 }

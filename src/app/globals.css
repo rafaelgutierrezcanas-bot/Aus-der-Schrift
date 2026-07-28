@@ -8,6 +8,7 @@
   --color-muted:      #7A7468;
   --color-border:     #E2D9CA;
   --color-surface:    #F0EBE1;
+  --color-navy:       #1B2D4F;
 
   --font-serif:       "Playfair Display", Georgia, serif;
   --font-body-serif:  "Source Serif 4", Georgia, serif;
@@ -106,6 +107,7 @@
     --color-muted:      #8A8278;
     --color-border:     #2D2820;
     --color-surface:    #211D18;
+    --color-navy:       #B8C8E0;
   }
 }
 

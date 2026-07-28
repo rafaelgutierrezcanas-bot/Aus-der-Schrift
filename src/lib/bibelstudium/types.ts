@@ -25,6 +25,7 @@ export interface Station {
   content: Record<string, unknown>;
   citations: Citation[];
   status?: "entwurf" | "belegt" | "reviewed";
+  estimatedMinutes?: number;
 }
 
 export interface Exercise {
@@ -79,4 +80,21 @@ export interface BibliographyEntry {
 export interface Unit {
   meta: UnitMeta;
   stations: Station[];
+}
+
+// Typed content interfaces for specific station types
+
+export interface VorverstaendnisContent {
+  scripture: {
+    reference: string;
+    translation: string;
+    verses: { number: number; text: string }[];
+  };
+  prompt: string;
+  inputType: "freitext" | "auswahl";
+  options?: { id: string; label: string }[];
+  resolution: {
+    blocks: string[];
+    footnotes: { number: number; sourceId: string; pages: string }[];
+  };
 }

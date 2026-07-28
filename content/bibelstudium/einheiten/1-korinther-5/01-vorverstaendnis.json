@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "id": "1kor5-vorverstaendnis",
+  "type": "vorverstaendnis",
+  "status": "entwurf",
+  "title": "[TODO: Stationstitel]",
+  "instructions": "[TODO: Anweisungen]",
+  "estimatedMinutes": 15,
+  "content": {
+    "scripture": {
+      "reference": "[TODO: z.B. 1. Korinther 5,1–13]",
+      "translation": "[TODO: z.B. ELB]",
+      "verses": [
+        { "number": 1, "text": "[TODO: Vers 1]" }
+      ]
+    },
+    "prompt": "[TODO: Fragestellung für den Lernenden]",
+    "inputType": "freitext",
+    "options": [],
+    "resolution": {
+      "blocks": ["[TODO: Lehrtext-Absatz 1]"],
+      "footnotes": [
+        { "number": 1, "sourceId": "TODO", "pages": "[TODO]" }
+      ]
+    }
+  },
+  "citations": [
+    { "sourceId": "TODO", "pages": "[TODO]", "function": "[TODO]" }
+  ]
+}

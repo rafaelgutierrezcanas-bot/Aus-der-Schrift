@@ -44,6 +44,11 @@
       "enum": ["entwurf", "belegt", "reviewed"],
       "default": "entwurf",
       "description": "Bearbeitungsstatus der Station"
+    },
+    "estimatedMinutes": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Geschätzte Bearbeitungszeit in Minuten"
     }
   },
   "additionalProperties": true

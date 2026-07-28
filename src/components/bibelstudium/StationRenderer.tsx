@@ -1,11 +1,41 @@
-import type { Station } from "@/lib/bibelstudium/types";
+import type { Station, BibliographyEntry } from "@/lib/bibelstudium/types";
+import { VorverstaendnisStation } from "./stations/VorverstaendnisStation";
 
 interface StationRendererProps {
   station: Station;
   index: number;
+  totalStations: number;
+  unitSlug: string;
+  bracketData: { content: string; date: string } | null;
+  getBibEntry: (id: string) => BibliographyEntry | undefined;
 }
 
-export function StationRenderer({ station, index }: StationRendererProps) {
+export function StationRenderer({
+  station,
+  index,
+  totalStations,
+  unitSlug,
+  bracketData,
+  getBibEntry,
+}: StationRendererProps) {
+  switch (station.type) {
+    case "vorverstaendnis":
+      return (
+        <VorverstaendnisStation
+          station={station}
+          index={index}
+          totalStations={totalStations}
+          unitSlug={unitSlug}
+          bracketData={bracketData}
+          getBibEntry={getBibEntry}
+        />
+      );
+    default:
+      return <GenericStation station={station} index={index} />;
+  }
+}
+
+function GenericStation({ station, index }: { station: Station; index: number }) {
   return (
     <section className="py-8 border-b border-border last:border-0">
       <div className="flex items-baseline gap-4 mb-4">
@@ -39,7 +69,6 @@ export function StationRenderer({ station, index }: StationRendererProps) {
         </p>
       )}
 
-      {/* Generic content rendering — type-specific renderers will be added later */}
       {station.content && Object.keys(station.content).length > 0 && (
         <div className="bg-surface rounded-lg p-5 border border-border">
           <pre className="text-sm text-muted whitespace-pre-wrap" style={{ fontFamily: "var(--font-sans)" }}>
