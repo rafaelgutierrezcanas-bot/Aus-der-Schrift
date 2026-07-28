@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "id": "beispiel-station-b",
+  "type": "zuordnung",
+  "title": "[TODO: Titel der Station B]",
+  "instructions": "[TODO: Anweisungen für den Lernenden]",
+  "content": {
+    "placeholder": "[TODO: Inhalt je nach Stationstyp einfügen]"
+  },
+  "citations": []
+}

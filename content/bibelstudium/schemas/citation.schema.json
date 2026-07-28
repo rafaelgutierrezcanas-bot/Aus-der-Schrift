@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "citation.schema.json",
+  "title": "Citation",
+  "description": "Wiederverwendbares Beleg-Objekt",
+  "type": "object",
+  "required": ["sourceId", "pages", "function"],
+  "properties": {
+    "sourceId": {
+      "type": "string",
+      "description": "Referenz auf Bibliographie-ID"
+    },
+    "pages": {
+      "type": "string",
+      "description": "Seitenangabe, z.B. '12-15'"
+    },
+    "function": {
+      "type": "string",
+      "description": "Funktion des Belegs, z.B. 'begründend', 'weiterführend'"
+    }
+  },
+  "additionalProperties": true
+}

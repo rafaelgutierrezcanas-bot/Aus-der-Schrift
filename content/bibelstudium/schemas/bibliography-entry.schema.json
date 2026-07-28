@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bibliography-entry.schema.json",
+  "title": "Bibliography Entry (Bibliographie-Eintrag)",
+  "description": "Einzelner Eintrag in der Bibliographie",
+  "type": "object",
+  "required": ["id", "schemaVersion", "type", "authors", "title", "year"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Eindeutige ID für Referenzen aus Citations"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "type": {
+      "type": "string",
+      "description": "Art der Quelle, z.B. 'buch', 'artikel', 'sammelband', 'kommentar'"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Autorenliste"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "year": {
+      "type": ["string", "integer"],
+      "description": "Erscheinungsjahr"
+    },
+    "publisher": {
+      "type": "string",
+      "description": "Verlag"
+    },
+    "place": {
+      "type": "string",
+      "description": "Erscheinungsort"
+    },
+    "edition": {
+      "type": "string",
+      "description": "Auflage"
+    },
+    "isbn": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "additionalProperties": true
+}

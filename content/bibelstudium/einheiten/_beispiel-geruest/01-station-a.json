@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "id": "beispiel-station-a",
+  "type": "text-analyse",
+  "title": "[TODO: Titel der Station A]",
+  "instructions": "[TODO: Anweisungen für den Lernenden]",
+  "content": {
+    "placeholder": "[TODO: Inhalt je nach Stationstyp einfügen]"
+  },
+  "citations": [
+    {
+      "sourceId": "placeholder-001",
+      "pages": "[TODO: Seitenangabe]",
+      "function": "[TODO: begründend/weiterführend/etc.]"
+    }
+  ]
+}

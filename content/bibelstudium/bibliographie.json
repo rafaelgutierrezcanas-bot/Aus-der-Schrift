@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "entries": [
+    {
+      "id": "placeholder-001",
+      "schemaVersion": "1.0",
+      "type": "buch",
+      "authors": ["[TODO: Nachname, Vorname]"],
+      "title": "[TODO: Buchtitel]",
+      "year": "[TODO]",
+      "publisher": "[TODO: Verlag]",
+      "place": "[TODO: Ort]"
+    }
+  ]
+}

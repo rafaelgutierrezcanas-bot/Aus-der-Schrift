@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "exercise.schema.json",
+  "title": "Exercise (Einzelübung)",
+  "description": "Einzelübung außerhalb einer Lerneinheit",
+  "type": "object",
+  "required": ["schemaVersion", "id", "slug", "title", "type", "instructions", "content", "citations"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "description": "Eindeutige ID der Übung"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "URL-Slug"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "description": "Übungstyp (offene Liste)"
+    },
+    "instructions": {
+      "type": "string"
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "$ref": "citation.schema.json"
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "beispiel-geruest",
+  "slug": "beispiel-geruest",
+  "title": "[TODO: Titel der Lerneinheit]",
+  "description": "[TODO: Kurzbeschreibung der Lerneinheit]",
+  "stations": [
+    "01-station-a.json",
+    "02-station-b.json"
+  ],
+  "citations": []
+}

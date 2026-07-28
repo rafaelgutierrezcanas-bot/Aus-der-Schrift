@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bible-text.schema.json",
+  "title": "Bible Text (Bibeltext-Eintrag)",
+  "description": "Bibeltext mit Referenz und Übersetzung",
+  "type": "object",
+  "required": ["schemaVersion", "id", "reference", "translation", "text", "citations"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Bibelstellenangabe, z.B. '1. Mose 1,1-3'"
+    },
+    "translation": {
+      "type": "string",
+      "description": "Verwendete Übersetzung, z.B. 'ELB', 'LUT'"
+    },
+    "text": {
+      "type": "string",
+      "description": "Der Bibeltext"
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "$ref": "citation.schema.json"
+      }
+    }
+  },
+  "additionalProperties": true
+}

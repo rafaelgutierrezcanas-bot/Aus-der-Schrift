@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "station.schema.json",
+  "title": "Station",
+  "description": "Einzelne Station innerhalb einer Lerneinheit",
+  "type": "object",
+  "required": ["schemaVersion", "id", "type", "title", "instructions", "content", "citations"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "description": "Eindeutige ID der Station"
+    },
+    "type": {
+      "type": "string",
+      "description": "Stationstyp (offene Liste, z.B. 'text-analyse', 'zuordnung', 'freitext')"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Titel der Station"
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Anweisungen für den Lernenden"
+    },
+    "content": {
+      "type": "object",
+      "description": "Typ-abhängiger Inhalt der Station",
+      "additionalProperties": true
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "$ref": "citation.schema.json"
+      },
+      "description": "Belege zur Station"
+    }
+  },
+  "additionalProperties": true
+}

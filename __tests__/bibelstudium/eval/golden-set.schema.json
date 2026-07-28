@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "golden-set.schema.json",
+  "title": "Golden Set",
+  "description": "Test-Datensatz für Engine-Evaluierung",
+  "type": "object",
+  "required": ["schemaVersion", "engineType", "cases"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "engineType": {
+      "type": "string",
+      "enum": ["rule-checker", "reference-matcher", "card-classifier"]
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "input", "expected"],
+        "properties": {
+          "id": { "type": "string" },
+          "input": { "type": "object" },
+          "expected": {
+            "type": "object",
+            "required": ["match"],
+            "properties": {
+              "match": { "type": "boolean" },
+              "cardId": { "type": "string" },
+              "score": { "type": "number" },
+              "matchedItems": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}
