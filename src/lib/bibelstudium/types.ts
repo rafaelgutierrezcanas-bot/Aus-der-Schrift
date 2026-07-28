@@ -24,6 +24,7 @@ export interface Station {
   instructions: string;
   content: Record<string, unknown>;
   citations: Citation[];
+  status?: "entwurf" | "belegt" | "reviewed";
 }
 
 export interface Exercise {

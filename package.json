@@ -9,7 +9,9 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate:content": "tsx scripts/validate-bibelstudium.ts"
+    "validate:content": "tsx scripts/validate-bibelstudium.ts",
+    "validate:report": "tsx scripts/validate-bibelstudium.ts --report",
+    "validate:publish": "tsx scripts/validate-bibelstudium.ts --publish"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",

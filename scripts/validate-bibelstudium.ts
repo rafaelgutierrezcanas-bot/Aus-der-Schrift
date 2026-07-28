@@ -30,6 +30,15 @@ function relativePath(filePath: string): string {
   return path.relative(process.cwd(), filePath);
 }
 
+// --- CLI args ---
+
+const args = process.argv.slice(2);
+const MODE = args.includes("--report")
+  ? "report"
+  : args.includes("--publish")
+    ? "publish"
+    : "default";
+
 // --- Setup AJV ---
 
 function createAjv(): Ajv {
@@ -108,20 +117,46 @@ function checkCitations(
   filePath: string,
   citations: Array<{ sourceId: string }>,
   bibIds: Set<string>,
-) {
+): { todoCount: number } {
+  let todoCount = 0;
+
   if (citations.length === 0) {
     addWarning(relativePath(filePath), "Leeres citations-Array");
   }
 
   for (const c of citations) {
-    if (!bibIds.has(c.sourceId)) {
+    if (c.sourceId === "TODO") {
+      todoCount++;
+      addWarning(
+        relativePath(filePath),
+        `sourceId "TODO" — Beleg noch offen`,
+      );
+    } else if (!bibIds.has(c.sourceId)) {
       addError(
         relativePath(filePath),
         `sourceId "${c.sourceId}" nicht in Bibliographie gefunden`,
       );
     }
   }
+
+  return { todoCount };
 }
+
+// --- Report data ---
+
+interface StationReport {
+  filename: string;
+  status: string;
+  todoCount: number;
+  noCitations: boolean;
+}
+
+interface UnitReport {
+  dirName: string;
+  stations: StationReport[];
+}
+
+const unitReports: UnitReport[] = [];
 
 // --- Validate units ---
 
@@ -158,6 +193,8 @@ function validateUnits(ajv: Ajv, bibIds: Set<string>) {
 
     // 3. Check station file references
     const stationFiles = new Set<string>();
+    const stationReports: StationReport[] = [];
+
     for (const stationFile of meta.stations ?? []) {
       const stationPath = path.join(unitDir, stationFile);
       stationFiles.add(stationFile);
@@ -171,11 +208,21 @@ function validateUnits(ajv: Ajv, bibIds: Set<string>) {
       }
 
       const station = readJson(stationPath) as {
+        status?: string;
         citations: Array<{ sourceId: string }>;
       };
       validateFile(ajv, stationPath, "station.schema.json", station);
-      checkCitations(stationPath, station.citations ?? [], bibIds);
+      const { todoCount } = checkCitations(stationPath, station.citations ?? [], bibIds);
+
+      stationReports.push({
+        filename: stationFile,
+        status: station.status ?? "—",
+        todoCount,
+        noCitations: (station.citations ?? []).length === 0,
+      });
     }
+
+    unitReports.push({ dirName: dir.name, stations: stationReports });
 
     // 4. Check for orphaned files
     const allFiles = fs
@@ -193,6 +240,60 @@ function validateUnits(ajv: Ajv, bibIds: Set<string>) {
   }
 }
 
+// --- Report output ---
+
+function printReport() {
+  console.log("\n=== Statusbericht ===\n");
+
+  for (const unit of unitReports) {
+    console.log(`Einheit: ${unit.dirName}`);
+
+    // Header
+    const colStation = "Station".padEnd(30);
+    const colStatus = "Status".padEnd(10);
+    const colTodo = "TODO-Belege".padEnd(13);
+    const colNoCit = "Ohne Beleg";
+    console.log(`  ${colStation} | ${colStatus} | ${colTodo} | ${colNoCit}`);
+    console.log(`  ${"—".repeat(30)} | ${"—".repeat(10)} | ${"—".repeat(13)} | ${"—".repeat(10)}`);
+
+    for (const s of unit.stations) {
+      const name = s.filename.replace(".json", "").padEnd(30);
+      const status = s.status.padEnd(10);
+      const todo = String(s.todoCount).padEnd(13);
+      const noCit = s.noCitations ? "ja" : "—";
+      console.log(`  ${name} | ${status} | ${todo} | ${noCit}`);
+    }
+    console.log();
+  }
+}
+
+// --- Publish check ---
+
+function checkPublishReady(): boolean {
+  let ready = true;
+
+  for (const unit of unitReports) {
+    for (const s of unit.stations) {
+      if (s.status !== "reviewed") {
+        addError(
+          `${unit.dirName}/${s.filename}`,
+          `Status "${s.status}" — muss "reviewed" sein für Veröffentlichung`,
+        );
+        ready = false;
+      }
+      if (s.todoCount > 0) {
+        addError(
+          `${unit.dirName}/${s.filename}`,
+          `${s.todoCount} TODO-Beleg(e) — müssen aufgelöst sein für Veröffentlichung`,
+        );
+        ready = false;
+      }
+    }
+  }
+
+  return ready;
+}
+
 // --- Main ---
 
 function main() {
@@ -204,6 +305,14 @@ function main() {
   console.log(`Bibliographie: ${bibIds.size} Einträge geladen`);
 
   validateUnits(ajv, bibIds);
+
+  if (MODE === "report") {
+    printReport();
+  }
+
+  if (MODE === "publish") {
+    checkPublishReady();
+  }
 
   // Print results
   const errors = issues.filter((i) => i.level === "error");

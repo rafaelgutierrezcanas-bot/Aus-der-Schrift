@@ -16,12 +16,37 @@
 - Platzhalter-Texte verwenden immer das Format `[TODO: Beschreibung]`
 - Stationstypen sind eine offene Liste — keine festen Enums
 
+## Arbeitsablauf je Station
+
+### 5-Schritte-Ablauf
+
+1. **(a) Recherche:** Rafael schreibt Fließtext in `recherche/` — Beobachtungen, Quellen, theologische Einordnung.
+2. **(b) Vorschlag:** Claude analysiert das Material, schlägt Stationstyp + Interaktionselemente vor, skizziert 2–3 Varianten. **Keine Dateien anlegen, keinen Code ändern.**
+3. **(c) Entscheidung:** Rafael wählt eine Variante (ggf. mit Anpassungen).
+4. **(d) Übertragung:** Claude überträgt in die strukturierten `content/`-Dateien (Station-JSON, ggf. Bibliographie). Gibt danach einen Änderungsbericht aus.
+5. **(e) Gegenlesen:** Gemeinsame Prüfung auf Wortlaut-Treue und Vollständigkeit.
+
+### Übertragungsregeln (Schritt d)
+
+- **Wortlaut-Treue:** Theologische Formulierungen exakt aus der Recherche-Datei übernehmen, nicht umformulieren.
+- **Keine Modalitätsverschiebung:** Wenn die Recherche „ist" sagt, nicht „könnte sein" daraus machen (und umgekehrt).
+- **TODO bei fehlenden Belegen:** Wenn eine Quelle in der Recherche genannt, aber nicht in der Bibliographie ist: `"sourceId": "TODO"` verwenden.
+- **Nachfragen bei Unklarheiten:** Lieber einmal mehr fragen als falsch übertragen.
+- **Änderungsbericht:** Nach jeder Übertragung auflisten, welche Dateien angelegt/geändert wurden und was übertragen wurde.
+
+### Verbote
+
+- Bei Schritt (b) **niemals ungefragt Dateien anlegen** — nur Vorschläge machen.
+- Niemals theologischen Inhalt eigenständig formulieren (→ Harte Regel 1).
+
 ## Architektur-Kurzreferenz
 
 ### Wo liegt was?
 
 | Was | Wo |
 |-----|-----|
+| Recherche-Material | `recherche/` |
+| Mockups (HTML-Vorschau) | `mockups/` |
 | Content (JSON) | `content/bibelstudium/` |
 | JSON-Schemas | `content/bibelstudium/schemas/` |
 | TypeScript-Typen | `src/lib/bibelstudium/types.ts` |

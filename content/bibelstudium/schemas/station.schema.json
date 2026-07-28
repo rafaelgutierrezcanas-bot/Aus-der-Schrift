@@ -38,6 +38,12 @@
         "$ref": "citation.schema.json"
       },
       "description": "Belege zur Station"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["entwurf", "belegt", "reviewed"],
+      "default": "entwurf",
+      "description": "Bearbeitungsstatus der Station"
     }
   },
   "additionalProperties": true

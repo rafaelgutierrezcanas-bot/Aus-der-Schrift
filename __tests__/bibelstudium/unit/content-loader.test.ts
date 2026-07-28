@@ -41,4 +41,10 @@ describe("content-loader", () => {
     const entry = getBibliographyEntry("non-existent");
     expect(entry).toBeUndefined();
   });
+
+  it("loads station with status field correctly", () => {
+    const unit = loadUnitByDir("_beispiel-geruest");
+    expect(unit.stations[0].status).toBe("entwurf");
+    expect(unit.stations[1].status).toBe("entwurf");
+  });
 });
