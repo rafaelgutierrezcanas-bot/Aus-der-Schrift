@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { loadUnitBySlug, loadAllUnits, getBibliographyEntry } from "@/lib/bibelstudium/content-loader";
 import { UnitView } from "@/components/bibelstudium/UnitView";
-import { kv } from "@/lib/redis";
 import type { Metadata } from "next";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
@@ -45,22 +44,27 @@ export default async function UnitPage({
     notFound();
   }
 
-  // Read session cookie to make page dynamic
+  // Read session cookie — makes page dynamic
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("bs-session")?.value;
 
-  // Load bracket states for all stations
+  // Load bracket states from Redis (lazy import to avoid build-time instantiation)
   const bracketStates: Record<string, { content: string; date: string } | null> = {};
 
   if (sessionId) {
-    await Promise.all(
-      unit.stations.map(async (station) => {
-        const data = await kv.get<{ content: string; date: string }>(
-          `bracket:${sessionId}:${unitSlug}:${station.id}`
-        );
-        bracketStates[station.id] = data ?? null;
-      })
-    );
+    try {
+      const { kv } = await import("@/lib/redis");
+      await Promise.all(
+        unit.stations.map(async (station) => {
+          const data = await kv.get<{ content: string; date: string }>(
+            `bracket:${sessionId}:${unitSlug}:${station.id}`
+          );
+          bracketStates[station.id] = data ?? null;
+        })
+      );
+    } catch {
+      // Redis unavailable — show fresh state
+    }
   }
 
   return (
