@@ -1,9 +1,9 @@
-import type { Unit, BibliographyEntry } from "@/lib/bibelstudium/types";
+import type { Unit, BracketData, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { StationRenderer } from "./StationRenderer";
 
 interface UnitViewProps {
   unit: Unit;
-  bracketStates: Record<string, { content: string; date: string } | null>;
+  bracketStates: Record<string, BracketData | null>;
   bibMap: Record<string, BibliographyEntry>;
 }
 

@@ -28,11 +28,11 @@ describe("content-loader", () => {
   it("loads bibliography entries", () => {
     const entries = loadBibliography();
     expect(entries.length).toBeGreaterThan(0);
-    expect(entries[0].id).toBe("placeholder-001");
+    expect(entries[0].id).toBe("osborne-hermeneutical-spiral");
   });
 
   it("gets a single bibliography entry by ID", () => {
-    const entry = getBibliographyEntry("placeholder-001");
+    const entry = getBibliographyEntry("osborne-hermeneutical-spiral");
     expect(entry).toBeDefined();
     expect(entry!.type).toBe("buch");
   });

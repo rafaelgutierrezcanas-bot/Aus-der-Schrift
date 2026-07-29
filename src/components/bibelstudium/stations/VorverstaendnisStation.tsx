@@ -1,17 +1,16 @@
-import type { Station, VorverstaendnisContent, BibliographyEntry } from "@/lib/bibelstudium/types";
+import type { Station, VorverstaendnisContent, BracketData, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { StationHeader } from "../StationHeader";
 import { ScriptureDisplay } from "../ScriptureDisplay";
-import { BracketForm } from "../BracketForm";
-import { Einklammerung } from "../Einklammerung";
-import { Aufloesung } from "../Aufloesung";
+import { VorverstaendnisInteractive } from "../VorverstaendnisInteractive";
 import { Belegapparat } from "../Belegapparat";
+import { StationNavigation } from "../StationNavigation";
 
 interface VorverstaendnisStationProps {
   station: Station;
   index: number;
   totalStations: number;
   unitSlug: string;
-  bracketData: { content: string; date: string } | null;
+  bracketData: BracketData | null;
   bibMap: Record<string, BibliographyEntry>;
 }
 
@@ -24,7 +23,6 @@ export function VorverstaendnisStation({
   bibMap,
 }: VorverstaendnisStationProps) {
   const content = station.content as unknown as VorverstaendnisContent;
-  const isBracketed = bracketData !== null;
 
   return (
     <section className="py-10">
@@ -35,39 +33,41 @@ export function VorverstaendnisStation({
         title={station.title}
       />
 
+      {content.intro && (
+        <p
+          className="text-navy mb-6"
+          style={{ fontFamily: "var(--font-body-serif)", lineHeight: 1.8 }}
+        >
+          {content.intro}
+        </p>
+      )}
+
       <ScriptureDisplay
         reference={content.scripture.reference}
         translation={content.scripture.translation}
         verses={content.scripture.verses}
       />
 
-      {!isBracketed && (
-        <BracketForm
-          prompt={content.prompt}
-          inputType={content.inputType}
-          options={content.options}
-          stationId={station.id}
-          unitSlug={unitSlug}
-        />
-      )}
-
-      {isBracketed && (
-        <>
-          <Einklammerung
-            content={bracketData.content}
-            date={bracketData.date}
-          />
-          <Aufloesung
-            blocks={content.resolution.blocks}
-            footnotes={content.resolution.footnotes}
-          />
-        </>
-      )}
+      <VorverstaendnisInteractive
+        questions={content.questions}
+        resolution={content.resolution}
+        stationId={station.id}
+        unitSlug={unitSlug}
+        initialBracketData={bracketData}
+        bibMap={bibMap}
+      />
 
       <Belegapparat
         citations={station.citations}
         bibMap={bibMap}
       />
+
+      {content.navigation && (
+        <StationNavigation
+          prev={content.navigation.prev}
+          next={content.navigation.next}
+        />
+      )}
     </section>
   );
 }

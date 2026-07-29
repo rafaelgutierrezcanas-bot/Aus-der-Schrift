@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "id": "1-korinther-5",
   "slug": "1-korinther-5",
-  "title": "[TODO: Titel der Lerneinheit]",
-  "description": "[TODO: Kurzbeschreibung]",
+  "title": "1. Korinther 5 – Gemeindezucht und Reinheit",
+  "description": "Eine Lerneinheit in sechs Stationen zu 1. Korinther 5: vom Vorverständnis über Textbeobachtung und historischen Kontext bis zur theologischen Synthese.",
   "stations": ["01-vorverstaendnis.json"],
   "citations": []
 }

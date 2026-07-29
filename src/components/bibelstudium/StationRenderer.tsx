@@ -1,4 +1,4 @@
-import type { Station, BibliographyEntry } from "@/lib/bibelstudium/types";
+import type { Station, BracketData, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { VorverstaendnisStation } from "./stations/VorverstaendnisStation";
 
 interface StationRendererProps {
@@ -6,7 +6,7 @@ interface StationRendererProps {
   index: number;
   totalStations: number;
   unitSlug: string;
-  bracketData: { content: string; date: string } | null;
+  bracketData: BracketData | null;
   bibMap: Record<string, BibliographyEntry>;
 }
 

@@ -2,14 +2,25 @@
   "schemaVersion": "1.0",
   "entries": [
     {
-      "id": "placeholder-001",
+      "id": "osborne-hermeneutical-spiral",
       "schemaVersion": "1.0",
       "type": "buch",
-      "authors": ["[TODO: Nachname, Vorname]"],
-      "title": "[TODO: Buchtitel]",
-      "year": "[TODO]",
-      "publisher": "[TODO: Verlag]",
-      "place": "[TODO: Ort]"
+      "authors": ["Osborne, Grant R."],
+      "title": "The Hermeneutical Spiral: A Comprehensive Introduction to Biblical Interpretation",
+      "year": "2006",
+      "publisher": "IVP Academic",
+      "place": "Downers Grove, IL",
+      "edition": "2., überarb. u. erw. Aufl."
+    },
+    {
+      "id": "klein-blomberg-hubbard-interpretation",
+      "schemaVersion": "1.0",
+      "type": "buch",
+      "authors": ["Klein, William W.", "Blomberg, Craig L.", "Hubbard Jr., Robert L."],
+      "title": "Introduction to Biblical Interpretation",
+      "year": "1993",
+      "publisher": "Word Publishing",
+      "place": "Dallas"
     }
   ]
 }

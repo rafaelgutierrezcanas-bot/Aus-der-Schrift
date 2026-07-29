@@ -6,9 +6,16 @@ import { getOrCreateSession } from "./session";
 export async function bracketInput(formData: FormData): Promise<void> {
   const stationId = formData.get("stationId") as string;
   const unitSlug = formData.get("unitSlug") as string;
-  const input = formData.get("input") as string;
+  const answersJson = formData.get("answers") as string;
 
-  if (!stationId || !unitSlug || !input?.trim()) {
+  if (!stationId || !unitSlug || !answersJson) {
+    return;
+  }
+
+  let answers: Record<string, string | string[]>;
+  try {
+    answers = JSON.parse(answersJson);
+  } catch {
     return;
   }
 
@@ -23,10 +30,28 @@ export async function bracketInput(formData: FormData): Promise<void> {
 
   const { kv } = await import("@/lib/redis");
   await kv.set(`bracket:${sessionId}:${unitSlug}:${stationId}`, {
-    content: input.trim(),
+    answers,
     date,
   });
 
   revalidatePath(`/de/bibelstudium/${unitSlug}`);
   revalidatePath(`/en/bibelstudium/${unitSlug}`);
+}
+
+export async function savePrediction(formData: FormData): Promise<void> {
+  const stationId = formData.get("stationId") as string;
+  const unitSlug = formData.get("unitSlug") as string;
+  const prediction = formData.get("prediction") as string;
+
+  if (!stationId || !unitSlug || !prediction?.trim()) {
+    return;
+  }
+
+  const sessionId = await getOrCreateSession();
+
+  const { kv } = await import("@/lib/redis");
+  await kv.set(`prediction:${sessionId}:${unitSlug}:${stationId}`, {
+    prediction: prediction.trim(),
+    date: new Date().toISOString(),
+  });
 }

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { loadUnitBySlug, loadAllUnits, loadBibliography } from "@/lib/bibelstudium/content-loader";
 import { UnitView } from "@/components/bibelstudium/UnitView";
 import type { Metadata } from "next";
-import type { BibliographyEntry } from "@/lib/bibelstudium/types";
+import type { BracketData, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
 export async function generateStaticParams() {
@@ -46,7 +46,7 @@ export default async function UnitPage({
 
   // Bracket states will be loaded client-side in a future iteration
   // (cookies + Redis make the page dynamic, breaking fs reads on Vercel)
-  const bracketStates: Record<string, { content: string; date: string } | null> = {};
+  const bracketStates: Record<string, BracketData | null> = {};
 
   const bibEntries = loadBibliography();
   const bibMap: Record<string, BibliographyEntry> = {};

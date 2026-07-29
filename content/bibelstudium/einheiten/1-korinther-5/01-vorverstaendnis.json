@@ -3,28 +3,152 @@
   "id": "1kor5-vorverstaendnis",
   "type": "vorverstaendnis",
   "status": "entwurf",
-  "title": "[TODO: Stationstitel]",
-  "instructions": "[TODO: Anweisungen]",
-  "estimatedMinutes": 15,
+  "title": "Vorverständnis und Distanz",
+  "instructions": "Halte fest, was du mitbringst, bevor du den Text auslegst.",
+  "estimatedMinutes": 10,
   "content": {
+    "intro": "Bevor du den Text liest, halte fest, was du mitbringst.",
     "scripture": {
-      "reference": "[TODO: z.B. 1. Korinther 5,1–13]",
-      "translation": "[TODO: z.B. ELB]",
+      "reference": "1. Korinther 5,1–2",
+      "translation": "ELB 1905",
       "verses": [
-        { "number": 1, "text": "[TODO: Vers 1]" }
+        {
+          "number": 1,
+          "text": "Überhaupt hört man, daß Hurerei unter euch sei, und eine solche Hurerei, die selbst unter den Nationen nicht stattfindet: daß einer seines Vaters Weib habe."
+        },
+        {
+          "number": 2,
+          "text": "[TODO: Wortlaut ELB 1905 einsetzen]"
+        }
       ]
     },
-    "prompt": "[TODO: Fragestellung für den Lernenden]",
-    "inputType": "freitext",
-    "options": [],
+    "questions": [
+      {
+        "id": "q1",
+        "prompt": "Jemand aus einer Gemeinde auszuschließen ist:",
+        "inputType": "auswahl",
+        "options": [
+          { "id": "q1a", "label": "hart und unbarmherzig" },
+          { "id": "q1b", "label": "notwendig, aber heikel" },
+          { "id": "q1c", "label": "ein Akt der Fürsorge" }
+        ],
+        "required": true
+      },
+      {
+        "id": "q2",
+        "prompt": "Hat das Richten unter Christen einen Platz?",
+        "inputType": "auswahl",
+        "options": [
+          { "id": "q2a", "label": "Nein, das steht uns nicht zu" },
+          { "id": "q2b", "label": "Nur in besonders schweren Fällen" },
+          { "id": "q2c", "label": "Ja, es gehört zur Gemeinde" }
+        ],
+        "required": true
+      },
+      {
+        "id": "q3",
+        "prompt": "Was ist der Fokus des Paulus in diesem Abschnitt?",
+        "inputType": "auswahl",
+        "options": [
+          { "id": "q3a", "label": "Den einzelnen wiederherstellen" },
+          { "id": "q3b", "label": "Die Gemeinde bewahren" },
+          { "id": "q3c", "label": "Beides" }
+        ],
+        "required": false
+      },
+      {
+        "id": "q4",
+        "prompt": "Diese Wendungen stehen in dem Kapitel, das du gleich liest. Welche davon könntest du jemandem erklären?",
+        "inputType": "mehrfachauswahl",
+        "options": [
+          { "id": "q4a", "label": "dem Satan überliefern" },
+          { "id": "q4b", "label": "Verderben des Fleisches" },
+          { "id": "q4c", "label": "Sauerteig" },
+          { "id": "q4d", "label": "Passah" },
+          { "id": "q4e", "label": "die draußen sind" }
+        ],
+        "required": false
+      }
+    ],
     "resolution": {
-      "blocks": ["[TODO: Lehrtext-Absatz 1]"],
-      "footnotes": [
-        { "number": 1, "sourceId": "TODO", "pages": "[TODO]" }
-      ]
+      "whatYouBring": {
+        "blocks": [
+          "Du hast eben nicht ausgelegt. Du hast offengelegt, womit du an den Text herangehst: Überzeugungen aus deiner Herkunft, deiner Gemeinde, deiner bisherigen Lektüre. Sie sind der Grund, warum du überhaupt etwas verstehst. Sie werden erst dort zum Problem, wo sie feststehen, bevor der Text gesprochen hat, und ihn dann zu dem machen, was ohnehin schon galt. Deshalb setzen wir sie in Klammern statt sie abzulegen: Sie bleiben da, aber der Text darf sie ändern. [[1]]"
+        ],
+        "footnotes": [
+          { "number": 1, "sourceId": "osborne-hermeneutical-spiral", "pages": "29" }
+        ]
+      },
+      "quote": {
+        "text": "our preunderstanding is our friend, not our enemy",
+        "sourceId": "osborne-hermeneutical-spiral",
+        "pages": "29"
+      },
+      "transition": "Dazu kommt etwas, das nicht an dir liegt.",
+      "distance": {
+        "selfTestQuestionId": "q4",
+        "items": [
+          {
+            "category": "ZEIT",
+            "phrase": "seines Vaters Weib",
+            "explanation": "Zwischen dir und diesem Satz liegen rund 1900 Jahre. Ob hier eine Ehe gemeint ist oder ein Verhältnis, ob der Vater noch lebt, was das rechtlich bedeutete – all das wusste der erste Leser und du nicht."
+          },
+          {
+            "category": "KULTUR",
+            "phrase": "ein wenig Sauerteig",
+            "explanation": "Wer das Ausräumen des Sauerteigs vor dem Passa nie erlebt hat, liest hier ein Sprichwort. Der erste Leser sah eine Handlung vor sich, die er kannte."
+          },
+          {
+            "category": "GEOGRAPHIE",
+            "phrase": "selbst unter den Nationen",
+            "explanation": "Korinth war römische Kolonie. Was dort als anstößig galt, richtete sich nach römischem Recht und römischer Sitte."
+          },
+          {
+            "category": "SPRACHE",
+            "phrase": "Verderben des Fleisches",
+            "explanation": "σάρξ heißt nicht dasselbe wie das deutsche Wort Fleisch. Wie weit Übersetzungen auseinandergehen, zeigt schon 1. Korinther 7,1:",
+            "translations": [
+              { "text": "[TODO: Wortlaut Übersetzung 1]", "sigel": "[TODO]" },
+              { "text": "[TODO: Wortlaut Übersetzung 2]", "sigel": "[TODO]" },
+              { "text": "[TODO: Wortlaut Übersetzung 3]", "sigel": "[TODO]" }
+            ]
+          }
+        ]
+      },
+      "prediction": {
+        "id": "q5",
+        "prompt": "Welcher der vier Abstände wird dir bei diesem Kapitel am meisten zu schaffen machen?",
+        "inputType": "auswahl",
+        "options": [
+          { "id": "q5a", "label": "Zeit" },
+          { "id": "q5b", "label": "Kultur" },
+          { "id": "q5c", "label": "Geographie" },
+          { "id": "q5d", "label": "Sprache" }
+        ],
+        "required": true
+      },
+      "synthesis": "Beides gilt zugleich: Du bringst mehr mit, als dir bewusst ist, und der Text steht weiter weg, als er beim Lesen wirkt. Wer das übersieht, liest sich selbst. Die nächsten fünf Stationen sind der Versuch, beides ernst zu nehmen."
+    },
+    "navigation": {
+      "prev": { "label": "[TODO]", "href": "#" },
+      "next": { "label": "Weiter zum Text", "href": "#" }
     }
   },
   "citations": [
-    { "sourceId": "TODO", "pages": "[TODO]", "function": "[TODO]" }
+    {
+      "sourceId": "osborne-hermeneutical-spiral",
+      "pages": "29",
+      "function": "methodisch"
+    },
+    {
+      "sourceId": "klein-blomberg-hubbard-interpretation",
+      "pages": "12–16",
+      "function": "methodisch"
+    },
+    {
+      "sourceId": "klein-blomberg-hubbard-interpretation",
+      "pages": "7–8",
+      "function": "methodisch"
+    }
   ]
 }

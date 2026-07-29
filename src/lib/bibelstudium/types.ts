@@ -84,17 +84,54 @@ export interface Unit {
 
 // Typed content interfaces for specific station types
 
+export interface VorverstaendnisQuestion {
+  id: string;
+  prompt: string;
+  inputType: "auswahl" | "freitext" | "mehrfachauswahl";
+  options?: { id: string; label: string }[];
+  required: boolean;
+}
+
+export interface DistanceItem {
+  category: string;
+  phrase: string;
+  explanation: string;
+  translations?: { text: string; sigel: string }[];
+}
+
+export interface BracketData {
+  answers: Record<string, string | string[]>;
+  date: string;
+}
+
 export interface VorverstaendnisContent {
+  intro: string;
   scripture: {
     reference: string;
     translation: string;
     verses: { number: number; text: string }[];
   };
-  prompt: string;
-  inputType: "freitext" | "auswahl";
-  options?: { id: string; label: string }[];
+  questions: VorverstaendnisQuestion[];
   resolution: {
-    blocks: string[];
-    footnotes: { number: number; sourceId: string; pages: string }[];
+    whatYouBring: {
+      blocks: string[];
+      footnotes: { number: number; sourceId: string; pages: string }[];
+    };
+    quote: {
+      text: string;
+      sourceId: string;
+      pages: string;
+    };
+    transition: string;
+    distance: {
+      selfTestQuestionId: string;
+      items: DistanceItem[];
+    };
+    prediction: VorverstaendnisQuestion;
+    synthesis: string;
+  };
+  navigation?: {
+    prev?: { label: string; href: string };
+    next?: { label: string; href: string };
   };
 }
