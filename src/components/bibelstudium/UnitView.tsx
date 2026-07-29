@@ -5,9 +5,10 @@ interface UnitViewProps {
   unit: Unit;
   bracketStates: Record<string, { content: string; date: string } | null>;
   bibMap: Record<string, BibliographyEntry>;
+  bracketAction: (formData: FormData) => Promise<void>;
 }
 
-export function UnitView({ unit, bracketStates, bibMap }: UnitViewProps) {
+export function UnitView({ unit, bracketStates, bibMap, bracketAction }: UnitViewProps) {
   return (
     <div>
       {/* Unit header */}
@@ -38,6 +39,7 @@ export function UnitView({ unit, bracketStates, bibMap }: UnitViewProps) {
             unitSlug={unit.meta.slug}
             bracketData={bracketStates[station.id] ?? null}
             bibMap={bibMap}
+            bracketAction={bracketAction}
           />
         ))}
       </div>

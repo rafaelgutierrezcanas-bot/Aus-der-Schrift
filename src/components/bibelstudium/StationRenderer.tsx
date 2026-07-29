@@ -8,6 +8,7 @@ interface StationRendererProps {
   unitSlug: string;
   bracketData: { content: string; date: string } | null;
   bibMap: Record<string, BibliographyEntry>;
+  bracketAction: (formData: FormData) => Promise<void>;
 }
 
 export function StationRenderer({
@@ -17,6 +18,7 @@ export function StationRenderer({
   unitSlug,
   bracketData,
   bibMap,
+  bracketAction,
 }: StationRendererProps) {
   switch (station.type) {
     case "vorverstaendnis":
@@ -28,6 +30,7 @@ export function StationRenderer({
           unitSlug={unitSlug}
           bracketData={bracketData}
           bibMap={bibMap}
+          bracketAction={bracketAction}
         />
       );
     default:

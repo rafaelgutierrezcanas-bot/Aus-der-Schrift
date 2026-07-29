@@ -1,5 +1,3 @@
-import { bracketInput } from "@/lib/bibelstudium/actions";
-
 interface InputOption {
   id: string;
   label: string;
@@ -12,6 +10,7 @@ interface StationInputProps {
   stationId: string;
   unitSlug: string;
   disabled?: boolean;
+  action: (formData: FormData) => Promise<void>;
 }
 
 export function StationInput({
@@ -21,6 +20,7 @@ export function StationInput({
   stationId,
   unitSlug,
   disabled,
+  action,
 }: StationInputProps) {
   return (
     <div className="mb-8">
@@ -31,7 +31,7 @@ export function StationInput({
         {prompt}
       </p>
 
-      <form action={bracketInput}>
+      <form action={action}>
         <input type="hidden" name="stationId" value={stationId} />
         <input type="hidden" name="unitSlug" value={unitSlug} />
 

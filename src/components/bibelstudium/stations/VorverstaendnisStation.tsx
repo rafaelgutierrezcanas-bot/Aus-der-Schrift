@@ -13,6 +13,7 @@ interface VorverstaendnisStationProps {
   unitSlug: string;
   bracketData: { content: string; date: string } | null;
   bibMap: Record<string, BibliographyEntry>;
+  bracketAction: (formData: FormData) => Promise<void>;
 }
 
 export function VorverstaendnisStation({
@@ -22,6 +23,7 @@ export function VorverstaendnisStation({
   unitSlug,
   bracketData,
   bibMap,
+  bracketAction,
 }: VorverstaendnisStationProps) {
   const content = station.content as unknown as VorverstaendnisContent;
   const isBracketed = bracketData !== null;
@@ -48,6 +50,7 @@ export function VorverstaendnisStation({
           options={content.options}
           stationId={station.id}
           unitSlug={unitSlug}
+          action={bracketAction}
         />
       )}
 
