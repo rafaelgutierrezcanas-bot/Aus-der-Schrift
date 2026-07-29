@@ -4,6 +4,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/\\[locale\\]/bibelstudium/\\[unitSlug\\]": ["./content/bibelstudium/**/*"],
+    "/\\[locale\\]/bibelstudium": ["./content/bibelstudium/**/*"],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
