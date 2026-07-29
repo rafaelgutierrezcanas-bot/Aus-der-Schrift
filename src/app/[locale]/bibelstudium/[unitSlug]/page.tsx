@@ -5,12 +5,7 @@ import type { Metadata } from "next";
 import type { BracketData, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
-export const dynamic = "force-static";
-
-export async function generateStaticParams() {
-  const units = loadAllUnits();
-  return units.map((u) => ({ unitSlug: u.meta.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
