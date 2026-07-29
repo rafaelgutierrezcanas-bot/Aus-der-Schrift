@@ -7,7 +7,7 @@ interface StationRendererProps {
   totalStations: number;
   unitSlug: string;
   bracketData: { content: string; date: string } | null;
-  getBibEntry: (id: string) => BibliographyEntry | undefined;
+  bibMap: Record<string, BibliographyEntry>;
 }
 
 export function StationRenderer({
@@ -16,7 +16,7 @@ export function StationRenderer({
   totalStations,
   unitSlug,
   bracketData,
-  getBibEntry,
+  bibMap,
 }: StationRendererProps) {
   switch (station.type) {
     case "vorverstaendnis":
@@ -27,7 +27,7 @@ export function StationRenderer({
           totalStations={totalStations}
           unitSlug={unitSlug}
           bracketData={bracketData}
-          getBibEntry={getBibEntry}
+          bibMap={bibMap}
         />
       );
     default:

@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import { loadUnitBySlug, loadAllUnits, getBibliographyEntry } from "@/lib/bibelstudium/content-loader";
+import { loadUnitBySlug, loadAllUnits, loadBibliography } from "@/lib/bibelstudium/content-loader";
 import { UnitView } from "@/components/bibelstudium/UnitView";
 import type { Metadata } from "next";
+import type { BibliographyEntry } from "@/lib/bibelstudium/types";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
 export async function generateStaticParams() {
@@ -67,12 +68,19 @@ export default async function UnitPage({
     }
   }
 
+  // Build bibliography lookup map (serializable data, not a function)
+  const bibEntries = loadBibliography();
+  const bibMap: Record<string, BibliographyEntry> = {};
+  for (const entry of bibEntries) {
+    bibMap[entry.id] = entry;
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
       <UnitView
         unit={unit}
         bracketStates={bracketStates}
-        getBibEntry={getBibliographyEntry}
+        bibMap={bibMap}
       />
     </div>
   );

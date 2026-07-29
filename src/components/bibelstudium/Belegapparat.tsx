@@ -2,10 +2,10 @@ import type { Citation, BibliographyEntry } from "@/lib/bibelstudium/types";
 
 interface BelegapparatProps {
   citations: Citation[];
-  getBibEntry: (id: string) => BibliographyEntry | undefined;
+  bibMap: Record<string, BibliographyEntry>;
 }
 
-export function Belegapparat({ citations, getBibEntry }: BelegapparatProps) {
+export function Belegapparat({ citations, bibMap }: BelegapparatProps) {
   if (citations.length === 0) return null;
 
   const seenSources = new Set<string>();
@@ -33,7 +33,7 @@ export function Belegapparat({ citations, getBibEntry }: BelegapparatProps) {
               );
             }
 
-            const entry = getBibEntry(citation.sourceId);
+            const entry = bibMap[citation.sourceId];
             if (!entry) {
               return (
                 <li

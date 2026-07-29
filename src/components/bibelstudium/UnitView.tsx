@@ -4,10 +4,10 @@ import { StationRenderer } from "./StationRenderer";
 interface UnitViewProps {
   unit: Unit;
   bracketStates: Record<string, { content: string; date: string } | null>;
-  getBibEntry: (id: string) => BibliographyEntry | undefined;
+  bibMap: Record<string, BibliographyEntry>;
 }
 
-export function UnitView({ unit, bracketStates, getBibEntry }: UnitViewProps) {
+export function UnitView({ unit, bracketStates, bibMap }: UnitViewProps) {
   return (
     <div>
       {/* Unit header */}
@@ -37,7 +37,7 @@ export function UnitView({ unit, bracketStates, getBibEntry }: UnitViewProps) {
             totalStations={unit.stations.length}
             unitSlug={unit.meta.slug}
             bracketData={bracketStates[station.id] ?? null}
-            getBibEntry={getBibEntry}
+            bibMap={bibMap}
           />
         ))}
       </div>

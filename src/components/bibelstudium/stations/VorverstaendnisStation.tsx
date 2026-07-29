@@ -12,7 +12,7 @@ interface VorverstaendnisStationProps {
   totalStations: number;
   unitSlug: string;
   bracketData: { content: string; date: string } | null;
-  getBibEntry: (id: string) => BibliographyEntry | undefined;
+  bibMap: Record<string, BibliographyEntry>;
 }
 
 export function VorverstaendnisStation({
@@ -21,7 +21,7 @@ export function VorverstaendnisStation({
   totalStations,
   unitSlug,
   bracketData,
-  getBibEntry,
+  bibMap,
 }: VorverstaendnisStationProps) {
   const content = station.content as unknown as VorverstaendnisContent;
   const isBracketed = bracketData !== null;
@@ -66,7 +66,7 @@ export function VorverstaendnisStation({
 
       <Belegapparat
         citations={station.citations}
-        getBibEntry={getBibEntry}
+        bibMap={bibMap}
       />
     </section>
   );
