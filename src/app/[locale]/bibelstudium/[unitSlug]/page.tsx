@@ -1,36 +1,5 @@
 import { notFound } from "next/navigation";
-import { loadUnitBySlug, loadAllUnits, loadBibliography } from "@/lib/bibelstudium/content-loader";
-import { UnitView } from "@/components/bibelstudium/UnitView";
-import type { Metadata } from "next";
-import type { BibliographyEntry } from "@/lib/bibelstudium/types";
-import { buildLocalizedMetadata } from "@/lib/seo";
-
-export async function generateStaticParams() {
-  const units = loadAllUnits();
-  return units.map((u) => ({ unitSlug: u.meta.slug }));
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string; unitSlug: string }>;
-}): Promise<Metadata> {
-  const { locale, unitSlug } = await params;
-  const unit = loadUnitBySlug(unitSlug);
-
-  if (!unit) {
-    return {};
-  }
-
-  return buildLocalizedMetadata({
-    locale,
-    pathname: `/bibelstudium/${unitSlug}`,
-    deTitle: unit.meta.title,
-    enTitle: unit.meta.title,
-    deDescription: unit.meta.description,
-    enDescription: unit.meta.description,
-  });
-}
+import { loadUnitBySlug } from "@/lib/bibelstudium/content-loader";
 
 export default async function UnitPage({
   params,
@@ -38,27 +7,28 @@ export default async function UnitPage({
   params: Promise<{ locale: string; unitSlug: string }>;
 }) {
   const { unitSlug } = await params;
-  const unit = loadUnitBySlug(unitSlug);
+
+  let unit;
+  try {
+    unit = loadUnitBySlug(unitSlug);
+  } catch (e) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-16">
+        <h1>Error loading unit</h1>
+        <pre>{String(e)}</pre>
+      </div>
+    );
+  }
 
   if (!unit) {
     notFound();
   }
 
-  const bracketStates: Record<string, { content: string; date: string } | null> = {};
-
-  const bibEntries = loadBibliography();
-  const bibMap: Record<string, BibliographyEntry> = {};
-  for (const entry of bibEntries) {
-    bibMap[entry.id] = entry;
-  }
-
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
-      <UnitView
-        unit={unit}
-        bracketStates={bracketStates}
-        bibMap={bibMap}
-      />
+      <h1>{unit.meta.title}</h1>
+      <p>Stationen: {unit.stations.length}</p>
+      <p>Type: {unit.stations[0]?.type}</p>
     </div>
   );
 }
