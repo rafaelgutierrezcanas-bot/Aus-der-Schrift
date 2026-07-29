@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { kv } from "@/lib/redis";
 import { getOrCreateSession } from "./session";
 
 export async function bracketInput(formData: FormData): Promise<void> {
@@ -22,6 +21,7 @@ export async function bracketInput(formData: FormData): Promise<void> {
     year: "numeric",
   });
 
+  const { kv } = await import("@/lib/redis");
   await kv.set(`bracket:${sessionId}:${unitSlug}:${stationId}`, {
     content: input.trim(),
     date,
