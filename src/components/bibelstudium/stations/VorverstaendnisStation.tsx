@@ -1,7 +1,7 @@
 import type { Station, VorverstaendnisContent, BibliographyEntry } from "@/lib/bibelstudium/types";
 import { StationHeader } from "../StationHeader";
 import { ScriptureDisplay } from "../ScriptureDisplay";
-import { StationInput } from "../StationInput";
+import { BracketForm } from "../BracketForm";
 import { Einklammerung } from "../Einklammerung";
 import { Aufloesung } from "../Aufloesung";
 import { Belegapparat } from "../Belegapparat";
@@ -13,7 +13,6 @@ interface VorverstaendnisStationProps {
   unitSlug: string;
   bracketData: { content: string; date: string } | null;
   bibMap: Record<string, BibliographyEntry>;
-  bracketAction: (formData: FormData) => Promise<void>;
 }
 
 export function VorverstaendnisStation({
@@ -23,7 +22,6 @@ export function VorverstaendnisStation({
   unitSlug,
   bracketData,
   bibMap,
-  bracketAction,
 }: VorverstaendnisStationProps) {
   const content = station.content as unknown as VorverstaendnisContent;
   const isBracketed = bracketData !== null;
@@ -44,13 +42,12 @@ export function VorverstaendnisStation({
       />
 
       {!isBracketed && (
-        <StationInput
+        <BracketForm
           prompt={content.prompt}
           inputType={content.inputType}
           options={content.options}
           stationId={station.id}
           unitSlug={unitSlug}
-          action={bracketAction}
         />
       )}
 

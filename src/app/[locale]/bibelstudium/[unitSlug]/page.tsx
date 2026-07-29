@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { loadUnitBySlug, loadAllUnits, loadBibliography } from "@/lib/bibelstudium/content-loader";
 import { UnitView } from "@/components/bibelstudium/UnitView";
-import { bracketInput } from "@/lib/bibelstudium/actions";
 import type { Metadata } from "next";
 import type { BibliographyEntry } from "@/lib/bibelstudium/types";
 import { buildLocalizedMetadata } from "@/lib/seo";
@@ -61,7 +60,6 @@ export default async function UnitPage({
         unit={unit}
         bracketStates={bracketStates}
         bibMap={bibMap}
-        bracketAction={bracketInput}
       />
     </div>
   );

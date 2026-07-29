@@ -1,27 +1,36 @@
+"use client";
+
+import { useActionState } from "react";
+
 interface InputOption {
   id: string;
   label: string;
 }
 
-interface StationInputProps {
+interface BracketFormProps {
   prompt: string;
   inputType: "freitext" | "auswahl";
   options?: InputOption[];
   stationId: string;
   unitSlug: string;
-  disabled?: boolean;
-  action: (formData: FormData) => Promise<void>;
 }
 
-export function StationInput({
+export function BracketForm({
   prompt,
   inputType,
   options,
   stationId,
   unitSlug,
-  disabled,
-  action,
-}: StationInputProps) {
+}: BracketFormProps) {
+  const [, formAction, isPending] = useActionState(
+    async (_prev: unknown, formData: FormData) => {
+      const { bracketInput } = await import("@/lib/bibelstudium/actions");
+      await bracketInput(formData);
+      return null;
+    },
+    null,
+  );
+
   return (
     <div className="mb-8">
       <p
@@ -31,14 +40,14 @@ export function StationInput({
         {prompt}
       </p>
 
-      <form action={action}>
+      <form action={formAction}>
         <input type="hidden" name="stationId" value={stationId} />
         <input type="hidden" name="unitSlug" value={unitSlug} />
 
         {inputType === "freitext" ? (
           <textarea
             name="input"
-            disabled={disabled}
+            disabled={isPending}
             className="w-full min-h-[120px] p-4 text-navy bg-surface/50 border-0 resize-y focus:outline-none focus:ring-1 focus:ring-navy/30 rounded"
             style={{ fontFamily: "var(--font-body-serif)", lineHeight: 1.8 }}
             placeholder="Schreibe hier deine Antwort…"
@@ -56,7 +65,7 @@ export function StationInput({
                   name="input"
                   value={option.label}
                   className="sr-only"
-                  disabled={disabled}
+                  disabled={isPending}
                 />
                 {option.label}
               </label>
@@ -66,11 +75,11 @@ export function StationInput({
 
         <button
           type="submit"
-          disabled={disabled}
+          disabled={isPending}
           className="mt-4 px-5 py-2 text-sm text-navy border border-navy hover:bg-navy/5 transition-colors disabled:opacity-50"
           style={{ fontFamily: "var(--font-sans)" }}
         >
-          Einklammern
+          {isPending ? "Wird eingeklammert…" : "Einklammern"}
         </button>
       </form>
     </div>
