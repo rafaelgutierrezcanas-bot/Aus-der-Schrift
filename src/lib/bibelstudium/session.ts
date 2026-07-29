@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import crypto from "crypto";
 
 const COOKIE_NAME = "bs-session";
 const MAX_AGE = 60 * 60 * 24 * 365; // 1 year
@@ -12,7 +11,7 @@ export async function getOrCreateSession(): Promise<string> {
     return existing.value;
   }
 
-  const sessionId = crypto.randomUUID();
+  const sessionId = globalThis.crypto.randomUUID();
   cookieStore.set(COOKIE_NAME, sessionId, {
     httpOnly: true,
     sameSite: "strict",
