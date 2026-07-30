@@ -3,6 +3,7 @@ interface StationHeaderProps {
   totalStations: number;
   estimatedMinutes: number;
   title: string;
+  unitTitle: string;
 }
 
 export function StationHeader({
@@ -10,6 +11,7 @@ export function StationHeader({
   totalStations,
   estimatedMinutes,
   title,
+  unitTitle,
 }: StationHeaderProps) {
   return (
     <div className="mb-6">
@@ -17,7 +19,7 @@ export function StationHeader({
         className="text-xs text-muted uppercase tracking-widest mb-2"
         style={{ fontFamily: "var(--font-sans)" }}
       >
-        STATION {stationNumber} VON {totalStations} · ETWA {estimatedMinutes} MINUTEN
+        {unitTitle} · STATION {stationNumber} VON {totalStations} · ETWA {estimatedMinutes} MINUTEN
       </p>
       <h2
         className="text-2xl font-bold text-navy leading-tight"

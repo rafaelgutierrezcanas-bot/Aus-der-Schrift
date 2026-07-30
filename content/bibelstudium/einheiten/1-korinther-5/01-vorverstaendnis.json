@@ -18,7 +18,7 @@
         },
         {
           "number": 2,
-          "text": "[TODO: Wortlaut ELB 1905 einsetzen]"
+          "text": "Und ihr seid aufgeblasen und habt nicht vielmehr Leid getragen, auf daß der, welcher diese Tat begangen hat, aus eurer Mitte hinweggetan würde."
         }
       ]
     },
@@ -108,9 +108,9 @@
             "phrase": "Verderben des Fleisches",
             "explanation": "σάρξ heißt nicht dasselbe wie das deutsche Wort Fleisch. Wie weit Übersetzungen auseinandergehen, zeigt schon 1. Korinther 7,1:",
             "translations": [
-              { "text": "[TODO: Wortlaut Übersetzung 1]", "sigel": "[TODO]" },
-              { "text": "[TODO: Wortlaut Übersetzung 2]", "sigel": "[TODO]" },
-              { "text": "[TODO: Wortlaut Übersetzung 3]", "sigel": "[TODO]" }
+              { "text": "Was aber das betrifft, wovon ihr mir geschrieben habt, so ist es gut für einen Menschen, kein Weib zu berühren.", "sigel": "ELB" },
+              { "text": "Wovon ihr aber mir geschrieben habt, darauf antworte ich: Es ist dem Menschen gut, daß er kein Weib berühre.", "sigel": "LUT" },
+              { "text": "Was aber das betrifft, wovon ihr mir geschrieben habt, so ist es ja gut für den Menschen, kein Weib zu berühren;", "sigel": "SCH" }
             ]
           }
         ]
@@ -130,7 +130,7 @@
       "synthesis": "Beides gilt zugleich: Du bringst mehr mit, als dir bewusst ist, und der Text steht weiter weg, als er beim Lesen wirkt. Wer das übersieht, liest sich selbst. Die nächsten fünf Stationen sind der Versuch, beides ernst zu nehmen."
     },
     "navigation": {
-      "prev": { "label": "[TODO]", "href": "#" },
+      "prev": { "label": "Übersicht", "href": "/de/bibelstudium" },
       "next": { "label": "Weiter zum Text", "href": "#" }
     }
   },

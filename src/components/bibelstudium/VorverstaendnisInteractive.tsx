@@ -12,6 +12,8 @@ import { Aufloesung } from "./Aufloesung";
 import { Zitat } from "./Zitat";
 import { DistanzModul } from "./DistanzModul";
 
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
 interface VorverstaendnisInteractiveProps {
   questions: VorverstaendnisQuestion[];
   resolution: VorverstaendnisContent["resolution"];
@@ -32,32 +34,26 @@ export function VorverstaendnisInteractive({
   const [bracketData, setBracketData] = useState<BracketData | null>(initialBracketData);
   const [formAnswers, setFormAnswers] = useState<Record<string, string | string[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
   const [predictionSaved, setPredictionSaved] = useState(false);
 
   const isBracketed = bracketData !== null;
 
   const handleAnswerChange = useCallback((questionId: string, value: string | string[]) => {
     setFormAnswers((prev) => ({ ...prev, [questionId]: value }));
-    setValidationErrors((prev) => ({ ...prev, [questionId]: false }));
   }, []);
 
-  const handleBracketSubmit = useCallback(async () => {
-    // Validate required questions
-    const errors: Record<string, boolean> = {};
-    for (const q of questions) {
-      if (q.required) {
-        const answer = formAnswers[q.id];
-        if (!answer || (typeof answer === "string" && !answer.trim()) || (Array.isArray(answer) && answer.length === 0)) {
-          errors[q.id] = true;
-        }
-      }
-    }
+  // Count unanswered required questions
+  const unansweredCount = questions.filter((q) => {
+    if (!q.required) return false;
+    const answer = formAnswers[q.id];
+    if (!answer) return true;
+    if (typeof answer === "string" && !answer.trim()) return true;
+    if (Array.isArray(answer) && answer.length === 0) return true;
+    return false;
+  }).length;
 
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
+  const handleBracketSubmit = useCallback(async () => {
+    if (unansweredCount > 0) return;
 
     setIsSubmitting(true);
 
@@ -80,7 +76,7 @@ export function VorverstaendnisInteractive({
     } finally {
       setIsSubmitting(false);
     }
-  }, [questions, formAnswers, stationId, unitSlug]);
+  }, [formAnswers, stationId, unitSlug, unansweredCount]);
 
   const handlePredictionSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -110,30 +106,51 @@ export function VorverstaendnisInteractive({
   const totalOptions = selfTestQuestion?.options?.length ?? 0;
 
   if (!isBracketed) {
+    const allAnswered = unansweredCount === 0;
+
     return (
       <div className="mb-8">
-        <div className="space-y-8">
-          {questions.map((q) => (
-            <QuestionField
+        <div className="space-y-10">
+          {questions.map((q, i) => (
+            <div
               key={q.id}
-              question={q}
-              value={formAnswers[q.id]}
-              onChange={handleAnswerChange}
-              hasError={validationErrors[q.id] ?? false}
-              disabled={isSubmitting}
-            />
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${i * 150}ms` }}
+            >
+              <QuestionField
+                question={q}
+                index={i}
+                value={formAnswers[q.id]}
+                onChange={handleAnswerChange}
+                disabled={isSubmitting}
+              />
+            </div>
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={handleBracketSubmit}
-          disabled={isSubmitting}
-          className="mt-6 px-5 py-2 text-sm text-navy border border-navy hover:bg-navy/5 transition-colors disabled:opacity-50 cursor-pointer min-h-[44px]"
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          {isSubmitting ? "Wird eingeklammert…" : "Einklammern und weiter"}
-        </button>
+        <div className="mt-8 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={handleBracketSubmit}
+            disabled={isSubmitting || !allAnswered}
+            className={`px-5 py-2 text-sm border transition-colors min-h-[44px] ${
+              allAnswered
+                ? "text-white bg-accent border-accent cursor-pointer hover:bg-accent/90"
+                : "text-muted border-muted cursor-not-allowed"
+            }`}
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {isSubmitting ? "Wird eingeklammert…" : "Einklammern und weiter"}
+          </button>
+          {unansweredCount > 0 && (
+            <span
+              className="text-sm text-muted"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              Noch {unansweredCount} {unansweredCount === 1 ? "Frage" : "Fragen"} offen
+            </span>
+          )}
+        </div>
       </div>
     );
   }
@@ -223,34 +240,30 @@ export function VorverstaendnisInteractive({
 
 interface QuestionFieldProps {
   question: VorverstaendnisQuestion;
+  index: number;
   value: string | string[] | undefined;
   onChange: (id: string, value: string | string[]) => void;
-  hasError: boolean;
   disabled: boolean;
 }
 
-function QuestionField({ question, value, onChange, hasError, disabled }: QuestionFieldProps) {
+function QuestionField({ question, index, value, onChange, disabled }: QuestionFieldProps) {
   const selectedValue = typeof value === "string" ? value : "";
   const selectedValues = Array.isArray(value) ? value : [];
 
   return (
     <div>
       <p
-        className="text-navy mb-3"
-        style={{ fontFamily: "var(--font-body-serif)", lineHeight: 1.8 }}
+        className="text-xs text-muted uppercase tracking-widest"
+        style={{ fontFamily: "var(--font-sans)", marginBottom: "6px" }}
+      >
+        FRAGE {ROMAN[index] ?? index + 1}
+      </p>
+      <p
+        className="text-navy"
+        style={{ fontFamily: "var(--font-body-serif)", lineHeight: 1.8, marginBottom: "10px" }}
       >
         {question.prompt}
-        {question.required && <span className="text-accent ml-1" aria-label="Pflichtfeld">*</span>}
       </p>
-
-      {hasError && (
-        <p
-          className="text-sm text-accent mb-2"
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          Bitte beantworte diese Frage.
-        </p>
-      )}
 
       {question.inputType === "freitext" && (
         <textarea
@@ -265,22 +278,33 @@ function QuestionField({ question, value, onChange, hasError, disabled }: Questi
 
       {question.inputType === "auswahl" && question.options && (
         <div className="space-y-2">
-          {question.options.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              disabled={disabled}
-              onClick={() => onChange(question.id, option.label)}
-              className={`block w-full p-3 border text-left cursor-pointer transition-colors min-h-[44px] ${
-                selectedValue === option.label
-                  ? "border-navy bg-navy/5 text-navy"
-                  : "border-border text-navy hover:bg-surface/50"
-              }`}
-              style={{ fontFamily: "var(--font-body-serif)" }}
-            >
-              {option.label}
-            </button>
-          ))}
+          {question.options.map((option) => {
+            const isSelected = selectedValue === option.label;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange(question.id, option.label)}
+                className={`block w-full p-3 text-left cursor-pointer min-h-[44px] transition-colors duration-75 ${
+                  isSelected
+                    ? "border-[1.5px] border-navy text-navy"
+                    : "border-[0.5px] border-border text-navy hover:bg-navy/[0.03]"
+                }`}
+                style={{ fontFamily: "var(--font-body-serif)" }}
+              >
+                {isSelected ? (
+                  <>
+                    <span className="text-accent">(</span>
+                    {" "}{option.label}{" "}
+                    <span className="text-accent">)</span>
+                  </>
+                ) : (
+                  option.label
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -299,10 +323,10 @@ function QuestionField({ question, value, onChange, hasError, disabled }: Questi
                     : [...selectedValues, option.id];
                   onChange(question.id, next);
                 }}
-                className={`block w-full p-3 border text-left cursor-pointer transition-colors min-h-[44px] ${
+                className={`block w-full p-3 text-left cursor-pointer min-h-[44px] transition-colors duration-75 ${
                   isSelected
-                    ? "border-navy bg-navy/5 text-navy"
-                    : "border-border text-navy hover:bg-surface/50"
+                    ? "border-[1.5px] border-navy text-navy"
+                    : "border-[0.5px] border-border text-navy hover:bg-navy/[0.03]"
                 }`}
                 style={{ fontFamily: "var(--font-body-serif)" }}
               >
@@ -326,7 +350,15 @@ function QuestionField({ question, value, onChange, hasError, disabled }: Questi
                       </svg>
                     )}
                   </span>
-                  {option.label}
+                  {isSelected ? (
+                    <>
+                      <span className="text-accent">(</span>
+                      {" "}{option.label}{" "}
+                      <span className="text-accent">)</span>
+                    </>
+                  ) : (
+                    option.label
+                  )}
                 </span>
               </button>
             );

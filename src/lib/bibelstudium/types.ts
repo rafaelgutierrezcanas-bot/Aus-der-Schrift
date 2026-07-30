@@ -13,6 +13,7 @@ export interface UnitMeta {
   title: string;
   description: string;
   stations: string[];
+  plannedStations?: number;
   citations: Citation[];
 }
 

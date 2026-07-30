@@ -6,6 +6,7 @@ interface StationRendererProps {
   index: number;
   totalStations: number;
   unitSlug: string;
+  unitTitle: string;
   bracketData: BracketData | null;
   bibMap: Record<string, BibliographyEntry>;
 }
@@ -15,6 +16,7 @@ export function StationRenderer({
   index,
   totalStations,
   unitSlug,
+  unitTitle,
   bracketData,
   bibMap,
 }: StationRendererProps) {
@@ -26,6 +28,7 @@ export function StationRenderer({
           index={index}
           totalStations={totalStations}
           unitSlug={unitSlug}
+          unitTitle={unitTitle}
           bracketData={bracketData}
           bibMap={bibMap}
         />

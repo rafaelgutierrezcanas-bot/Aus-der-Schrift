@@ -46,7 +46,11 @@ export function Belegapparat({ citations, bibMap }: BelegapparatProps) {
               );
             }
 
-            const isRepeat = seenSources.has(citation.sourceId);
+            // Check if this is a direct repetition of the previous citation's sourceId
+            const prevSourceId = i > 0 ? citations[i - 1].sourceId : null;
+            const isConsecutiveRepeat = citation.sourceId === prevSourceId;
+
+            const isFirstOccurrence = !seenSources.has(citation.sourceId);
             seenSources.add(citation.sourceId);
 
             return (
@@ -55,9 +59,11 @@ export function Belegapparat({ citations, bibMap }: BelegapparatProps) {
                 className="text-sm text-muted"
                 style={{ fontFamily: "var(--font-sans)" }}
               >
-                {isRepeat
-                  ? formatShort(entry, citation)
-                  : formatFull(entry, citation)}
+                {isConsecutiveRepeat
+                  ? formatEbd(citation)
+                  : isFirstOccurrence
+                    ? formatFull(entry, citation)
+                    : formatShort(entry, citation)}
               </li>
             );
           })}
@@ -105,6 +111,15 @@ function formatShort(entry: BibliographyEntry, citation: Citation): React.ReactN
     <>
       {author}, <em>{entry.title}</em>
       {citation.pages && `, S. ${citation.pages}`}
+      {citation.function && ` [${citation.function}]`}
+    </>
+  );
+}
+
+function formatEbd(citation: Citation): React.ReactNode {
+  return (
+    <>
+      Ebd.{citation.pages && `, S. ${citation.pages}`}
       {citation.function && ` [${citation.function}]`}
     </>
   );

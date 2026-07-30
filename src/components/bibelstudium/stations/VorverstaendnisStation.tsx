@@ -10,6 +10,7 @@ interface VorverstaendnisStationProps {
   index: number;
   totalStations: number;
   unitSlug: string;
+  unitTitle: string;
   bracketData: BracketData | null;
   bibMap: Record<string, BibliographyEntry>;
 }
@@ -19,6 +20,7 @@ export function VorverstaendnisStation({
   index,
   totalStations,
   unitSlug,
+  unitTitle,
   bracketData,
   bibMap,
 }: VorverstaendnisStationProps) {
@@ -31,6 +33,7 @@ export function VorverstaendnisStation({
         totalStations={totalStations}
         estimatedMinutes={station.estimatedMinutes ?? 15}
         title={station.title}
+        unitTitle={unitTitle}
       />
 
       {content.intro && (

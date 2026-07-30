@@ -52,7 +52,7 @@ export default async function UnitPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="max-w-prose mx-auto px-6 py-16">
       <UnitView
         unit={unit}
         bracketStates={bracketStates}

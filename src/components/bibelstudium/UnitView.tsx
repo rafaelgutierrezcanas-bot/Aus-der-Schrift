@@ -8,6 +8,8 @@ interface UnitViewProps {
 }
 
 export function UnitView({ unit, bracketStates, bibMap }: UnitViewProps) {
+  const totalStations = unit.meta.plannedStations ?? unit.stations.length;
+
   return (
     <div>
       {/* Unit header */}
@@ -34,8 +36,9 @@ export function UnitView({ unit, bracketStates, bibMap }: UnitViewProps) {
             key={station.id}
             station={station}
             index={i}
-            totalStations={unit.stations.length}
+            totalStations={totalStations}
             unitSlug={unit.meta.slug}
+            unitTitle={unit.meta.title}
             bracketData={bracketStates[station.id] ?? null}
             bibMap={bibMap}
           />
