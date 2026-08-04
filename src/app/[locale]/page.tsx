@@ -9,7 +9,7 @@ import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
 import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, formatDate } from "@/lib/utils";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export async function generateMetadata({
   params,

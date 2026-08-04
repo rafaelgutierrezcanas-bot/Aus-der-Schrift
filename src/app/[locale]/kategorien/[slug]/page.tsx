@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath } from "@/lib/site";
 
-export const revalidate = 60;
+export const revalidate = 600;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

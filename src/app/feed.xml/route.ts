@@ -59,9 +59,9 @@ export async function GET() {
 <rss version="2.0"
   xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(SITE_NAME)} – Aus der Schrift</title>
+    <title>${escapeXml(SITE_NAME)}</title>
     <link>${siteUrl}</link>
-    <description>Theologische Artikel und Bibelstudien – exegetisch, reformiert, klar.</description>
+    <description>Fundierte Artikel zu Theologie, Bibelauslegung und Kirchengeschichte – Κατὰ τὰς Γραφάς.</description>
     <language>de</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>

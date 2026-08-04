@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export async function generateMetadata({
   params,

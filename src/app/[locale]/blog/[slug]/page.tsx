@@ -23,7 +23,7 @@ import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
 import { FontSizeControls } from "@/components/FontSizeControls";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 interface FootnoteNode {
@@ -118,13 +118,13 @@ export async function generateMetadata({
         publishedTime: article.publishedAt as string | undefined,
         modifiedTime: (article._updatedAt ?? article.publishedAt) as string | undefined,
         authors: [authorName],
-        images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
+        images: imageUrl ? [{ url: imageUrl, alt: title }] : [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
-        images: imageUrl ? [imageUrl] : undefined,
+        images: imageUrl ? [imageUrl] : ["/opengraph-image"],
       },
     };
   } catch {
@@ -231,6 +231,10 @@ export default async function ArticlePage({
       ? {
           "@type": "Person",
           name: (article.author as Record<string, unknown>).name,
+          url: absoluteUrl(`/${locale}/zu-meiner-person`),
+          sameAs: [
+            "https://www.instagram.com/theologik.org",
+          ],
         }
       : undefined,
     publisher: {

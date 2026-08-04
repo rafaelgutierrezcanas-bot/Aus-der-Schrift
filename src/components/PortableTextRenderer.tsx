@@ -49,8 +49,8 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
     },
     image: ({ value }: { value: Record<string, unknown> }) => {
       const layout = (value.layout as string) ?? "full";
-      const alt = (value.alt as string) || "";
       const caption = typeof value.caption === "string" ? value.caption : "";
+      const alt = (value.alt as string) || caption || "Artikelbild";
 
       if (layout === "infographic") {
         return (
