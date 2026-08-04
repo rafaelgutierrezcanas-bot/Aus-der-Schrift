@@ -69,9 +69,6 @@ export const metadata: Metadata = {
     description: "Theologik – Theologie, Bibelauslegung, Kirchengeschichte und geistliches Leben aus der Heiligen Schrift.",
     images: ["/opengraph-image"],
   },
-  other: {
-    "impact-site-verification": "6227b854-780f-4092-849b-32a76c8a2510",
-  },
   robots: {
     index: true,
     follow: true,
@@ -99,6 +96,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${inter.variable}`}>
+      <head>
+        <meta name="impact-site-verification" value="02a11cee-c8e2-44e0-8a36-f4475803f8a3" />
+      </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
