@@ -321,3 +321,9 @@
     display: none !important;
   }
 }
+
+/* ── Mobile ToC slide-up animation ── */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}

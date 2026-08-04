@@ -16,11 +16,13 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { absoluteUrl, getLocaleAlternates, localePath, SITE_NAME } from "@/lib/site";
 import { formatChicago, type Source } from "@/lib/formatChicago";
+import { injectBibleReferences } from "@/lib/injectBibleReferences";
 import { PaperLayout } from "@/components/PaperLayout";
 import { CommentsSection } from "@/components/CommentsSection";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
+import { MobileTableOfContents } from "@/components/MobileTableOfContents";
 import { FontSizeControls } from "@/components/FontSizeControls";
 import { SeriesNavigation } from "@/components/SeriesNavigation";
 
@@ -119,13 +121,11 @@ export async function generateMetadata({
         publishedTime: article.publishedAt as string | undefined,
         modifiedTime: (article._updatedAt ?? article.publishedAt) as string | undefined,
         authors: [authorName],
-        images: imageUrl ? [{ url: imageUrl, alt: title }] : [{ url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME }],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
-        images: imageUrl ? [imageUrl] : ["/opengraph-image"],
       },
     };
   } catch {
@@ -167,7 +167,8 @@ export default async function ArticlePage({
   const rawBody = (locale === "en" && article.bodyEn
     ? article.bodyEn
     : article.bodyDe) as unknown[];
-  const { annotated: body, footnotes } = annotateFootnotes(rawBody ?? []);
+  const { annotated: bodyWithFootnotes, footnotes } = annotateFootnotes(rawBody ?? []);
+  const body = injectBibleReferences(bodyWithFootnotes);
   const footnotesMap = new Map<number, string>();
   for (const fn of footnotes) {
     if (fn.text) {
@@ -329,7 +330,7 @@ export default async function ArticlePage({
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-16">
+    <div className="max-w-6xl mx-auto px-6 py-16">
       <Script
         id={`schema-article-${locale}-${slug}`}
         type="application/ld+json"
@@ -342,6 +343,12 @@ export default async function ArticlePage({
       />
       <ReadingProgressBar />
       <BackToTop />
+      {body && body.length > 0 && (
+        <MobileTableOfContents
+          body={body as Parameters<typeof MobileTableOfContents>[0]["body"]}
+          label={locale === "de" ? "Inhalt" : "Contents"}
+        />
+      )}
       <Breadcrumb
         items={[
           { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },

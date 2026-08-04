@@ -4,6 +4,9 @@ import { BibleVerse } from "./BibleVerse";
 import { InfoCardPopover } from "./InfoCardPopover";
 import { FootnoteTooltip } from "./FootnoteTooltip";
 import { InternalLinkPreview } from "./InternalLinkPreview";
+import { BibleReferenceTooltip } from "./BibleReferenceTooltip";
+import { lookupVerse } from "@/lib/bibleVerseLookup";
+import type { BibleRef } from "@/lib/bibleReferences";
 import Image from "next/image";
 import { urlFor } from "@/sanity/image";
 
@@ -117,6 +120,17 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
             </figcaption>
           )}
         </figure>
+      );
+    },
+    bibleRefInline: ({ value }: { value: { ref: BibleRef; rawText: string } }) => {
+      const result = lookupVerse(value.ref);
+      return (
+        <BibleReferenceTooltip
+          rawText={value.rawText}
+          verseText={result.text}
+          translation={result.translation}
+          fallbackUrl={result.fallbackUrl}
+        />
       );
     },
     bibleVerse: ({

@@ -1,28 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-
-interface PortableTextBlock {
-  _type: string;
-  _key: string;
-  style?: string;
-  children?: Array<{ text: string }>;
-}
-
-interface TocItem {
-  id: string;
-  text: string;
-  level: number;
-}
-
-function extractHeadings(body: PortableTextBlock[]): TocItem[] {
-  return body
-    .filter((b) => b._type === "block" && (b.style === "h2" || b.style === "h3"))
-    .map((b) => ({
-      id: b._key,
-      text: b.children?.map((c) => c.text).join("") || "",
-      level: b.style === "h2" ? 2 : 3,
-    }));
-}
+import { useEffect, useState, useCallback } from "react";
+import { extractHeadings, type PortableTextBlock } from "@/lib/tableOfContents";
 
 export function TableOfContents({
   body,
@@ -51,6 +29,15 @@ export function TableOfContents({
     return () => observer.disconnect();
   }, [headings.length]);
 
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      history.pushState(null, "", `#${id}`);
+    }
+  }, []);
+
   if (headings.length < 3) return null;
 
   return (
@@ -66,10 +53,15 @@ export function TableOfContents({
       </p>
       <ul className="space-y-2">
         {headings.map((h) => (
-          <li key={h.id} className={h.level === 3 ? "ml-3" : ""}>
+          <li key={h.id} className={h.level === 3 ? "ml-4" : ""}>
             <a
               href={`#${h.id}`}
-              className={`block text-xs leading-relaxed transition-colors pl-3 border-l-2 ${
+              onClick={(e) => handleClick(e, h.id)}
+              className={`block leading-relaxed transition-colors pl-3 border-l-2 ${
+                h.level === 3
+                  ? "text-[11px]"
+                  : "text-[13px] font-medium"
+              } ${
                 active === h.id
                   ? "text-accent border-accent"
                   : "text-muted border-transparent hover:text-foreground hover:border-border"
