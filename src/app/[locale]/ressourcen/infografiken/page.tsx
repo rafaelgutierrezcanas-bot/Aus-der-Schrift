@@ -85,8 +85,8 @@ export default async function InfografikanPage({
         style={{ color: "var(--color-muted)", fontFamily: "var(--font-body-serif)" }}
       >
         {locale === "de"
-          ? "Alle Infografiken dürfen gerne geteilt und weiterverwendet werden — mit Quellenangabe (aus-der-schrift.de)."
-          : "All infographics may be freely shared and reused — with attribution (aus-der-schrift.de)."}
+          ? "Alle Infografiken dürfen gerne geteilt und weiterverwendet werden — mit Quellenangabe (Rafael Gutierrez, theologik.org)."
+          : "All infographics may be freely shared and reused — with attribution (Rafael Gutierrez, theologik.org)."}
       </p>
 
       <InfografikanClient infografiken={infografiken} locale={locale} />

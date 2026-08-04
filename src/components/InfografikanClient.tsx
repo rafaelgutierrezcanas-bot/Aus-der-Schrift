@@ -18,6 +18,45 @@ function topicTitle(value: string): string {
   return TOPIC_OPTIONS.find((t) => t.value === value)?.title ?? value;
 }
 
+function CopyAttribution({ title, locale }: { title: string; locale: string }) {
+  const [copied, setCopied] = useState(false);
+  const text = `${title} — Rafael Gutierrez, theologik.org`;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // silently ignore
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 mt-3">
+      <div
+        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-border text-[11px] text-muted truncate select-all"
+        style={{ fontFamily: "var(--font-sans)", background: "var(--color-surface)" }}
+      >
+        {text}
+      </div>
+      <button
+        onClick={copy}
+        className="shrink-0 px-2 py-1.5 rounded-lg border border-border text-[11px] transition-colors hover:border-accent"
+        style={{
+          fontFamily: "var(--font-sans)",
+          color: copied ? "var(--color-accent)" : "var(--color-muted)",
+          background: "none",
+          cursor: "pointer",
+        }}
+        title={locale === "de" ? "Quellenangabe kopieren" : "Copy attribution"}
+      >
+        {copied ? "✓" : "⧉"}
+      </button>
+    </div>
+  );
+}
+
 export function InfografikanClient({
   infografiken,
   locale,
@@ -159,6 +198,9 @@ export function InfografikanClient({
                 </Link>
               )}
             </div>
+
+            {/* Copyable attribution */}
+            <CopyAttribution title={item.title} locale={locale} />
           </article>
         ))}
       </div>
