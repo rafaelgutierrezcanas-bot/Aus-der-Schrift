@@ -89,7 +89,7 @@ export function InfografikanClient({
         <div className="flex flex-wrap gap-2 mb-8">
           <button
             onClick={() => setFilter(null)}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
               filter === null
                 ? "border-accent bg-accent text-white"
                 : "border-border text-muted hover:border-accent"
@@ -102,7 +102,7 @@ export function InfografikanClient({
             <button
               key={t}
               onClick={() => setFilter(filter === t ? null : t)}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                 filter === t
                   ? "border-accent bg-accent text-white"
                   : "border-border text-muted hover:border-accent"
@@ -159,8 +159,8 @@ export function InfografikanClient({
                 {item.topics.map((topic) => (
                   <span
                     key={topic}
-                    className="text-[10px] uppercase tracking-[0.1em] border border-border px-2 py-0.5"
-                    style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-accent/30 text-accent"
+                    style={{ fontFamily: "var(--font-sans)" }}
                   >
                     {topicTitle(topic)}
                   </span>
