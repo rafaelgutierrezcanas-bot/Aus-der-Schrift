@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TOPIC_OPTIONS } from "@/lib/ressourcen";
+
+interface ArticleOption {
+  slug: { current: string };
+  titleDe: string;
+  status: string;
+}
 
 const inputClass = "w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]";
 
@@ -13,9 +19,16 @@ export default function NeueInfografikPage() {
   const [publishedAt, setPublishedAt] = useState(() => new Date().toISOString().slice(0, 10));
   const [topics, setTopics] = useState<string[]>([]);
   const [articleSlug, setArticleSlug] = useState("");
+  const [articles, setArticles] = useState<ArticleOption[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/articles")
+      .then((r) => r.json())
+      .then((data: ArticleOption[]) => setArticles(data));
+  }, []);
 
   function toggleTopic(value: string) {
     setTopics((prev) =>
@@ -101,16 +114,21 @@ export default function NeueInfografikPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Artikel-Slug (optional)</label>
-          <input
-            type="text"
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Verknüpfter Artikel (optional)</label>
+          <select
             value={articleSlug}
             onChange={(e) => setArticleSlug(e.target.value)}
             className={inputClass}
-            placeholder="z.B. mein-artikel"
-          />
+          >
+            <option value="">— Kein Artikel —</option>
+            {articles.map((a) => (
+              <option key={a.slug.current} value={a.slug.current}>
+                {a.titleDe} {a.status !== "published" ? `(${a.status})` : ""}
+              </option>
+            ))}
+          </select>
           <p className="text-[11px] text-[var(--color-muted)] mt-1">
-            Wenn die Infografik aus einem Artikel stammt, gib hier den Slug des Artikels ein.
+            Wenn die Infografik aus einem Artikel stammt, wähle ihn hier aus.
           </p>
         </div>
         <div>

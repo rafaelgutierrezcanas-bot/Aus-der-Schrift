@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { TOPIC_OPTIONS } from "@/lib/ressourcen";
 
+interface ArticleOption {
+  slug: { current: string };
+  titleDe: string;
+  status: string;
+}
+
 const inputClass = "w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]";
 
 export default function EditInfografikPage() {
@@ -14,6 +20,7 @@ export default function EditInfografikPage() {
   const [publishedAt, setPublishedAt] = useState("");
   const [topics, setTopics] = useState<string[]>([]);
   const [articleSlug, setArticleSlug] = useState("");
+  const [articles, setArticles] = useState<ArticleOption[]>([]);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -21,17 +28,19 @@ export default function EditInfografikPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/admin/infografiken/${id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setTitle(data.title || "");
-        setDescription(data.description || "");
-        setPublishedAt(data.publishedAt ? data.publishedAt.slice(0, 10) : "");
-        setTopics(data.topics || []);
-        setArticleSlug(data.articleSlug || "");
-        setExistingImageUrl(data.imageUrl || null);
-        setLoading(false);
-      });
+    Promise.all([
+      fetch(`/api/admin/infografiken/${id}`).then((r) => r.json()),
+      fetch("/api/admin/articles").then((r) => r.json()),
+    ]).then(([data, arts]) => {
+      setTitle(data.title || "");
+      setDescription(data.description || "");
+      setPublishedAt(data.publishedAt ? data.publishedAt.slice(0, 10) : "");
+      setTopics(data.topics || []);
+      setArticleSlug(data.articleSlug || "");
+      setExistingImageUrl(data.imageUrl || null);
+      setArticles(arts);
+      setLoading(false);
+    });
   }, [id]);
 
   function toggleTopic(value: string) {
@@ -120,16 +129,21 @@ export default function EditInfografikPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Artikel-Slug (optional)</label>
-          <input
-            type="text"
+          <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Verknüpfter Artikel (optional)</label>
+          <select
             value={articleSlug}
             onChange={(e) => setArticleSlug(e.target.value)}
             className={inputClass}
-            placeholder="z.B. mein-artikel"
-          />
+          >
+            <option value="">— Kein Artikel —</option>
+            {articles.map((a) => (
+              <option key={a.slug.current} value={a.slug.current}>
+                {a.titleDe} {a.status !== "published" ? `(${a.status})` : ""}
+              </option>
+            ))}
+          </select>
           <p className="text-[11px] text-[var(--color-muted)] mt-1">
-            Wenn die Infografik aus einem Artikel stammt, gib hier den Slug des Artikels ein.
+            Wenn die Infografik aus einem Artikel stammt, wähle ihn hier aus.
           </p>
         </div>
         <div>
