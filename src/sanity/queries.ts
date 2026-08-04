@@ -44,7 +44,9 @@ export const articleBySlugQuery = groq`
     keywords,
     tags,
     bibleReferences,
-    difficulty
+    difficulty,
+    seriesOrder,
+    "project": project->{ _id, title, titleEn, slug }
   }
 `;
 
@@ -193,6 +195,16 @@ export const allProjectsQuery = groq`
     researchQuestionEn,
     plannedOutput,
     "articleCount": count(*[_type == "article" && references(^._id) && (status == "published" || !defined(status))])
+  }
+`;
+
+export const seriesArticlesQuery = groq`
+  *[_type == "article" && (status == "published" || !defined(status)) && project._ref == $projectId] | order(seriesOrder asc, publishedAt asc) {
+    _id,
+    titleDe,
+    titleEn,
+    slug,
+    seriesOrder
   }
 `;
 

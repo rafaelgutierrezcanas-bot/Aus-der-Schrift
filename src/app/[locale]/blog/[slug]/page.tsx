@@ -1,5 +1,5 @@
 import { client } from "@/sanity/client";
-import { articleBySlugQuery, allArticleSlugsQuery, relatedArticlesQuery, backlinksQuery } from "@/sanity/queries";
+import { articleBySlugQuery, allArticleSlugsQuery, relatedArticlesQuery, backlinksQuery, seriesArticlesQuery } from "@/sanity/queries";
 import { PortableTextRenderer } from "@/components/PortableTextRenderer";
 import { TableOfContents } from "@/components/TableOfContents";
 import { ArticleCard } from "@/components/ArticleCard";
@@ -22,6 +22,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
 import { BackToTop } from "@/components/BackToTop";
 import { FontSizeControls } from "@/components/FontSizeControls";
+import { SeriesNavigation } from "@/components/SeriesNavigation";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -196,11 +197,14 @@ export default async function ArticlePage({
   };
   const readingTime = estimateReadingTime(body || []);
 
+  const project = article.project as { _id: string; title: string; titleEn?: string; slug: { current: string } } | null;
+
   let related: Record<string, unknown>[] = [];
   let backlinks: Record<string, unknown>[] = [];
+  let seriesArticles: Record<string, unknown>[] = [];
   try {
     const catSlug = (category?.slug as { current: string })?.current;
-    const [relatedResult, backlinksResult] = await Promise.all([
+    const [relatedResult, backlinksResult, seriesResult] = await Promise.all([
       catSlug
         ? client.fetch(relatedArticlesQuery, {
             categorySlug: catSlug,
@@ -208,12 +212,17 @@ export default async function ArticlePage({
           }, { next: { tags: ["articles"], revalidate: 60 } })
         : Promise.resolve([]),
       client.fetch(backlinksQuery, { slug }, { next: { tags: ["articles"], revalidate: 3600 } }),
+      project
+        ? client.fetch(seriesArticlesQuery, { projectId: project._id }, { next: { tags: ["articles"], revalidate: 60 } })
+        : Promise.resolve([]),
     ]);
     related = relatedResult as Record<string, unknown>[];
     backlinks = (backlinksResult as Record<string, unknown>[]) ?? [];
+    seriesArticles = (seriesResult as Record<string, unknown>[]) ?? [];
   } catch {
     related = [];
     backlinks = [];
+    seriesArticles = [];
   }
 
   const articleJsonLd = {
@@ -450,6 +459,16 @@ export default async function ArticlePage({
         )}
       </header>
 
+      {/* Series Navigation (top) */}
+      {project && seriesArticles.length > 1 && (
+        <SeriesNavigation
+          seriesTitle={locale === "en" && project.titleEn ? project.titleEn : project.title}
+          articles={seriesArticles as unknown as Parameters<typeof SeriesNavigation>[0]["articles"]}
+          currentSlug={slug}
+          locale={locale}
+        />
+      )}
+
       {/* Article Body with ToC */}
       <div className="flex items-start">
         <div id="article-body" className="prose dark:prose-invert max-w-prose mx-auto flex-1 min-w-0">
@@ -488,6 +507,16 @@ export default async function ArticlePage({
             })}
           </ol>
         </section>
+      )}
+
+      {/* Series Navigation (bottom) */}
+      {project && seriesArticles.length > 1 && (
+        <SeriesNavigation
+          seriesTitle={locale === "en" && project.titleEn ? project.titleEn : project.title}
+          articles={seriesArticles as unknown as Parameters<typeof SeriesNavigation>[0]["articles"]}
+          currentSlug={slug}
+          locale={locale}
+        />
       )}
 
       <AuthorCard locale={locale} />

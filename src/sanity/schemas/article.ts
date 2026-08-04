@@ -141,6 +141,13 @@ export default defineType({
       to: [{ type: "project" }],
     }),
     defineField({
+      name: "seriesOrder",
+      title: "Position in der Reihe",
+      type: "number",
+      description: "Reihenfolge innerhalb des Projekts/der Reihe (z.B. 1, 2, 3)",
+      hidden: ({ document }) => !document?.project,
+    }),
+    defineField({
       name: "sources",
       title: "Quellen",
       type: "array",
