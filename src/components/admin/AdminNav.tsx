@@ -71,6 +71,16 @@ function FileTextIcon() {
     </svg>
   );
 }
+function ImageIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="2" width="13" height="11" rx="1"/>
+      <circle cx="4.5" cy="5.5" r="1.5"/>
+      <path d="M14 10l-3-3-4 4"/>
+      <path d="M7 11l-2.5-2L1 13"/>
+    </svg>
+  );
+}
 function StarIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -96,6 +106,7 @@ const navItems = [
   { href: "/admin/buecher", label: "Bücher", Icon: LibraryIcon },
   { href: "/admin/zitate", label: "Zitate", Icon: QuoteIcon },
   { href: "/admin/ausarbeitungen", label: "Ausarbeitungen", Icon: FileTextIcon },
+  { href: "/admin/infografiken", label: "Infografiken", Icon: ImageIcon },
   { href: "/admin/kommentare", label: "Kommentare", Icon: ChatIcon },
 ];
 

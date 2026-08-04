@@ -27,6 +27,9 @@ function LibraryIcon() {
 function FileTextIcon() {
   return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 1h5.5L12 3.5V14H3V1h1z"/><path d="M8.5 1v3H12"/><line x1="5" y1="7" x2="10" y2="7"/><line x1="5" y1="9.5" x2="10" y2="9.5"/><line x1="5" y1="12" x2="8" y2="12"/></svg>;
 }
+function ImageIcon() {
+  return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="13" height="11" rx="1"/><circle cx="4.5" cy="5.5" r="1.5"/><path d="M14 10l-3-3-4 4"/><path d="M7 11l-2.5-2L1 13"/></svg>;
+}
 function StarIcon() {
   return <svg width="18" height="18" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7.5 1l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L2 5.2l4-.6L7.5 1z"/></svg>;
 }
@@ -44,6 +47,7 @@ const navItems = [
   { href: "/admin/buecher", label: "Bücher", Icon: LibraryIcon },
   { href: "/admin/zitate", label: "Zitate", Icon: QuoteIcon },
   { href: "/admin/ausarbeitungen", label: "Ausarbeitungen", Icon: FileTextIcon },
+  { href: "/admin/infografiken", label: "Infografiken", Icon: ImageIcon },
   { href: "/admin/kommentare", label: "Kommentare", Icon: ChatIcon },
 ];
 

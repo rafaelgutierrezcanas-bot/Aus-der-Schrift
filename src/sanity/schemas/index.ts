@@ -9,12 +9,13 @@ import hermeneutikText from "./hermeneutikText";
 import bookRecommendation from "./bookRecommendation";
 import quote from "./quote";
 import ausarbeitung from "./ausarbeitung";
+import infografik from "./infografik";
 import comment from "./comment";
 
 export const schemaTypes = [
   article, category, author, source, idea, project,
   hermeneutikSchritt, hermeneutikText,
   bookRecommendation, quote,
-  ausarbeitung,
+  ausarbeitung, infografik,
   comment,
 ];

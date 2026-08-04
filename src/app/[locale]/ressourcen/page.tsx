@@ -60,6 +60,16 @@ export default async function RessourcenPage({
       linkDe: "Studien lesen",
       linkEn: "Read papers",
     },
+    {
+      key: "infografiken",
+      href: `/${locale}/ressourcen/infografiken`,
+      labelDe: "Infografiken",
+      labelEn: "Infographics",
+      descDe: "Theologische Infografiken zu verschiedenen Themen — übersichtlich aufbereitet, frei verwendbar mit Quellenangabe.",
+      descEn: "Theological infographics on various topics — clearly presented, free to use with attribution.",
+      linkDe: "Infografiken ansehen",
+      linkEn: "View infographics",
+    },
   ];
 
   const hermeneutikEnabled = process.env.NEXT_PUBLIC_HERMENEUTIK_ENABLED === "true";
