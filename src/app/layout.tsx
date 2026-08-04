@@ -69,6 +69,9 @@ export const metadata: Metadata = {
     description: "Theologik – Theologie, Bibelauslegung, Kirchengeschichte und geistliches Leben aus der Heiligen Schrift.",
     images: ["/opengraph-image"],
   },
+  other: {
+    "impact-site-verification": "6227b854-780f-4092-849b-32a76c8a2510",
+  },
   robots: {
     index: true,
     follow: true,
