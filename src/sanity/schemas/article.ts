@@ -11,7 +11,13 @@ const bodyField = (name: string, title: string) =>
         type: "image",
         options: { hotspot: true },
         fields: [
-          { name: "alt", title: "Alt text", type: "string" },
+          defineField({
+            name: "alt",
+            title: "Alt text",
+            type: "string",
+            description: 'Beschreibt, was im Bild zu sehen ist (z.B. "Schaubild: Aufbau des Praeskripts der Paulusbriefe")',
+            validation: (r) => r.required(),
+          }),
           { name: "caption", title: "Caption", type: "string" },
         ],
       },
@@ -68,6 +74,14 @@ export default defineType({
       title: "Titelbild",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          type: "string",
+          description: "Beschreibt, was im Titelbild zu sehen ist",
+        },
+      ],
     }),
     defineField({ name: "excerptDe", title: "Vorschautext (DE)", type: "text", rows: 3 }),
     defineField({ name: "excerptEn", title: "Excerpt (EN)", type: "text", rows: 3 }),

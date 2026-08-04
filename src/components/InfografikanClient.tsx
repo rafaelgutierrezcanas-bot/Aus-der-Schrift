@@ -12,6 +12,8 @@ interface Infografik {
   topics: string[];
   articleSlug?: string;
   imageUrl: string;
+  alt?: string;
+  slug?: string;
 }
 
 function topicTitle(value: string): string {
@@ -119,14 +121,20 @@ export function InfografikanClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         {filtered.map((item) => (
           <article key={item._id}>
-            <div className="border border-border rounded-lg overflow-hidden mb-3">
+            <figure className="border border-border rounded-lg overflow-hidden mb-3">
               <img
                 src={item.imageUrl + "?w=800&fit=max&auto=format"}
-                alt={item.title}
+                alt={item.alt || item.title}
                 className="w-full h-auto"
                 loading="lazy"
               />
-            </div>
+              <figcaption
+                className="px-3 py-2 text-xs text-muted"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
+                {item.title}
+              </figcaption>
+            </figure>
 
             <h2
               className="text-lg font-bold leading-snug mb-1"
@@ -168,14 +176,29 @@ export function InfografikanClient({
               </div>
             )}
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* Detail page link */}
+              {item.slug && (
+                <Link
+                  href={`/${locale}/infografiken/${item.slug}`}
+                  className="text-xs hover:underline"
+                  style={{
+                    color: "var(--color-accent)",
+                    fontFamily: "var(--font-sans)",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  {locale === "de" ? "Volle Auflösung" : "Full resolution"} &rarr;
+                </Link>
+              )}
+
               {/* Download link */}
               <a
                 href={item.imageUrl + "?dl="}
                 download
                 className="text-xs hover:underline"
                 style={{
-                  color: "var(--color-accent)",
+                  color: "var(--color-muted)",
                   fontFamily: "var(--font-sans)",
                   letterSpacing: "0.06em",
                 }}

@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/ressourcen",
     "/kontakt",
     "/impressum",
+    "/infografiken/lizenz",
   ];
 
   const staticEntries: MetadataRoute.Sitemap = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -26,12 +27,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let articleEntries: MetadataRoute.Sitemap = [];
   let categoryEntries: MetadataRoute.Sitemap = [];
   let projectEntries: MetadataRoute.Sitemap = [];
+  let infografikEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const [articles, categories, projects] = await Promise.all([
+    const [articles, categories, projects, infografiken] = await Promise.all([
       client.fetch(allArticleSlugsQuery),
       client.fetch(allCategoriesQuery),
       client.fetch(allProjectSlugsQuery),
+      client.fetch<Array<{ slug: string; publishedAt?: string }>>(`*[_type == "infografik" && defined(slug.current)]{ "slug": slug.current, publishedAt }`),
     ]);
 
     articleEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -63,9 +66,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       }))
     );
+    infografikEntries = SUPPORTED_LOCALES.flatMap((locale) =>
+      infografiken.map(({ slug, publishedAt }): MetadataRoute.Sitemap[number] => ({
+        url: absoluteUrl(`/${locale}/infografiken/${slug}`),
+        lastModified: publishedAt ? new Date(publishedAt) : new Date(),
+        changeFrequency: "monthly",
+        priority: 0.75,
+      }))
+    );
   } catch {
     return staticEntries;
   }
 
-  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries];
+  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries, ...infografikEntries];
 }

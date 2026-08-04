@@ -32,6 +32,8 @@ interface Infografik {
   topics: string[];
   articleSlug?: string;
   imageUrl: string;
+  alt?: string;
+  slug?: string;
 }
 
 export default async function InfografikanPage({
@@ -43,8 +45,9 @@ export default async function InfografikanPage({
 
   const infografiken: Infografik[] = await client.fetch(
     `*[_type == "infografik"] | order(publishedAt desc) {
-      _id, title, description, publishedAt, topics, articleSlug,
-      "imageUrl": image.asset->url
+      _id, title, description, publishedAt, topics, articleSlug, alt,
+      "imageUrl": image.asset->url,
+      "slug": slug.current
     }`,
     {},
     { next: { tags: ["ressourcen"], revalidate: 60 } }

@@ -242,7 +242,21 @@ export default async function ArticlePage({
       name: SITE_NAME,
       url: absoluteUrl(),
     },
-    image: imageUrl ? [imageUrl] : undefined,
+    image: imageUrl
+      ? [
+          {
+            "@type": "ImageObject",
+            url: imageUrl,
+            license: "https://creativecommons.org/licenses/by/4.0/",
+            acquireLicensePage: absoluteUrl(`/${locale}/infografiken/lizenz`),
+            creditText: "Rafael Gutierrez, theologik.org",
+            creator: {
+              "@type": "Person",
+              name: "Rafael Gutierrez",
+            },
+          },
+        ]
+      : undefined,
   };
 
   const breadcrumbJsonLd = {
@@ -422,15 +436,17 @@ export default async function ArticlePage({
           <FontSizeControls />
         </div>
         {!!article.featuredImage && (
-          <div className="aspect-[16/9] overflow-hidden rounded-sm mb-8">
-            <Image
-              src={urlFor(article.featuredImage).width(1200).url()}
-              alt={title}
-              width={1200}
-              height={675}
-              className="object-cover w-full h-full"
-            />
-          </div>
+          <figure className="mb-8">
+            <div className="aspect-[16/9] overflow-hidden rounded-sm">
+              <Image
+                src={urlFor(article.featuredImage).width(1200).url()}
+                alt={(article.featuredImage as Record<string, unknown>).alt as string || title}
+                width={1200}
+                height={675}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          </figure>
         )}
       </header>
 
