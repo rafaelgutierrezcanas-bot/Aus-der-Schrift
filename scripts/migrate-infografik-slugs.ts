@@ -56,7 +56,7 @@ async function migrate() {
     // Generate slug if missing
     if (!info.slug?.current) {
       patches.slug = { _type: "slug", current: slugify(info.title) };
-      console.log(`  [slug] ${info.title} → ${patches.slug.current}`);
+      console.log(`  [slug] ${info.title} → ${(patches.slug as { current: string }).current}`);
     }
 
     // Generate alt text if missing (use title as base)

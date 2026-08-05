@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 import { client } from "@/sanity/client";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
-export const runtime = "edge";
 export const alt = "Theologik";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -17,13 +18,10 @@ export default async function OGImage({
 }) {
   const { locale, slug } = await params;
 
+  const fontsDir = join(process.cwd(), "public", "fonts");
   const [playfairData, interData] = await Promise.all([
-    fetch(new URL("/fonts/PlayfairDisplay-Bold.ttf", import.meta.url)).then(
-      (r) => r.arrayBuffer()
-    ),
-    fetch(new URL("/fonts/Inter-SemiBold.ttf", import.meta.url)).then((r) =>
-      r.arrayBuffer()
-    ),
+    readFile(join(fontsDir, "PlayfairDisplay-Bold.ttf")),
+    readFile(join(fontsDir, "Inter-SemiBold.ttf")),
   ]);
 
   let article: {
