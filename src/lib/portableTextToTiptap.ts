@@ -98,6 +98,14 @@ export function portableTextToTiptap(blocks: PTBlock[]) {
           translation: block.translation ?? "",
         },
       });
+    } else if (block._type === "excursus") {
+      content.push({
+        type: "excursus",
+        attrs: {
+          title: (block as Record<string, unknown>).title ?? "",
+          content: JSON.stringify((block as Record<string, unknown>).content ?? []),
+        },
+      });
     } else if (block._type === "image") {
       content.push({
         type: "image",

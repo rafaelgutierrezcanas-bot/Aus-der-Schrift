@@ -9,6 +9,7 @@ import { FootnoteExtension } from "./FootnoteExtension";
 import { ImageBlockExtension } from "./ImageBlock";
 import { InfoCardExtension } from "./InfoCardExtension";
 import { InternalLinkExtension } from "./InternalLinkExtension";
+import { ExcursusExtension } from "./ExcursusBlock";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
 export type { EntwurfThema } from "./EntwurfSidebar";
@@ -120,6 +121,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       ImageBlockExtension,
       InfoCardExtension,
       InternalLinkExtension,
+      ExcursusExtension,
       Placeholder.configure({ placeholder: placeholder ?? "Schreibe hier..." }),
     ],
     immediatelyRender: false,

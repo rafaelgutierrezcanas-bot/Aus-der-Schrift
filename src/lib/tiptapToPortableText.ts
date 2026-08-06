@@ -118,6 +118,18 @@ export function tiptapToPortableText(doc: TipTapNode): unknown[] {
         text: node.attrs?.text ?? "",
         translation: node.attrs?.translation ?? "",
       });
+    } else if (node.type === "excursus") {
+      let parsedContent: unknown[] = [];
+      try {
+        const raw = node.attrs?.content;
+        parsedContent = typeof raw === "string" ? JSON.parse(raw) : (raw ?? []);
+      } catch { /* empty */ }
+      blocks.push({
+        _type: "excursus",
+        _key: crypto.randomUUID(),
+        title: node.attrs?.title ?? "",
+        content: parsedContent,
+      });
     } else if (node.type === "image" || node.type === "imageBlock") {
       if (node.attrs?.sanityRef) {
         blocks.push({

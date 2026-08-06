@@ -170,6 +170,13 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     }).run();
   }
 
+  function addExcursus() {
+    editor.chain().focus().insertContent({
+      type: "excursus",
+      attrs: { title: "", content: "[]" },
+    }).run();
+  }
+
   /* ── InfoCard handlers ──────────────────────────────── */
   function openInfoCardPicker() {
     if (infoCardButtonRef.current) {
@@ -302,6 +309,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
                   { label: "Zitat-Box", fn: () => editor.chain().focus().toggleBlockquote().run() },
                   { label: "Erklärung", fn: addExplanationBox },
                   { label: "Frage", fn: addQuestionBox },
+                  { label: "Exkurs", fn: addExcursus },
                   { label: "Bild", fn: addImage },
                 ].map((item) => (
                   <button
