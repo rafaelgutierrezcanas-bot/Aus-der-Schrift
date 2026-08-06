@@ -1,8 +1,12 @@
 "use client";
 import { Node, mergeAttributes } from "@tiptap/core";
-import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
-import { useState } from "react";
+import { NodeViewWrapper, ReactNodeViewRenderer, useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ChevronRight } from "lucide-react";
+import { FootnoteExtension } from "./FootnoteExtension";
+import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
+import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
 
 export const ExcursusExtension = Node.create({
   name: "excursus",
@@ -11,7 +15,7 @@ export const ExcursusExtension = Node.create({
   addAttributes() {
     return {
       title: { default: "" },
-      content: { default: "[]" }, // JSON-stringified portable-text blocks
+      content: { default: "[]" },
     };
   },
   parseHTML() {
@@ -25,6 +29,135 @@ export const ExcursusExtension = Node.create({
   },
 });
 
+/* ── Mini editor for excursus content ─────────────────── */
+
+function ExcursusEditor({
+  initialContent,
+  onChange,
+}: {
+  initialContent: unknown[];
+  onChange: (blocks: unknown[]) => void;
+}) {
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const tiptapDoc = portableTextToTiptap(initialContent as Parameters<typeof portableTextToTiptap>[0]);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      FootnoteExtension,
+    ],
+    immediatelyRender: false,
+    content: tiptapDoc as any,
+    onUpdate: ({ editor: e }) => {
+      const pt = tiptapToPortableText(e.getJSON() as Parameters<typeof tiptapToPortableText>[0]);
+      onChangeRef.current(pt);
+    },
+    editorProps: {
+      attributes: {
+        class: "prose prose-stone prose-sm max-w-none focus:outline-none min-h-[120px] px-3 py-2",
+      },
+    },
+  });
+
+  const [fnText, setFnText] = useState("");
+  const [showFnInput, setShowFnInput] = useState(false);
+
+  const insertFootnote = useCallback(() => {
+    if (!editor || !fnText.trim()) return;
+    editor.chain().focus().insertContent({
+      type: "footnote",
+      attrs: { sourceId: null, text: fnText.trim(), pages: "" },
+    }).run();
+    setFnText("");
+    setShowFnInput(false);
+  }, [editor, fnText]);
+
+  if (!editor) return null;
+
+  return (
+    <div>
+      {/* Mini toolbar */}
+      <div className="flex items-center gap-1 px-2 py-1 border-b border-stone-200 bg-stone-50/50">
+        <MiniBtn
+          active={editor.isActive("bold")}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          title="Fett"
+        >
+          <span className="font-bold text-[11px]">B</span>
+        </MiniBtn>
+        <MiniBtn
+          active={editor.isActive("italic")}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          title="Kursiv"
+        >
+          <span className="italic font-serif text-[11px]">I</span>
+        </MiniBtn>
+        <div className="w-px h-3.5 bg-stone-200 mx-0.5" />
+        <MiniBtn
+          active={showFnInput}
+          onClick={() => setShowFnInput(!showFnInput)}
+          title="Fußnote einfügen"
+        >
+          <span className="text-[10px]">¹</span>
+        </MiniBtn>
+      </div>
+
+      {/* Footnote input */}
+      {showFnInput && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-stone-200 bg-amber-50/50">
+          <input
+            value={fnText}
+            onChange={(e) => setFnText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && insertFootnote()}
+            placeholder="Fußnotentext..."
+            className="flex-1 text-xs border border-stone-200 rounded px-2 py-1 focus:outline-none focus:border-stone-400"
+            autoFocus
+          />
+          <button
+            onClick={insertFootnote}
+            disabled={!fnText.trim()}
+            className="text-xs px-2 py-1 rounded bg-stone-700 text-white hover:bg-stone-800 disabled:opacity-40 transition-colors"
+          >
+            Einfügen
+          </button>
+        </div>
+      )}
+
+      <EditorContent editor={editor} />
+    </div>
+  );
+}
+
+function MiniBtn({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active?: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`h-6 w-6 rounded flex items-center justify-center transition-colors ${
+        active
+          ? "bg-stone-700 text-white"
+          : "text-stone-500 hover:bg-stone-200 hover:text-stone-700"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ── Main excursus node view ──────────────────────────── */
+
 function ExcursusView({
   node,
   updateAttributes,
@@ -36,60 +169,57 @@ function ExcursusView({
   const [expanded, setExpanded] = useState(true);
   const { title, content } = node.attrs;
 
-  // Parse stored content blocks for display
-  let blocks: Array<{ children?: Array<{ text?: string }> }> = [];
+  let blocks: unknown[] = [];
   try {
     blocks = typeof content === "string" ? JSON.parse(content) : content;
   } catch {
     blocks = [];
   }
 
-  // Simple plain-text extraction for preview
-  const plainText = blocks
+  // Plain text for collapsed preview
+  const plainText = (blocks as Array<{ children?: Array<{ text?: string }> }>)
     .map((b) => (b.children ?? []).map((c) => c.text ?? "").join(""))
     .filter(Boolean)
-    .join("\n\n");
+    .join(" ");
+
+  // Count footnotes for preview
+  const fnCount = (blocks as Array<{ children?: Array<{ _type?: string }> }>)
+    .reduce((n, b) => n + (b.children ?? []).filter((c) => c._type === "footnote").length, 0);
 
   if (editing) {
     return (
       <NodeViewWrapper>
-        <div className="border-2 border-stone-300 rounded-xl p-4 bg-stone-50 space-y-3 my-4">
-          <p
-            className="text-xs font-semibold text-stone-500 uppercase tracking-wide"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            Exkurs bearbeiten
-          </p>
-          <input
-            placeholder="Titel (z.B. Historischer Kontext)"
-            value={title}
-            onChange={(e) => updateAttributes({ title: e.target.value })}
-            className="w-full border border-stone-200 rounded px-3 py-1.5 text-sm font-medium"
-          />
-          <textarea
-            placeholder="Inhalt des Exkurses..."
-            value={plainText}
-            onChange={(e) => {
-              // Convert plain text back to portable-text-like blocks
-              const paragraphs = e.target.value.split("\n\n").filter(Boolean);
-              const newBlocks = paragraphs.map((p) => ({
-                _type: "block",
-                style: "normal",
-                children: [{ _type: "span", text: p }],
-              }));
-              updateAttributes({
-                content: JSON.stringify(newBlocks.length ? newBlocks : []),
-              });
+        <div className="border-2 border-stone-300 rounded-xl my-4 bg-stone-50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-stone-200 space-y-2">
+            <p
+              className="text-xs font-semibold text-stone-500 uppercase tracking-wide"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              Exkurs bearbeiten
+            </p>
+            <input
+              placeholder="Titel (z.B. Historischer Kontext)"
+              value={title}
+              onChange={(e) => updateAttributes({ title: e.target.value })}
+              className="w-full border border-stone-200 rounded px-3 py-1.5 text-sm font-medium focus:outline-none focus:border-stone-400"
+            />
+          </div>
+
+          <ExcursusEditor
+            initialContent={blocks}
+            onChange={(newBlocks) => {
+              updateAttributes({ content: JSON.stringify(newBlocks) });
             }}
-            rows={5}
-            className="w-full border border-stone-200 rounded px-3 py-1.5 text-sm"
           />
-          <button
-            onClick={() => setEditing(false)}
-            className="text-xs text-stone-500 underline"
-          >
-            Fertig
-          </button>
+
+          <div className="px-4 py-2 border-t border-stone-200 flex justify-end">
+            <button
+              onClick={() => setEditing(false)}
+              className="text-xs text-stone-500 hover:text-stone-700 transition-colors px-3 py-1 rounded hover:bg-stone-200"
+            >
+              Fertig
+            </button>
+          </div>
         </div>
       </NodeViewWrapper>
     );
@@ -113,6 +243,11 @@ function ExcursusView({
               style={{ fontFamily: "var(--font-sans)" }}
             >
               Exkurs
+              {fnCount > 0 && (
+                <span className="normal-case font-normal ml-2 text-stone-400">
+                  · {fnCount} {fnCount === 1 ? "Fußnote" : "Fußnoten"}
+                </span>
+              )}
             </span>
             <span className="text-sm font-medium text-stone-700 line-clamp-1">
               {title || "Kein Titel"}
@@ -132,7 +267,7 @@ function ExcursusView({
 
         {expanded && plainText && (
           <div className="px-4 pb-3 border-t border-stone-200 pt-2">
-            <p className="text-sm text-stone-500 whitespace-pre-wrap leading-relaxed">
+            <p className="text-sm text-stone-500 line-clamp-3 leading-relaxed">
               {plainText}
             </p>
           </div>

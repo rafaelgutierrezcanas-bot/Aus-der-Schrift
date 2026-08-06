@@ -41,21 +41,29 @@ interface FootnoteNode {
 function annotateFootnotes(body: unknown[]): { annotated: unknown[]; footnotes: FootnoteNode[] } {
   let count = 0;
   const footnotes: FootnoteNode[] = [];
-  const annotated = (body as Record<string, unknown>[]).map((block) => {
-    if (block._type === "block" && Array.isArray(block.children)) {
-      const children = (block.children as Record<string, unknown>[]).map((child) => {
-        if (child._type === "footnote") {
-          count++;
-          const fn = { ...child, _fnIndex: count } as FootnoteNode;
-          footnotes.push(fn);
-          return fn;
-        }
-        return child;
-      });
-      return { ...block, children };
-    }
-    return block;
-  });
+
+  function processBlocks(blocks: Record<string, unknown>[]): Record<string, unknown>[] {
+    return blocks.map((block) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        const children = (block.children as Record<string, unknown>[]).map((child) => {
+          if (child._type === "footnote") {
+            count++;
+            const fn = { ...child, _fnIndex: count } as FootnoteNode;
+            footnotes.push(fn);
+            return fn;
+          }
+          return child;
+        });
+        return { ...block, children };
+      }
+      if (block._type === "excursus" && Array.isArray(block.content)) {
+        return { ...block, content: processBlocks(block.content as Record<string, unknown>[]) };
+      }
+      return block;
+    });
+  }
+
+  const annotated = processBlocks(body as Record<string, unknown>[]);
   return { annotated, footnotes };
 }
 

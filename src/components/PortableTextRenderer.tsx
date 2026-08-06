@@ -10,8 +10,6 @@ import { lookupVerse } from "@/lib/bibleVerseLookup";
 import type { BibleRef } from "@/lib/bibleReferences";
 import Image from "next/image";
 import { urlFor } from "@/sanity/image";
-import { PortableText as NestedPortableText } from "@portabletext/react";
-
 function firstSpanText(value: unknown): string {
   const v = value as { children?: Array<{ text?: string }> };
   return v?.children?.[0]?.text ?? "";
@@ -150,15 +148,20 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
       value,
     }: {
       value: { title: string; content?: unknown[] };
-    }) => (
-      <Excursus title={value.title} locale={locale}>
-        {value.content ? (
-          <NestedPortableText
-            value={value.content as Parameters<typeof NestedPortableText>[0]["value"]}
-          />
-        ) : null}
-      </Excursus>
-    ),
+    }) => {
+      // Reuse the same components so footnotes, marks, etc. render correctly inside excursus
+      const components = buildComponents(locale, footnotesMap);
+      return (
+        <Excursus title={value.title} locale={locale}>
+          {value.content ? (
+            <PortableText
+              value={value.content as Parameters<typeof PortableText>[0]["value"]}
+              components={components}
+            />
+          ) : null}
+        </Excursus>
+      );
+    },
   },
   list: {
     bullet: ({ children }) => (
