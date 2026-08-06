@@ -71,15 +71,38 @@ function ExcursusEditor({
 
   const [fnText, setFnText] = useState("");
   const [showFnInput, setShowFnInput] = useState(false);
+  const savedSelectionRef = useRef<number | null>(null);
+
+  const openFnInput = useCallback(() => {
+    if (!editor) return;
+    // Save cursor position before focus moves to input
+    savedSelectionRef.current = editor.state.selection.anchor;
+    setShowFnInput(true);
+    setFnText("");
+  }, [editor]);
 
   const insertFootnote = useCallback(() => {
     if (!editor || !fnText.trim()) return;
-    editor.chain().focus().insertContent({
-      type: "footnote",
-      attrs: { sourceId: null, text: fnText.trim(), pages: "" },
-    }).run();
+    const pos = savedSelectionRef.current;
+    // Restore cursor position, then insert footnote there
+    if (pos !== null && pos >= 0) {
+      editor.chain()
+        .focus()
+        .setTextSelection(pos)
+        .insertContent({
+          type: "footnote",
+          attrs: { sourceId: null, text: fnText.trim(), pages: "" },
+        })
+        .run();
+    } else {
+      editor.chain().focus().insertContent({
+        type: "footnote",
+        attrs: { sourceId: null, text: fnText.trim(), pages: "" },
+      }).run();
+    }
     setFnText("");
     setShowFnInput(false);
+    savedSelectionRef.current = null;
   }, [editor, fnText]);
 
   if (!editor) return null;
@@ -112,7 +135,7 @@ function ExcursusEditor({
         <div className="w-px h-3.5 bg-stone-200 mx-0.5" />
         <MiniBtn
           active={showFnInput}
-          onClick={() => setShowFnInput(!showFnInput)}
+          onClick={() => showFnInput ? setShowFnInput(false) : openFnInput()}
           title="Fußnote einfügen"
         >
           <span className="text-[10px]">¹</span>
