@@ -41,7 +41,15 @@ function ExcursusEditor({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  const tiptapDoc = portableTextToTiptap(initialContent as Parameters<typeof portableTextToTiptap>[0]);
+  // Compute initial content once (not on every render)
+  const [initialDoc] = useState(() => {
+    const doc = portableTextToTiptap(initialContent as Parameters<typeof portableTextToTiptap>[0]);
+    // Ensure doc has at least one paragraph so the editor is usable
+    if (!doc.content || doc.content.length === 0) {
+      doc.content = [{ type: "paragraph" }];
+    }
+    return doc;
+  });
 
   const editor = useEditor({
     extensions: [
@@ -49,7 +57,7 @@ function ExcursusEditor({
       FootnoteExtension,
     ],
     immediatelyRender: false,
-    content: tiptapDoc as any,
+    content: initialDoc as any,
     onUpdate: ({ editor: e }) => {
       const pt = tiptapToPortableText(e.getJSON() as Parameters<typeof tiptapToPortableText>[0]);
       onChangeRef.current(pt);
@@ -76,8 +84,15 @@ function ExcursusEditor({
 
   if (!editor) return null;
 
+  // Stop all events from bubbling to the parent TipTap editor
+  const stopPropagation = (e: React.SyntheticEvent) => e.stopPropagation();
+
   return (
-    <div>
+    <div
+      onMouseDown={stopPropagation}
+      onClick={stopPropagation}
+      onKeyDown={stopPropagation as any}
+    >
       {/* Mini toolbar */}
       <div className="flex items-center gap-1 px-2 py-1 border-b border-stone-200 bg-stone-50/50">
         <MiniBtn
@@ -110,7 +125,7 @@ function ExcursusEditor({
           <input
             value={fnText}
             onChange={(e) => setFnText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && insertFootnote()}
+            onKeyDown={(e) => { if (e.key === "Enter") insertFootnote(); }}
             placeholder="Fußnotentext..."
             className="flex-1 text-xs border border-stone-200 rounded px-2 py-1 focus:outline-none focus:border-stone-400"
             autoFocus
@@ -187,9 +202,15 @@ function ExcursusView({
     .reduce((n, b) => n + (b.children ?? []).filter((c) => c._type === "footnote").length, 0);
 
   if (editing) {
+    const stop = (e: React.SyntheticEvent) => e.stopPropagation();
     return (
       <NodeViewWrapper>
-        <div className="border-2 border-stone-300 rounded-xl my-4 bg-stone-50 overflow-hidden">
+        <div
+          className="border-2 border-stone-300 rounded-xl my-4 bg-stone-50 overflow-hidden"
+          onMouseDown={stop}
+          onClick={stop}
+          onKeyDown={stop as any}
+        >
           <div className="px-4 py-3 border-b border-stone-200 space-y-2">
             <p
               className="text-xs font-semibold text-stone-500 uppercase tracking-wide"
