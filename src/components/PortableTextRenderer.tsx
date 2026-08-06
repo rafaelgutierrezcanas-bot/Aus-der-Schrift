@@ -5,10 +5,12 @@ import { InfoCardPopover } from "./InfoCardPopover";
 import { FootnoteTooltip } from "./FootnoteTooltip";
 import { InternalLinkPreview } from "./InternalLinkPreview";
 import { BibleReferenceTooltip } from "./BibleReferenceTooltip";
+import { Excursus } from "./Excursus";
 import { lookupVerse } from "@/lib/bibleVerseLookup";
 import type { BibleRef } from "@/lib/bibleReferences";
 import Image from "next/image";
 import { urlFor } from "@/sanity/image";
+import { PortableText as NestedPortableText } from "@portabletext/react";
 
 function firstSpanText(value: unknown): string {
   const v = value as { children?: Array<{ text?: string }> };
@@ -143,6 +145,19 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
         text={value.text}
         translation={value.translation}
       />
+    ),
+    excursus: ({
+      value,
+    }: {
+      value: { title: string; content?: unknown[] };
+    }) => (
+      <Excursus title={value.title} locale={locale}>
+        {value.content ? (
+          <NestedPortableText
+            value={value.content as Parameters<typeof NestedPortableText>[0]["value"]}
+          />
+        ) : null}
+      </Excursus>
     ),
   },
   list: {
