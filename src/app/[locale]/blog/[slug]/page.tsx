@@ -98,7 +98,10 @@ export async function generateMetadata({
       };
     }
 
-    const title = getLocalizedTitle(article, locale);
+    const displayTitle = getLocalizedTitle(article, locale);
+    const seoTitle = (locale === "en" && article.seoTitleEn
+      ? article.seoTitleEn
+      : article.seoTitleDe || displayTitle) as string;
     const description =
       getLocalizedExcerpt(article, locale) ||
       (locale === "de"
@@ -112,7 +115,7 @@ export async function generateMetadata({
     const authorName = (article.author as { name?: string } | null)?.name ?? "Rafael Gutierrez";
 
     return {
-      title,
+      title: seoTitle,
       description,
       authors: [{ name: authorName, url: absoluteUrl(`/${locale}/zu-meiner-person`) }],
       alternates: {
@@ -121,7 +124,7 @@ export async function generateMetadata({
       },
       openGraph: {
         type: "article",
-        title,
+        title: seoTitle,
         description,
         url: absoluteUrl(path),
         siteName: SITE_NAME,
@@ -132,7 +135,7 @@ export async function generateMetadata({
       },
       twitter: {
         card: "summary_large_image",
-        title,
+        title: seoTitle,
         description,
       },
     };

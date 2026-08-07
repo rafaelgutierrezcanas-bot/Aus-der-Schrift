@@ -27,6 +27,8 @@ export const articleBySlugQuery = groq`
     _updatedAt,
     titleDe,
     titleEn,
+    seoTitleDe,
+    seoTitleEn,
     slug,
     publishedAt,
     bodyDe,

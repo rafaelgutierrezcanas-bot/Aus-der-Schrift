@@ -71,6 +71,20 @@ export default defineType({
     defineField({ name: "titleDe", title: "Titel (DE)", type: "string" }),
     defineField({ name: "titleEn", title: "Title (EN)", type: "string" }),
     defineField({
+      name: "seoTitleDe",
+      title: "SEO-Titel (DE)",
+      type: "string",
+      description: "Wird im Browser-Tab und in Google angezeigt. Ca. 60 Zeichen, Keyword vorne. Falls leer, wird der normale Titel verwendet.",
+      validation: (r) => r.max(70).warning("SEO-Titel sollte unter 60 Zeichen bleiben"),
+    }),
+    defineField({
+      name: "seoTitleEn",
+      title: "SEO Title (EN)",
+      type: "string",
+      description: "Shown in the browser tab and Google. ~60 chars, keyword first. Falls back to the display title if empty.",
+      validation: (r) => r.max(70).warning("SEO title should stay under 60 characters"),
+    }),
+    defineField({
       name: "slug",
       title: "Slug",
       type: "slug",
