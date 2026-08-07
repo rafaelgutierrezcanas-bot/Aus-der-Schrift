@@ -280,7 +280,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         />
       ) : (
         <div className={`sticky top-0 z-20 border-b border-stone-100 bg-white/90 backdrop-blur-md`}>
-        <div className={`flex items-center justify-between px-4 py-1 ${isFullscreen ? "max-w-3xl mx-auto" : ""}`}>
+        <div className={`flex items-center justify-between px-4 py-1 ${isFullscreen ? "max-w-[52rem] mx-auto" : ""}`}>
           <button
             onClick={() => setToolbarVisible(true)}
             title="Werkzeugleiste einblenden (⌘⇧T)"
@@ -312,8 +312,8 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       )}
 
       {/* ── Editor content ─── */}
-      <div className={isFullscreen ? "flex-1 overflow-y-auto bg-stone-50" : ""}>
-        <div className={isFullscreen ? "max-w-3xl mx-auto bg-white min-h-full shadow-sm" : ""}>
+      <div className={isFullscreen ? "flex-1 overflow-y-auto" : ""}>
+        <div className={isFullscreen ? "max-w-[52rem] mx-auto min-h-full px-6" : ""}>
         <EditorContent editor={editor} />
 
         {/* Footnote list */}
@@ -360,7 +360,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         className={`border-t border-stone-100 ${isFullscreen ? "" : "rounded-b-xl"}`}
       >
       <div
-        className={`flex items-center gap-4 px-4 py-1.5 text-xs text-stone-400 ${isFullscreen ? "max-w-3xl mx-auto" : ""}`}
+        className={`flex items-center gap-4 px-4 py-1.5 text-xs text-stone-400 ${isFullscreen ? "max-w-[52rem] mx-auto" : ""}`}
         style={{ fontFamily: "var(--font-sans)" }}
       >
         <span>{words} Wörter</span>
