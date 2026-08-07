@@ -16,12 +16,16 @@ function unescapeAttr(value: string): string {
   return value.replace(/&quot;/g, '"');
 }
 
-export function markdownToTiptap(markdown: string): { type: "doc"; content: TipTapNode[] } {
+export function markdownToTiptap(markdown: string, parentFootnotes?: Map<number, FootnoteDef>): { type: "doc"; content: TipTapNode[] } {
   // Strip header comment
   let cleaned = markdown.replace(/^<!--\s*THEOLOGIK\s*\u2014[^>]*-->\s*\n*/u, "");
 
   // 1. Split footnote definitions from body
-  const { body, footnotes } = extractFootnotes(cleaned);
+  const { body, footnotes: ownFootnotes } = extractFootnotes(cleaned);
+  // Merge with parent footnotes so excursus content can resolve references
+  const footnotes = parentFootnotes
+    ? new Map([...parentFootnotes, ...ownFootnotes])
+    : ownFootnotes;
 
   // 2. Parse body into blocks
   const lines = body.split("\n");
@@ -54,9 +58,9 @@ export function markdownToTiptap(markdown: string): { type: "doc"; content: TipT
         i++;
       }
       i++; // skip closing tag
-      // Recursively parse inner content
+      // Recursively parse inner content, passing parent footnotes
       const innerMd = innerLines.join("\n");
-      const innerDoc = markdownToTiptap(innerMd);
+      const innerDoc = markdownToTiptap(innerMd, footnotes);
       content.push({
         type: "excursus",
         attrs: { title: excTitle },
