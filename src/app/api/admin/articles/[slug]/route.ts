@@ -74,7 +74,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const body = await request.json();
 
   const article = await client.fetch(
-    `*[_type == "article" && slug.current == $slug][0]{ _id }`,
+    `*[_type == "article" && slug.current == $slug][0]{ _id, "hasBodyDe": defined(bodyDe) && count(bodyDe) > 0, "hasBodyEn": defined(bodyEn) && count(bodyEn) > 0 }`,
     { slug }
   );
   if (!article) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -98,6 +98,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     revalidatePath("/de");
     revalidatePath("/en");
     return NextResponse.json({ ...updated, newSlug });
+  }
+
+  // Guard: never overwrite existing body content with empty/missing data
+  for (const field of ["bodyDe", "bodyEn"] as const) {
+    const hasExisting = field === "bodyDe" ? article.hasBodyDe : article.hasBodyEn;
+    const incoming = rest[field];
+    if (hasExisting && (!Array.isArray(incoming) || incoming.length === 0)) {
+      delete rest[field]; // keep existing content untouched
+    }
   }
 
   // Separate null values (must use unset) from regular values

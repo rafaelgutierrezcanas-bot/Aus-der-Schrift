@@ -180,12 +180,15 @@ export default function EditArticlePage() {
 
   // Auto-save 2 seconds after any change
   const buildPatch = useCallback(() => {
+    // Convert body content, but ONLY include if it has actual blocks
+    const convertedDe = bodyDe ? tiptapToPortableText(bodyDe as any) : undefined;
+    const convertedEn = bodyEn ? tiptapToPortableText(bodyEn as any) : undefined;
     const patch: Record<string, unknown> = {
       titleDe, titleEn, language, status,
       publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
       excerptDe, excerptEn,
-      bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : undefined,
-      bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : undefined,
+      bodyDe: Array.isArray(convertedDe) && convertedDe.length > 0 ? convertedDe : undefined,
+      bodyEn: Array.isArray(convertedEn) && convertedEn.length > 0 ? convertedEn : undefined,
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
       featuredImage: featuredImage ?? null,
       entwurf: entwurf.length > 0 ? entwurf : null,
