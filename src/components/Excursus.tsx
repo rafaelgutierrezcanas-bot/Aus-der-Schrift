@@ -32,7 +32,7 @@ export function Excursus({ title, locale, children }: ExcursusProps) {
             {locale === "de" ? "Exkurs" : "Excursus"}
           </span>
           <span
-            className="text-sm font-medium text-foreground group-hover:text-accent transition-colors line-clamp-1"
+            className="text-sm font-medium text-foreground group-hover:text-accent transition-colors"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             {title}
