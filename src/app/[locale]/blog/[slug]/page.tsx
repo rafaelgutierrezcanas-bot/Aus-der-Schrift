@@ -175,7 +175,7 @@ export default async function ArticlePage({
 
   const t = await getTranslations("article");
   const title = getLocalizedTitle(article, locale);
-  const rawBody = (locale === "en" && article.bodyEn
+  const rawBody = (locale === "en" && Array.isArray(article.bodyEn) && (article.bodyEn as unknown[]).length > 0
     ? article.bodyEn
     : article.bodyDe) as unknown[];
   const { annotated: bodyWithFootnotes, footnotes } = annotateFootnotes(rawBody ?? []);

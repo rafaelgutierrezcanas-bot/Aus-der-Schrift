@@ -184,8 +184,8 @@ export default function EditArticlePage() {
       titleDe, titleEn, language, status,
       publishedAt: publishedAt ? new Date(publishedAt).toISOString() : undefined,
       excerptDe, excerptEn,
-      bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
-      bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+      bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : undefined,
+      bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : undefined,
       sources: selectedSourceIds.map((id) => ({ _type: "reference", _ref: id, _key: id })),
       featuredImage: featuredImage ?? null,
       entwurf: entwurf.length > 0 ? entwurf : null,
@@ -487,7 +487,7 @@ export default function EditArticlePage() {
                 </div>
                 <TiptapEditor
                   content={bodyEn}
-                  onChange={(val) => { setBodyEn(val); if (language === "de") setLanguage("both"); }}
+                  onChange={setBodyEn}
                   placeholder="Write in English..."
                   sources={selectedSources}
                 />

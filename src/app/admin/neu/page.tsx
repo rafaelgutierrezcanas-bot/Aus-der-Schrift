@@ -72,8 +72,8 @@ export default function NewArticlePage() {
         status,
         publishedAt: new Date(publishedAt).toISOString(),
         excerptDe, excerptEn,
-        bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : [],
-        bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : [],
+        bodyDe: bodyDe ? tiptapToPortableText(bodyDe as any) : undefined,
+        bodyEn: bodyEn ? tiptapToPortableText(bodyEn as any) : undefined,
         difficulty: difficulty || undefined,
         isPaper,
         abstractDe: abstractDe || undefined,
@@ -249,7 +249,7 @@ export default function NewArticlePage() {
             Englische Übersetzung
           </span>
         </div>
-        <TiptapEditor content={bodyEn} onChange={(val) => { setBodyEn(val); if (language === "de") setLanguage("both"); }} placeholder="Write in English..." />
+        <TiptapEditor content={bodyEn} onChange={setBodyEn} placeholder="Write in English..." />
       </div>
     </div>
   );

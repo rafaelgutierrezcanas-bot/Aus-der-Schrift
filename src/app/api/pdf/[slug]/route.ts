@@ -337,7 +337,7 @@ export async function GET(
   }
 
   const rawBody =
-    locale === "en" && article.bodyEn ? article.bodyEn : article.bodyDe;
+    locale === "en" && Array.isArray(article.bodyEn) && (article.bodyEn as unknown[]).length > 0 ? article.bodyEn : article.bodyDe;
 
   const { annotated: annotatedBody, footnotes } = annotateFootnotes(rawBody ?? []);
   const bodyText = extractPlainText(annotatedBody);
