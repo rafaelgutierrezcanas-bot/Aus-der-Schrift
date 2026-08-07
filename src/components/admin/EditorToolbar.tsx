@@ -19,23 +19,27 @@ interface Props {
   onToggleFullscreen?: () => void;
 }
 
-/* ── Compact toolbar button ─────────────────────────── */
+/* ── Toolbar button ─────────────────────────────────── */
 function TBtn({
   active,
   onClick,
   title,
   children,
+  label,
   className,
   btnRef,
   disabled,
+  big,
 }: {
   active?: boolean;
   onClick: () => void;
   title: string;
   children: React.ReactNode;
+  label?: string;
   className?: string;
   btnRef?: React.Ref<HTMLButtonElement>;
   disabled?: boolean;
+  big?: boolean;
 }) {
   return (
     <button
@@ -43,19 +47,20 @@ function TBtn({
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className={`h-7 min-w-7 px-1.5 rounded-md text-xs font-medium transition-all duration-150 inline-flex items-center justify-center ${
+      className={`${big ? "h-8 min-w-8 px-2.5 gap-1.5 rounded-lg text-[13px]" : "h-7 min-w-7 px-1.5 rounded-md text-xs"} font-medium transition-all duration-150 inline-flex items-center justify-center ${
         active
           ? "bg-stone-800 text-white"
           : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
       } disabled:opacity-40 disabled:cursor-not-allowed ${className ?? ""}`}
     >
       {children}
+      {label && <span>{label}</span>}
     </button>
   );
 }
 
-function Divider() {
-  return <div className="w-px h-4 bg-stone-200 mx-1 shrink-0" />;
+function Divider({ big }: { big?: boolean }) {
+  return <div className={`w-px bg-stone-200 shrink-0 ${big ? "h-5 mx-2.5" : "h-4 mx-1"}`} />;
 }
 
 export default function EditorToolbar({ editor, sources = [], onLektorat, lektoratLoading, onCollapse, isFullscreen, onToggleFullscreen }: Props) {
@@ -249,57 +254,65 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   /* ── Popover styling ────────────────────────────────── */
   const popover = "fixed bg-white border border-stone-200 rounded-xl shadow-xl p-4 z-50";
 
+  const b = !!isFullscreen;
+  const ico = b ? 16 : 14;
+
   return (
-    <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/90 backdrop-blur-md">
-      <div className={`flex items-center gap-0.5 px-2.5 py-1.5 ${isFullscreen ? "max-w-[52rem] mx-auto px-4 py-2.5" : ""}`}>
+    <div className={`z-20 border-b border-stone-100 bg-white/95 backdrop-blur-md ${b ? "" : "sticky top-0"}`} style={{ fontFamily: "var(--font-sans)" }}>
+      <div className={`flex items-center ${b ? "gap-1 px-6 py-2.5 max-w-[64rem] mx-auto" : "gap-0.5 px-2.5 py-1.5"}`}>
         {/* ── Undo / Redo ─── */}
-        <TBtn active={false} onClick={() => editor.chain().focus().undo().run()} title="Rückgängig (⌘Z)" disabled={!editor.can().undo()}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        <TBtn big={b} active={false} onClick={() => editor.chain().focus().undo().run()} title="Rückgängig (⌘Z)" disabled={!editor.can().undo()} label={b ? "Undo" : undefined}>
+          <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
         </TBtn>
-        <TBtn active={false} onClick={() => editor.chain().focus().redo().run()} title="Wiederholen (⌘⇧Z)" disabled={!editor.can().redo()}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+        <TBtn big={b} active={false} onClick={() => editor.chain().focus().redo().run()} title="Wiederholen (⌘⇧Z)" disabled={!editor.can().redo()} label={b ? "Redo" : undefined}>
+          <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
         </TBtn>
 
-        <Divider />
+        <Divider big={b} />
 
         {/* ── Text format ─── */}
-        <TBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="Fett (⌘B)">
-          <span className="font-bold">B</span>
+        <TBtn big={b} active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="Fett (⌘B)" label={b ? "Fett" : undefined}>
+          <span className={b ? "font-bold text-sm" : "font-bold"}>B</span>
         </TBtn>
-        <TBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="Kursiv (⌘I)">
-          <span className="italic font-serif">I</span>
+        <TBtn big={b} active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="Kursiv (⌘I)" label={b ? "Kursiv" : undefined}>
+          <span className={b ? "italic font-serif text-sm" : "italic font-serif"}>I</span>
         </TBtn>
 
-        <Divider />
+        <Divider big={b} />
 
         {/* ── Headings ─── */}
-        <TBtn active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="Überschrift 2">
+        <TBtn big={b} active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="Überschrift 2">
           H2
         </TBtn>
-        <TBtn active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} title="Überschrift 3">
+        <TBtn big={b} active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} title="Überschrift 3">
           H3
         </TBtn>
-        <TBtn active={editor.isActive("heading", { level: 4 })} onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} title="Überschrift 4">
+        <TBtn big={b} active={editor.isActive("heading", { level: 4 })} onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} title="Überschrift 4">
           H4
         </TBtn>
 
-        <Divider />
+        <Divider big={b} />
 
         {/* ── Lists ─── */}
-        <TBtn active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Aufzählung">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <TBtn big={b} active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Aufzählung" label={b ? "Liste" : undefined}>
+          <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
         </TBtn>
-        <TBtn active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Nummerierte Liste">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><text x="2" y="8" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">1</text><text x="2" y="14" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">2</text><text x="2" y="20" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">3</text></svg>
+        <TBtn big={b} active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Nummerierte Liste" label={b ? "1. 2. 3." : undefined}>
+          <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><text x="2" y="8" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">1</text><text x="2" y="14" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">2</text><text x="2" y="20" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">3</text></svg>
         </TBtn>
 
-        <Divider />
+        <Divider big={b} />
+
+        {/* ── Blockquote ─── */}
+        <TBtn big={b} active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Zitat" label={b ? "Zitat" : undefined}>
+          <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3"/></svg>
+        </TBtn>
 
         {/* ── Insert dropdown ─── */}
         <div className="relative">
-          <TBtn active={showInsertMenu} onClick={() => setShowInsertMenu(!showInsertMenu)} title="Block einfügen" className="px-2.5 gap-1">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span className="hidden sm:inline">Einfügen</span>
+          <TBtn big={b} active={showInsertMenu} onClick={() => setShowInsertMenu(!showInsertMenu)} title="Block einfügen" className={b ? "px-3" : "px-2.5 gap-1"}>
+            <svg width={b ? 14 : 12} height={b ? 14 : 12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>{b ? "Einfügen" : <span className="hidden sm:inline">Einfügen</span>}</span>
           </TBtn>
           {showInsertMenu && (
             <>
@@ -307,7 +320,6 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
               <div className="absolute left-0 top-full mt-1.5 bg-white border border-stone-200 rounded-lg shadow-xl py-1 z-50 min-w-[168px]" style={{ fontFamily: "var(--font-sans)" }}>
                 {[
                   { label: "Bibelvers", fn: addBibleVerse },
-                  { label: "Zitat-Box", fn: () => editor.chain().focus().toggleBlockquote().run() },
                   { label: "Erklärung", fn: addExplanationBox },
                   { label: "Frage", fn: addQuestionBox },
                   { label: "Exkurs", fn: addExcursus },
@@ -326,12 +338,12 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
           )}
         </div>
 
-        <Divider />
+        <Divider big={b} />
 
         {/* ── Marks: Info card ─── */}
         <div className="relative">
-          <TBtn btnRef={infoCardButtonRef} active={editor.isActive("infocard")} onClick={openInfoCardPicker} title="Info-Karte (markierten Text erklären)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <TBtn big={b} btnRef={infoCardButtonRef} active={editor.isActive("infocard")} onClick={openInfoCardPicker} title="Info-Karte (markierten Text erklären)" label={b ? "Info" : undefined}>
+            <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           </TBtn>
           {showInfoCardPicker && infoCardPos && (
             <>
@@ -364,8 +376,8 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
 
         {/* ── Marks: Article link ─── */}
         <div className="relative">
-          <TBtn btnRef={articleButtonRef} active={editor.isActive("internalLink")} onClick={openArticlePicker} title="Artikel verlinken">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <TBtn big={b} btnRef={articleButtonRef} active={editor.isActive("internalLink")} onClick={openArticlePicker} title="Artikel verlinken" label={b ? "Link" : undefined}>
+            <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </TBtn>
           {showArticlePicker && articlePickerPos && (
             <>
@@ -407,12 +419,12 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
           )}
         </div>
 
-        <Divider />
+        <Divider big={b} />
 
         {/* ── Footnote ─── */}
         <div className="relative">
-          <TBtn btnRef={footnoteButtonRef} active={showFootnotePicker} onClick={openPicker} title="Fußnote einfügen (⌘F)">
-            <span className="text-[11px]">¹</span>
+          <TBtn big={b} btnRef={footnoteButtonRef} active={showFootnotePicker} onClick={openPicker} title="Fußnote einfügen (⌘F)" label={b ? "Fußnote" : undefined}>
+            <span className={b ? "text-[13px] font-semibold" : "text-[11px]"}>¹</span>
           </TBtn>
           {showFootnotePicker && pickerPos && (
             <>
@@ -507,6 +519,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         {/* ── Lektorat ─── */}
         {onLektorat && (
           <TBtn
+            big={b}
             active={false}
             onClick={onLektorat}
             disabled={lektoratLoading}
@@ -522,16 +535,16 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
           <button
             onClick={onToggleFullscreen}
             title={isFullscreen ? "Fokusmodus beenden (Esc)" : "Fokusmodus (⌘⇧F)"}
-            className={`h-7 w-7 rounded-md transition-all duration-150 flex items-center justify-center shrink-0 ${
+            className={`${b ? "h-8 w-8 rounded-lg" : "h-7 w-7 rounded-md"} transition-all duration-150 flex items-center justify-center shrink-0 ${
               isFullscreen
                 ? "text-stone-700 bg-stone-100"
                 : "text-stone-400 hover:bg-stone-100 hover:text-stone-600"
             }`}
           >
             {isFullscreen ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
             ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
             )}
           </button>
         )}
