@@ -257,7 +257,14 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     return true;
   });
 
-  const text = editor.getText();
+  let text = editor.getText();
+  // Include excursus titles (stored as node attributes, not in getText())
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === "excursus" && node.attrs.title) {
+      text += " " + node.attrs.title;
+    }
+    return true;
+  });
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   const minutes = Math.max(1, Math.ceil(words / 200));
 
