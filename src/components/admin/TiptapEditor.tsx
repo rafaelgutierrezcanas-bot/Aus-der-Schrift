@@ -243,7 +243,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
     setImportText("");
   }
 
-  // Collect footnotes for the footnote list
+  // Collect footnotes for the footnote list (including from excursus blocks)
   const footnotes: Array<{ sourceId?: string; text: string; pages?: string }> = [];
   editor.state.doc.descendants((node) => {
     if (node.type.name === "footnote") {
@@ -252,6 +252,25 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
         text: node.attrs.text ?? "",
         pages: node.attrs.pages ?? undefined,
       });
+    }
+    // Excursus is atom — footnotes are inside the content JSON attr
+    if (node.type.name === "excursus" && node.attrs.content) {
+      try {
+        const blocks = typeof node.attrs.content === "string"
+          ? JSON.parse(node.attrs.content)
+          : node.attrs.content;
+        for (const block of blocks) {
+          for (const child of block.children ?? []) {
+            if (child._type === "footnote") {
+              footnotes.push({
+                sourceId: child.sourceId ?? undefined,
+                text: child.text ?? "",
+                pages: child.pages ?? undefined,
+              });
+            }
+          }
+        }
+      } catch { /* ignore parse errors */ }
     }
     return true;
   });
