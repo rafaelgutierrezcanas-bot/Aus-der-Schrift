@@ -47,7 +47,7 @@ function TBtn({
       onClick={onClick}
       title={title}
       disabled={disabled}
-      className={`${big ? "h-8 min-w-8 px-2.5 gap-1.5 rounded-lg text-[13px]" : "h-7 min-w-7 px-1.5 rounded-md text-xs"} font-medium transition-all duration-150 inline-flex items-center justify-center ${
+      className={`${big ? "h-8 min-w-8 px-2.5 gap-1.5 rounded-lg text-[13px]" : "h-7 min-w-7 px-1.5 rounded-md text-xs"} font-medium transition-all duration-150 inline-flex items-center justify-center whitespace-nowrap ${
         active
           ? "bg-stone-800 text-white"
           : "text-stone-500 hover:bg-stone-100 hover:text-stone-700"
@@ -259,7 +259,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
 
   return (
     <div className={`z-20 border-b border-stone-100 bg-white/95 backdrop-blur-md ${b ? "" : "sticky top-0"}`} style={{ fontFamily: "var(--font-sans)" }}>
-      <div className={`flex items-center ${b ? "gap-1 px-6 py-2.5 max-w-[64rem] mx-auto" : "gap-0.5 px-2.5 py-1.5"}`}>
+      <div className={`flex items-center ${b ? "flex-wrap gap-1 px-6 py-2.5" : "gap-0.5 px-2.5 py-1.5"}`}>
         {/* ── Undo / Redo ─── */}
         <TBtn big={b} active={false} onClick={() => editor.chain().focus().undo().run()} title="Rückgängig (⌘Z)" disabled={!editor.can().undo()} label={b ? "Undo" : undefined}>
           <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -297,7 +297,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
         <TBtn big={b} active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Aufzählung" label={b ? "Liste" : undefined}>
           <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
         </TBtn>
-        <TBtn big={b} active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Nummerierte Liste" label={b ? "1. 2. 3." : undefined}>
+        <TBtn big={b} active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Nummerierte Liste" label={b ? "Num." : undefined}>
           <svg width={ico} height={ico} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><text x="2" y="8" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">1</text><text x="2" y="14" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">2</text><text x="2" y="20" fontSize="7" fill="currentColor" stroke="none" fontFamily="sans-serif">3</text></svg>
         </TBtn>
 
