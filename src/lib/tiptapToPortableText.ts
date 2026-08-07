@@ -55,10 +55,10 @@ function headingStyle(level: number): string {
   return map[level] ?? "normal";
 }
 
-export function tiptapToPortableText(doc: TipTapNode): unknown[] {
+function convertNodes(nodes: TipTapNode[]): unknown[] {
   const blocks: unknown[] = [];
 
-  for (const node of doc.content ?? []) {
+  for (const node of nodes) {
     if (node.type === "paragraph") {
       const markDefs: MarkDef[] = [];
       blocks.push({
@@ -119,16 +119,11 @@ export function tiptapToPortableText(doc: TipTapNode): unknown[] {
         translation: node.attrs?.translation ?? "",
       });
     } else if (node.type === "excursus") {
-      let parsedContent: unknown[] = [];
-      try {
-        const raw = node.attrs?.content;
-        parsedContent = typeof raw === "string" ? JSON.parse(raw) : (raw ?? []);
-      } catch { /* empty */ }
       blocks.push({
         _type: "excursus",
         _key: crypto.randomUUID(),
         title: node.attrs?.title ?? "",
-        content: parsedContent,
+        content: node.content ? convertNodes(node.content) : [],
       });
     } else if (node.type === "image" || node.type === "imageBlock") {
       if (node.attrs?.sanityRef) {
@@ -145,4 +140,8 @@ export function tiptapToPortableText(doc: TipTapNode): unknown[] {
   }
 
   return blocks;
+}
+
+export function tiptapToPortableText(doc: TipTapNode): unknown[] {
+  return convertNodes(doc.content ?? []);
 }

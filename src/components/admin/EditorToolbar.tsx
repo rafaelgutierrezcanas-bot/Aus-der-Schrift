@@ -173,7 +173,8 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
   function addExcursus() {
     editor.chain().focus().insertContent({
       type: "excursus",
-      attrs: { title: "", content: "[]" },
+      attrs: { title: "" },
+      content: [{ type: "paragraph" }],
     }).run();
   }
 

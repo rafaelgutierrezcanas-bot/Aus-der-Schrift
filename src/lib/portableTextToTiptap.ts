@@ -45,7 +45,7 @@ function convertSpans(children: PTSpan[] = [], markDefs: PTMarkDef[] = []) {
   });
 }
 
-export function portableTextToTiptap(blocks: PTBlock[]) {
+function convertBlocks(blocks: PTBlock[]): unknown[] {
   const content: unknown[] = [];
 
   for (let i = 0; i < blocks.length; i++) {
@@ -99,12 +99,14 @@ export function portableTextToTiptap(blocks: PTBlock[]) {
         },
       });
     } else if (block._type === "excursus") {
+      const excursusContent = (block as Record<string, unknown>).content as PTBlock[] | undefined;
+      const innerNodes = excursusContent ? convertBlocks(excursusContent) : [{ type: "paragraph" }];
       content.push({
         type: "excursus",
         attrs: {
           title: (block as Record<string, unknown>).title ?? "",
-          content: JSON.stringify((block as Record<string, unknown>).content ?? []),
         },
+        content: innerNodes.length > 0 ? innerNodes : [{ type: "paragraph" }],
       });
     } else if (block._type === "image") {
       content.push({
@@ -118,5 +120,9 @@ export function portableTextToTiptap(blocks: PTBlock[]) {
     }
   }
 
-  return { type: "doc", content };
+  return content;
+}
+
+export function portableTextToTiptap(blocks: PTBlock[]) {
+  return { type: "doc", content: convertBlocks(blocks) };
 }
