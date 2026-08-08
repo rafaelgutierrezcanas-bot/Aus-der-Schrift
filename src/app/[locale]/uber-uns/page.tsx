@@ -1,9 +1,22 @@
+import { client } from "@/sanity/client";
+import { PortableTextRenderer } from "@/components/PortableTextRenderer";
+
+const pageQuery = `*[_type == "page" && slug.current == "uber-uns"][0]{
+  titleDe, titleEn, bodyDe, bodyEn
+}`;
+
 export default async function AboutPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const page = await client.fetch(pageQuery);
+
+  const title = locale === "de"
+    ? (page?.titleDe ?? "Über Theologik")
+    : (page?.titleEn ?? "About Theologik");
+  const body = locale === "de" ? page?.bodyDe : page?.bodyEn;
 
   return (
     <div className="max-w-prose mx-auto px-6 py-16">
@@ -11,10 +24,12 @@ export default async function AboutPage({
         className="text-3xl font-bold mb-8"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        {locale === "de" ? "Über Theologik" : "About Theologik"}
+        {title}
       </h1>
       <div className="space-y-5 text-[1.0625rem] leading-relaxed" style={{ fontFamily: "var(--font-body-serif)" }}>
-        {locale === "de" ? (
+        {body ? (
+          <PortableTextRenderer value={body} locale={locale} />
+        ) : locale === "de" ? (
           <>
             <p>
               <em>Theologik</em> ist ein theologischer Blog, der fundierte Artikel zu

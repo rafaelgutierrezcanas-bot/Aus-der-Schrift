@@ -1,5 +1,11 @@
 import Script from "next/script";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { client } from "@/sanity/client";
+import { PortableTextRenderer } from "@/components/PortableTextRenderer";
+
+const pageQuery = `*[_type == "page" && slug.current == "zu-meiner-person"][0]{
+  titleDe, titleEn, bodyDe, bodyEn
+}`;
 
 export default async function ZuMeinerPersonPage({
   params,
@@ -7,6 +13,12 @@ export default async function ZuMeinerPersonPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const page = await client.fetch(pageQuery);
+
+  const title = locale === "de"
+    ? (page?.titleDe ?? "Herzlich willkommen bei Theologik!")
+    : (page?.titleEn ?? "Welcome to Theologik!");
+  const body = locale === "de" ? page?.bodyDe : page?.bodyEn;
 
   const personJsonLd = {
     "@context": "https://schema.org",
@@ -42,15 +54,15 @@ export default async function ZuMeinerPersonPage({
         className="text-3xl font-bold mb-8"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        {locale === "de"
-          ? <>Herzlich willkommen bei <em>Theologik</em>!</>
-          : <>Welcome to <em>Theologik</em>!</>}
+        {title}
       </h1>
       <div
         className="space-y-5 text-[1.0625rem] leading-relaxed"
         style={{ fontFamily: "var(--font-body-serif)" }}
       >
-        {locale === "de" ? (
+        {body ? (
+          <PortableTextRenderer value={body} locale={locale} />
+        ) : locale === "de" ? (
           <>
             <p>
               Ich bin Rafael — und auf diesem Blog teile ich, was mich an Bibel,

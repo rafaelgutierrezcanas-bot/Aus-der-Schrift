@@ -11,6 +11,7 @@ import quote from "./quote";
 import ausarbeitung from "./ausarbeitung";
 import infografik from "./infografik";
 import comment from "./comment";
+import page from "./page";
 
 export const schemaTypes = [
   article, category, author, source, idea, project,
@@ -18,4 +19,5 @@ export const schemaTypes = [
   bookRecommendation, quote,
   ausarbeitung, infografik,
   comment,
+  page,
 ];
