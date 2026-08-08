@@ -97,11 +97,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning className={`${playfair.variable} ${sourceSerif.variable} ${inter.variable}`}>
       <head>
-        <meta
-          name="impact-site-verification"
-          // eslint-disable-next-line react/no-unknown-property
-          {...({ value: "02a11cee-c8e2-44e0-8a36-f4475803f8a3" } as React.HTMLAttributes<HTMLMetaElement>)}
-        />
+        <meta name="impact-site-verification" content="77991db2-cd12-4c51-a3a0-994289075975" />
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
