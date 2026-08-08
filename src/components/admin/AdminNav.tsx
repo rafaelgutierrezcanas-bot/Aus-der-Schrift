@@ -95,6 +95,14 @@ function ChatIcon() {
     </svg>
   );
 }
+function PageIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 1h6l3 3v10H3V1z"/>
+      <path d="M9 1v3h3"/>
+    </svg>
+  );
+}
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: GridIcon, exact: true },
@@ -108,6 +116,7 @@ const navItems = [
   { href: "/admin/ausarbeitungen", label: "Ausarbeitungen", Icon: FileTextIcon },
   { href: "/admin/infografiken", label: "Infografiken", Icon: ImageIcon },
   { href: "/admin/kommentare", label: "Kommentare", Icon: ChatIcon },
+  { href: "/admin/seiten", label: "Seiten", Icon: PageIcon },
 ];
 
 export function AdminNav() {
