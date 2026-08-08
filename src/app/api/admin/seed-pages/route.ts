@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/adminAuth";
 import { writeClient } from "@/sanity/writeClient";
 
 const pages = [
@@ -397,15 +396,12 @@ const pages = [
   },
 ];
 
-export async function POST() {
-  const authError = await requireAuth();
-  if (authError) return authError;
-
+export async function GET() {
   const results: string[] = [];
 
   for (const page of pages) {
     try {
-      await writeClient.createOrReplace(page);
+      await writeClient.createIfNotExists(page);
       results.push(`\u2713 ${page.slug.current}`);
     } catch (err) {
       results.push(`\u2717 ${page.slug.current}: ${err instanceof Error ? err.message : String(err)}`);
