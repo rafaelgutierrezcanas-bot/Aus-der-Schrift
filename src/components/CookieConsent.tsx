@@ -55,51 +55,55 @@ export function CookieConsent({ locale }: { locale: string }) {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-[9999] p-4"
+      className="fixed bottom-4 left-4 z-[9999]"
       role="dialog"
       aria-label={isDE ? "Cookie-Einstellungen" : "Cookie settings"}
     >
       <div
-        className="max-w-lg mx-auto rounded-lg border shadow-lg px-5 py-4 flex flex-col gap-3"
+        className="max-w-xs rounded-md border shadow-md px-4 py-3 flex items-center gap-3"
         style={{
           background: "var(--color-surface, #fff)",
           borderColor: "var(--color-border, #e5e5e5)",
           fontFamily: "var(--font-sans)",
         }}
       >
-        <p className="text-sm leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-          {isDE
-            ? "Diese Website verwendet Vercel Analytics zur anonymisierten Auswertung der Seitenaufrufe. Es werden keine Cookies gesetzt, aber Nutzungsdaten an Vercel übermittelt."
-            : "This website uses Vercel Analytics for anonymized page view analysis. No cookies are set, but usage data is transmitted to Vercel."}
+        <p className="text-[11px] leading-snug" style={{ color: "var(--color-muted)" }}>
+          {isDE ? (
+            <>
+              Diese Seite nutzt anonymisierte Analyse.{" "}
+              <Link href={`/${locale}/datenschutz`} className="underline hover:text-[var(--color-accent)]">
+                Mehr
+              </Link>
+            </>
+          ) : (
+            <>
+              This site uses anonymized analytics.{" "}
+              <Link href={`/${locale}/datenschutz`} className="underline hover:text-[var(--color-accent)]">
+                Learn more
+              </Link>
+            </>
+          )}
         </p>
-        <p className="text-xs" style={{ color: "var(--color-muted)" }}>
-          <Link
-            href={`/${locale}/datenschutz`}
-            className="underline hover:text-[var(--color-accent)]"
-          >
-            {isDE ? "Datenschutzerklärung" : "Privacy Policy"}
-          </Link>
-        </p>
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-1.5 shrink-0">
           <button
             onClick={decline}
-            className="px-4 py-1.5 text-xs rounded-md border transition-colors hover:bg-[var(--color-muted)]/10"
+            className="px-2.5 py-1 text-[11px] rounded border transition-colors hover:bg-[var(--color-muted)]/10"
             style={{
               borderColor: "var(--color-border)",
               color: "var(--color-muted)",
             }}
           >
-            {isDE ? "Ablehnen" : "Decline"}
+            {isDE ? "Nein" : "No"}
           </button>
           <button
             onClick={accept}
-            className="px-4 py-1.5 text-xs rounded-md font-medium transition-opacity hover:opacity-80"
+            className="px-2.5 py-1 text-[11px] rounded font-medium transition-opacity hover:opacity-80"
             style={{
               background: "var(--color-accent)",
               color: "#fff",
             }}
           >
-            {isDE ? "Akzeptieren" : "Accept"}
+            OK
           </button>
         </div>
       </div>

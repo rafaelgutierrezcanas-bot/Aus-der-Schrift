@@ -97,10 +97,18 @@ export default async function LocaleLayout({
 
   {/* Colophon bottom bar */}
   <div className="border-t border-border">
-    <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
+    <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-3">
       <p className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
         © {new Date().getFullYear()} Theologik
       </p>
+      <div className="flex items-center gap-4" style={{ fontFamily: "var(--font-sans)" }}>
+        <a href={`/${locale}/datenschutz`} className="text-[11px] text-muted hover:text-accent transition-colors">
+          {locale === "de" ? "Datenschutz" : "Privacy"}
+        </a>
+        <a href={`/${locale}/impressum`} className="text-[11px] text-muted hover:text-accent transition-colors">
+          {locale === "de" ? "Impressum" : "Legal"}
+        </a>
+      </div>
       <p className="text-[11px] text-muted/70 italic" style={{ fontFamily: "var(--font-body-serif)" }}>
         {locale === "de"
           ? "\u201eDein Wort ist meines Fu\u00dfes Leuchte und ein Licht auf meinem Wege.\u201c \u2014 Ps 119,105"
