@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 interface CommentFormProps {
   articleId: string;
@@ -148,6 +149,29 @@ export function CommentForm({ articleId, locale }: CommentFormProps) {
           {errorMsg}
         </p>
       )}
+
+      <p
+        className="text-[11px] leading-relaxed"
+        style={{ color: "var(--color-muted)", fontFamily: "var(--font-sans)" }}
+      >
+        {isDE ? (
+          <>
+            Mit dem Absenden stimmst du der Speicherung deines Namens und Kommentars zu.
+            Deine E-Mail wird nur zur Kontaktaufnahme bei Rückfragen verwendet.{" "}
+            <Link href={`/${locale}/datenschutz`} className="underline hover:text-[var(--color-accent)]">
+              Datenschutzerklärung
+            </Link>
+          </>
+        ) : (
+          <>
+            By submitting, you agree to the storage of your name and comment.
+            Your email is only used for follow-up questions.{" "}
+            <Link href={`/${locale}/datenschutz`} className="underline hover:text-[var(--color-accent)]">
+              Privacy Policy
+            </Link>
+          </>
+        )}
+      </p>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <button
