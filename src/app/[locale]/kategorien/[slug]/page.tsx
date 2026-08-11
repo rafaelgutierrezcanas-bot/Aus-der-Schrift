@@ -71,9 +71,11 @@ export async function generateMetadata({
         description,
         url: absoluteUrl(path),
         locale: locale === "de" ? "de_DE" : "en_US",
+        siteName: "Theologik",
+        images: [{ url: absoluteUrl("/opengraph-image"), width: 1200, height: 630 }],
       },
       twitter: {
-        card: "summary",
+        card: "summary_large_image",
         title,
         description,
       },

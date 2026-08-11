@@ -25,6 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: staticLastMod,
       changeFrequency: path === "" || path === "/blog" ? "weekly" : "monthly",
       priority: path === "" ? 1 : path === "/blog" ? 0.9 : 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          SUPPORTED_LOCALES.map((l) => [l, absoluteUrl(`/${l}${path}`)])
+        ),
+      },
     }))
   );
 
@@ -42,12 +47,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     articleEntries = SUPPORTED_LOCALES.flatMap((locale) =>
-      (articles as Array<{ slug: string; slugEn?: string; publishedAt?: string; _updatedAt?: string }>).map(({ slug, slugEn, publishedAt, _updatedAt }): MetadataRoute.Sitemap[number] => ({
-        url: absoluteUrl(`/${locale}/blog/${locale === "en" && slugEn ? slugEn : slug}`),
-        lastModified: _updatedAt ? new Date(_updatedAt) : publishedAt ? new Date(publishedAt) : new Date(),
-        changeFrequency: "weekly",
-        priority: 0.8,
-      }))
+      (articles as Array<{ slug: string; slugEn?: string; publishedAt?: string; _updatedAt?: string }>).map(({ slug, slugEn, publishedAt, _updatedAt }): MetadataRoute.Sitemap[number] => {
+        const deSlug = slug;
+        const enSlug = slugEn || slug;
+        return {
+          url: absoluteUrl(`/${locale}/blog/${locale === "en" ? enSlug : deSlug}`),
+          lastModified: _updatedAt ? new Date(_updatedAt) : publishedAt ? new Date(publishedAt) : new Date(),
+          changeFrequency: "weekly",
+          priority: 0.8,
+          alternates: {
+            languages: {
+              de: absoluteUrl(`/de/blog/${deSlug}`),
+              en: absoluteUrl(`/en/blog/${enSlug}`),
+            },
+          },
+        };
+      })
     );
 
     categoryEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -61,6 +76,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: category._updatedAt ? new Date(category._updatedAt) : staticLastMod,
         changeFrequency: "weekly",
         priority: 0.75,
+        alternates: {
+          languages: Object.fromEntries(
+            SUPPORTED_LOCALES.map((l) => [l, absoluteUrl(`/${l}/kategorien/${category.slug.current}`)])
+          ),
+        },
       }))
     );
     projectEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -69,6 +89,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: _updatedAt ? new Date(_updatedAt) : staticLastMod,
         changeFrequency: "monthly",
         priority: 0.7,
+        alternates: {
+          languages: Object.fromEntries(
+            SUPPORTED_LOCALES.map((l) => [l, absoluteUrl(`/${l}/projekte/${slug}`)])
+          ),
+        },
       }))
     );
     infografikEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -77,6 +102,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: publishedAt ? new Date(publishedAt) : new Date(),
         changeFrequency: "monthly",
         priority: 0.75,
+        alternates: {
+          languages: Object.fromEntries(
+            SUPPORTED_LOCALES.map((l) => [l, absoluteUrl(`/${l}/infografiken/${slug}`)])
+          ),
+        },
       }))
     );
   } catch {
