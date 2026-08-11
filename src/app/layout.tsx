@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import { Playfair_Display, Source_Serif_4, Inter } from "next/font/google";
 import { absoluteUrl, SITE_NAME, SITE_TITLE } from "@/lib/site";
-import { ConditionalAnalytics } from "@/components/ConditionalAnalytics";
+import { Analytics } from "@vercel/analytics/react";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 
@@ -102,7 +102,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
-          <ConditionalAnalytics />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

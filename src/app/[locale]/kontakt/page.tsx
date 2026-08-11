@@ -1,5 +1,6 @@
 import { client } from "@/sanity/client";
 import { PortableTextRenderer } from "@/components/PortableTextRenderer";
+import { ContactForm } from "@/components/ContactForm";
 
 const pageQuery = `*[_type == "page" && slug.current == "kontakt"][0]{
   titleDe, titleEn, bodyDe, bodyEn
@@ -57,91 +58,7 @@ export default async function KontaktPage({
       )}
 
       {/* Contact form */}
-      <form
-        action={`mailto:info@theologik.org`}
-        method="get"
-        className="space-y-6"
-      >
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-xs font-medium uppercase tracking-widest text-muted mb-2"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {locale === "de" ? "Name" : "Name"} *
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            className="w-full px-4 py-2.5 border border-border rounded-sm bg-surface/40 text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
-            style={{ fontFamily: "var(--font-sans)" }}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-xs font-medium uppercase tracking-widest text-muted mb-2"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {locale === "de" ? "E-Mail-Adresse" : "Email address"} *
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="w-full px-4 py-2.5 border border-border rounded-sm bg-surface/40 text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
-            style={{ fontFamily: "var(--font-sans)" }}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="subject"
-            className="block text-xs font-medium uppercase tracking-widest text-muted mb-2"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {locale === "de" ? "Betreff" : "Subject"} *
-          </label>
-          <input
-            id="subject"
-            name="subject"
-            type="text"
-            required
-            className="w-full px-4 py-2.5 border border-border rounded-sm bg-surface/40 text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
-            style={{ fontFamily: "var(--font-sans)" }}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="body"
-            className="block text-xs font-medium uppercase tracking-widest text-muted mb-2"
-            style={{ fontFamily: "var(--font-sans)" }}
-          >
-            {locale === "de" ? "Nachricht" : "Message"} *
-          </label>
-          <textarea
-            id="body"
-            name="body"
-            rows={6}
-            required
-            className="w-full px-4 py-2.5 border border-border rounded-sm bg-surface/40 text-foreground text-sm focus:outline-none focus:border-accent transition-colors resize-none"
-            style={{ fontFamily: "var(--font-sans)" }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="px-6 py-2.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition-colors text-xs"
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          {locale === "de" ? "Nachricht senden" : "Send message"}
-        </button>
-      </form>
+      <ContactForm locale={locale} />
     </div>
   );
 }

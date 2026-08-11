@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/Header";
 import { TheologikLogo } from "@/components/TheologikLogo";
-import { CookieConsent } from "@/components/CookieConsent";
+
 
 export default async function LocaleLayout({
   children,
@@ -21,7 +21,6 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages}>
       <Header locale={locale} />
       <main className="min-h-screen pt-16">{children}</main>
-      <CookieConsent locale={locale} />
       <footer className="border-t border-border">
   {/* Main footer */}
   <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">

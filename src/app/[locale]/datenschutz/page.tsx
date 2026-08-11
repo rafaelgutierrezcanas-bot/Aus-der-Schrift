@@ -106,21 +106,16 @@ export default async function DatenschutzPage({
         </Section>
 
         {/* 4. Webanalyse */}
-        <Section title={isDE ? "4. Webanalyse (Vercel Analytics)" : "4. Web Analytics (Vercel Analytics)"}>
+        <Section title={isDE ? "4. Webanalyse" : "4. Web Analytics"}>
           <p>
             {isDE
-              ? "Diese Website nutzt Vercel Analytics, einen datenschutzfreundlichen Analysedienst von Vercel Inc. Vercel Analytics verwendet keine Cookies und erfasst keine personenbezogenen Daten. Es werden anonymisierte Nutzungsdaten erhoben (Seitenaufrufe, Verweildauer, Referrer, Land)."
-              : "This website uses Vercel Analytics, a privacy-friendly analytics service by Vercel Inc. Vercel Analytics does not use cookies and does not collect personal data. Anonymized usage data is collected (page views, duration, referrer, country)."}
+              ? "Diese Website nutzt Vercel Analytics, einen datenschutzfreundlichen Analysedienst. Vercel Analytics verwendet keine Cookies, speichert keine IP-Adressen und erfasst keine personenbezogenen Daten. Es werden ausschließlich anonymisierte Nutzungsdaten erhoben (Seitenaufrufe, Verweisdauer, Referrer, Land)."
+              : "This website uses Vercel Analytics, a privacy-friendly analytics service. Vercel Analytics does not use cookies, does not store IP addresses and does not collect personal data. Only anonymized usage data is collected (page views, duration, referrer, country)."}
           </p>
           <p>
             {isDE
-              ? "Vercel Analytics wird erst nach deiner Einwilligung über das Cookie-Banner geladen."
-              : "Vercel Analytics is only loaded after your consent via the cookie banner."}
-          </p>
-          <p>
-            {isDE
-              ? 'Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Du kannst deine Einwilligung jederzeit widerrufen, indem du im Cookie-Banner auf \u201EAblehnen\u201C klickst.'
-              : "Legal basis: Art. 6(1)(a) GDPR (consent). You can revoke your consent at any time by clicking \u2018Decline\u2019 in the cookie banner."}
+              ? "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Verbesserung des Webangebots). Ein Cookie-Banner ist nicht erforderlich, da keine Cookies gesetzt und keine personenbezogenen Daten verarbeitet werden."
+              : "Legal basis: Art. 6(1)(f) GDPR (legitimate interest in improving the website). A cookie banner is not required as no cookies are set and no personal data is processed."}
           </p>
         </Section>
 
