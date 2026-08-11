@@ -4,7 +4,7 @@ import { PortableTextRenderer } from "@/components/PortableTextRenderer";
 import { TableOfContents } from "@/components/TableOfContents";
 import { ArticleCard } from "@/components/ArticleCard";
 import { urlFor } from "@/sanity/image";
-import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle, getLocalizedExcerpt, estimateReadingTime } from "@/lib/utils";
+import { formatDate, getLocalizedTitle, getLocalizedCategoryTitle, getLocalizedExcerpt, estimateReadingTime, getLocalizedSlug } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
@@ -70,10 +70,14 @@ function annotateFootnotes(body: unknown[]): { annotated: unknown[]; footnotes: 
 export async function generateStaticParams() {
   try {
     const slugs = await client.fetch(allArticleSlugsQuery);
-    const locales = ["de", "en"];
-    return locales.flatMap((locale) =>
-      (slugs as Array<{ slug: string }>).map(({ slug }) => ({ locale, slug }))
-    );
+    const params: Array<{ locale: string; slug: string }> = [];
+    for (const article of slugs as Array<{ slug: string; slugEn?: string }>) {
+      // DE locale always uses the DE slug
+      params.push({ locale: "de", slug: article.slug });
+      // EN locale uses slugEn if available, otherwise the DE slug
+      params.push({ locale: "en", slug: article.slugEn || article.slug });
+    }
+    return params;
   } catch {
     return [];
   }
@@ -110,9 +114,14 @@ export async function generateMetadata({
     const imageUrl = article.featuredImage
       ? urlFor(article.featuredImage as Parameters<typeof urlFor>[0]).width(1200).height(630).url()
       : undefined;
-    const path = localePath(locale, `/blog/${slug}`);
+    const canonicalSlug = getLocalizedSlug(article, locale);
+    const path = localePath(locale, `/blog/${canonicalSlug || slug}`);
 
     const authorName = (article.author as { name?: string } | null)?.name ?? "Rafael Gutierrez";
+
+    // Build locale alternates with correct slug per locale
+    const deSlug = (article.slug as { current: string })?.current || slug;
+    const enSlug = (article.slugEn as { current: string })?.current || deSlug;
 
     return {
       title: seoTitle,
@@ -120,7 +129,11 @@ export async function generateMetadata({
       authors: [{ name: authorName, url: absoluteUrl(`/${locale}/zu-meiner-person`) }],
       alternates: {
         canonical: path,
-        ...getLocaleAlternates(`/blog/${slug}`),
+        languages: {
+          de: localePath("de", `/blog/${deSlug}`),
+          en: localePath("en", `/blog/${enSlug}`),
+          "x-default": localePath("de", `/blog/${deSlug}`),
+        },
       },
       openGraph: {
         type: "article",
@@ -171,6 +184,12 @@ export default async function ArticlePage({
     );
     if (redirect) permanentRedirect(localePath(locale, `/blog/${redirect.slug.current}`));
     notFound();
+  }
+
+  // Redirect to the canonical slug for this locale if the URL uses the wrong one
+  const canonicalSlug = getLocalizedSlug(article, locale);
+  if (canonicalSlug && canonicalSlug !== slug) {
+    permanentRedirect(localePath(locale, `/blog/${canonicalSlug}`));
   }
 
   const t = await getTranslations("article");
@@ -552,7 +571,7 @@ export default async function ArticlePage({
             {backlinks.map((ref) => (
               <li key={ref._id as string}>
                 <Link
-                  href={`/${locale}/blog/${(ref.slug as { current: string }).current}`}
+                  href={`/${locale}/blog/${getLocalizedSlug(ref, locale)}`}
                   className="text-sm text-accent hover:underline"
                   style={{ fontFamily: "var(--font-body-serif)" }}
                 >

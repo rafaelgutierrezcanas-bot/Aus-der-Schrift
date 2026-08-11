@@ -130,6 +130,12 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
           verseText={result.text}
           translation={result.translation}
           fallbackUrl={result.fallbackUrl}
+          fetchParams={{
+            book: value.ref.book,
+            chapter: value.ref.chapter,
+            verseStart: value.ref.verseStart,
+            verseEnd: value.ref.verseEnd,
+          }}
         />
       );
     },

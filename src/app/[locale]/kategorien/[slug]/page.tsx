@@ -1,6 +1,6 @@
 import { client } from "@/sanity/client";
 import { articlesByCategoryQuery, allCategoriesQuery } from "@/sanity/queries";
-import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, formatDate } from "@/lib/utils";
+import { getLocalizedCategoryTitle, getLocalizedTitle, getLocalizedExcerpt, getLocalizedSlug, formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -154,7 +154,7 @@ export default async function CategoryPage({
         {articles.map((article, i) => {
           const title = getLocalizedTitle(article, locale);
           const excerpt = getLocalizedExcerpt(article, locale);
-          const slug2 = (article.slug as { current: string })?.current;
+          const slug2 = getLocalizedSlug(article, locale);
           const publishedAt = article.publishedAt as string | undefined;
           const isFirst = i === 0;
 

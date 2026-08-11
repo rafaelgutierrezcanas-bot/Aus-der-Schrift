@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import { urlFor } from "@/sanity/image";
-import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, estimateReadingTime } from "@/lib/utils";
+import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, estimateReadingTime, getLocalizedSlug } from "@/lib/utils";
 
 interface ArticleCardProps {
   article: Record<string, unknown>;
@@ -19,7 +19,7 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
   const categorySlug = (category?.slug as { current: string })?.current;
   const difficulty = article.difficulty as string | undefined;
-  const slug = (article.slug as { current: string })?.current;
+  const slug = getLocalizedSlug(article, locale);
   const publishedAt = article.publishedAt as string | undefined;
   const body = (locale === "en" && (article.bodyEn as unknown[])?.length
     ? article.bodyEn

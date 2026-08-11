@@ -33,3 +33,26 @@ export function getLocalizedCategoryTitle(
   if (locale === "en" && category.titleEn) return category.titleEn as string;
   return (category.titleDe || "") as string;
 }
+
+/**
+ * Returns the appropriate article slug for the given locale.
+ * Uses slugEn for English if available, otherwise falls back to the DE slug.
+ */
+export function getLocalizedSlug(
+  article: Record<string, unknown>,
+  locale: string
+): string {
+  const deSlug = (article.slug as { current: string } | string | undefined);
+  const enSlug = (article.slugEn as { current: string } | string | undefined);
+
+  const resolveSlug = (s: { current: string } | string | undefined): string | undefined => {
+    if (!s) return undefined;
+    if (typeof s === "string") return s;
+    return s.current;
+  };
+
+  if (locale === "en") {
+    return resolveSlug(enSlug) || resolveSlug(deSlug) || "";
+  }
+  return resolveSlug(deSlug) || "";
+}

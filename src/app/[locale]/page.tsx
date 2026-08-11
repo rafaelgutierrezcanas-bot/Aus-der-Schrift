@@ -7,7 +7,7 @@ import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
-import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, formatDate } from "@/lib/utils";
+import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug, formatDate } from "@/lib/utils";
 
 export const revalidate = 600;
 
@@ -162,7 +162,7 @@ export default async function HomePage({
         const featuredCat = featured.category as Record<string, unknown> | null;
         const featuredCatTitle = getLocalizedCategoryTitle(featuredCat, locale);
         const featuredCatSlug = (featuredCat?.slug as { current: string })?.current;
-        const featuredSlug = (featured.slug as { current: string })?.current;
+        const featuredSlug = getLocalizedSlug(featured, locale);
 
         return (
           <section className="border-b border-border">
@@ -221,7 +221,7 @@ export default async function HomePage({
                     const cat = article.category as Record<string, unknown> | null;
                     const catTitle = getLocalizedCategoryTitle(cat, locale);
                     const catSlug = (cat?.slug as { current: string })?.current;
-                    const slug = (article.slug as { current: string })?.current;
+                    const slug = getLocalizedSlug(article, locale);
                     const publishedAt = article.publishedAt as string | undefined;
                     return (
                       <article key={article._id as string} className="group py-6 md:py-0 md:px-6 first:md:pl-0 last:md:pr-0">
@@ -290,7 +290,7 @@ export default async function HomePage({
                 const cat = article.category as Record<string, unknown> | null;
                 const catTitle = getLocalizedCategoryTitle(cat, locale);
                 const catSlug = (cat?.slug as { current: string })?.current;
-                const slug = (article.slug as { current: string })?.current;
+                const slug = getLocalizedSlug(article, locale);
                 const publishedAt = article.publishedAt as string | undefined;
                 return (
                   <article key={article._id as string}

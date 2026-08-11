@@ -6,6 +6,7 @@ interface SeriesArticle {
   titleDe?: string;
   titleEn?: string;
   slug: { current: string };
+  slugEn?: { current: string };
   seriesOrder?: number;
 }
 
@@ -25,7 +26,7 @@ export function SeriesNavigation({
   if (articles.length < 2) return null;
 
   const currentIndex = articles.findIndex(
-    (a) => a.slug.current === currentSlug
+    (a) => a.slug.current === currentSlug || a.slugEn?.current === currentSlug
   );
   if (currentIndex === -1) return null;
 
@@ -37,6 +38,9 @@ export function SeriesNavigation({
 
   const getTitle = (a: SeriesArticle) =>
     locale === "en" && a.titleEn ? a.titleEn : a.titleDe || "";
+
+  const getSlug = (a: SeriesArticle) =>
+    locale === "en" && a.slugEn?.current ? a.slugEn.current : a.slug.current;
 
   return (
     <nav
@@ -87,7 +91,7 @@ export function SeriesNavigation({
       <div className="flex">
         {prev ? (
           <Link
-            href={`/${locale}/blog/${prev.slug.current}`}
+            href={`/${locale}/blog/${getSlug(prev)}`}
             className="flex-1 flex items-center gap-2 px-5 py-3 text-sm hover:bg-muted/5 transition-colors group"
           >
             <ChevronLeft
@@ -119,7 +123,7 @@ export function SeriesNavigation({
 
         {next ? (
           <Link
-            href={`/${locale}/blog/${next.slug.current}`}
+            href={`/${locale}/blog/${getSlug(next)}`}
             className="flex-1 flex items-center justify-end gap-2 px-5 py-3 text-sm hover:bg-muted/5 transition-colors group text-right"
           >
             <div className="min-w-0">

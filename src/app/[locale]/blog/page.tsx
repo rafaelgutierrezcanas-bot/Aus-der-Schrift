@@ -2,7 +2,7 @@ import { client } from "@/sanity/client";
 import { allArticlesQuery, allCategoriesQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getLocalizedCategoryTitle } from "@/lib/utils";
+import { getLocalizedCategoryTitle, getLocalizedSlug } from "@/lib/utils";
 import { BlogSearchList } from "@/components/BlogSearchList";
 import Script from "next/script";
 import type { Metadata } from "next";
@@ -61,7 +61,7 @@ export default async function BlogPage({
         ((locale === "en" && article.titleEn ? article.titleEn : article.titleDe) ||
           article.titleEn ||
           article.titleDe) as string,
-      url: absoluteUrl(`/${locale}/blog/${(article.slug as { current: string }).current}`),
+      url: absoluteUrl(`/${locale}/blog/${getLocalizedSlug(article as Record<string, unknown>, locale)}`),
       datePublished: article.publishedAt,
     })),
   };

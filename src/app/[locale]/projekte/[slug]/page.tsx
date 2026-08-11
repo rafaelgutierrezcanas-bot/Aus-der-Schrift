@@ -3,7 +3,7 @@ import { projectBySlugQuery } from "@/sanity/queries";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle } from "@/lib/utils";
+import { formatDate, getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -205,7 +205,7 @@ export default async function ProjectDetailPage({
                 locale
               );
               const artCategorySlug = ((article.category as Record<string, unknown>)?.slug as { current: string })?.current;
-              const artSlug = (article.slug as { current: string })?.current;
+              const artSlug = getLocalizedSlug(article as Record<string, unknown>, locale);
               const artDate = article.publishedAt as string | undefined;
               return (
                 <article

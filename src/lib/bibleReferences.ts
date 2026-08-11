@@ -135,6 +135,32 @@ export function getBibleServerBook(code: string): string {
   return BIBLESERVER_BOOKS[code] ?? code;
 }
 
+/** bolls.life API numeric book IDs (standard Bible order) */
+const BOOK_NUM_MAP: Record<string, number> = {
+  "1Mo": 1, "2Mo": 2, "3Mo": 3, "4Mo": 4, "5Mo": 5,
+  "Jos": 6, "Ri": 7, "Rut": 8,
+  "1Sam": 9, "2Sam": 10, "1Kön": 11, "2Kön": 12,
+  "1Chr": 13, "2Chr": 14, "Esr": 15, "Neh": 16, "Est": 17,
+  "Hi": 18, "Ps": 19, "Spr": 20, "Pred": 21, "Hld": 22,
+  "Jes": 23, "Jer": 24, "Klgl": 25, "Hes": 26, "Dan": 27,
+  "Hos": 28, "Joel": 29, "Am": 30, "Ob": 31, "Jona": 32,
+  "Mi": 33, "Nah": 34, "Hab": 35, "Zef": 36,
+  "Hag": 37, "Sach": 38, "Mal": 39,
+  "Mt": 40, "Mk": 41, "Lk": 42, "Joh": 43, "Apg": 44,
+  "Röm": 45, "1Kor": 46, "2Kor": 47,
+  "Gal": 48, "Eph": 49, "Phil": 50, "Kol": 51,
+  "1Thess": 52, "2Thess": 53,
+  "1Tim": 54, "2Tim": 55, "Tit": 56, "Phlm": 57,
+  "Hebr": 58, "Jak": 59,
+  "1Petr": 60, "2Petr": 61,
+  "1Joh": 62, "2Joh": 63, "3Joh": 64,
+  "Jud": 65, "Offb": 66,
+};
+
+export function getBookNum(code: string): number | null {
+  return BOOK_NUM_MAP[code] ?? null;
+}
+
 export function parseBibleReferences(text: string): BibleRef[] {
   const results: BibleRef[] = [];
   // Reset regex state

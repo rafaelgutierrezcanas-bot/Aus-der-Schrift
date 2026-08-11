@@ -86,10 +86,17 @@ export default defineType({
     }),
     defineField({
       name: "slug",
-      title: "Slug",
+      title: "Slug (DE)",
       type: "slug",
       options: { source: "titleDe" },
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "slugEn",
+      title: "Slug (EN)",
+      type: "slug",
+      options: { source: "titleEn" },
+      description: "Englischer URL-Slug. Falls leer, wird der deutsche Slug auch für EN-URLs verwendet.",
     }),
     defineField({
       name: "author",

@@ -1,31 +1,71 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface BibleReferenceTooltipProps {
   rawText: string;
   verseText: string | null;
   translation: string;
   fallbackUrl: string;
+  /** Query params for on-demand fetch when verseText is null */
+  fetchParams?: { book: string; chapter: number; verseStart?: number; verseEnd?: number };
 }
 
 export function BibleReferenceTooltip({
   rawText,
-  verseText,
-  translation,
+  verseText: initialVerseText,
+  translation: initialTranslation,
   fallbackUrl,
+  fetchParams,
 }: BibleReferenceTooltipProps) {
   const [open, setOpen] = useState(false);
+  const [verseText, setVerseText] = useState(initialVerseText);
+  const [translation, setTranslation] = useState(initialTranslation);
+  const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState(!!initialVerseText);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
+  const wrapperRef = useRef<HTMLSpanElement>(null);
+
+  // On-demand fetch when tooltip opens and we don't have text yet
+  const fetchVerse = useCallback(async () => {
+    if (fetched || !fetchParams) return;
+    setLoading(true);
+    setFetched(true);
+    try {
+      const params = new URLSearchParams({
+        book: fetchParams.book,
+        chapter: String(fetchParams.chapter),
+      });
+      if (fetchParams.verseStart) params.set("verseStart", String(fetchParams.verseStart));
+      if (fetchParams.verseEnd) params.set("verseEnd", String(fetchParams.verseEnd));
+      const res = await fetch(`/api/bible?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.text) {
+          setVerseText(data.text);
+          if (data.translation) setTranslation(data.translation);
+        }
+      }
+    } catch {
+      // silently fail, fallback link will show
+    }
+    setLoading(false);
+  }, [fetched, fetchParams]);
 
   function show() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setOpen(true);
+    if (!fetched && !verseText) fetchVerse();
   }
   function hide() {
     timeoutRef.current = setTimeout(() => setOpen(false), 150);
   }
   function toggle() {
-    setOpen((prev) => !prev);
+    setOpen((prev) => {
+      const next = !prev;
+      if (next && !fetched && !verseText) fetchVerse();
+      return next;
+    });
   }
 
   useEffect(() => {
@@ -34,8 +74,59 @@ export function BibleReferenceTooltip({
     };
   }, []);
 
+  // Viewport-aware positioning
+  useEffect(() => {
+    if (!open || !tooltipRef.current || !wrapperRef.current) return;
+
+    const tooltip = tooltipRef.current;
+    const wrapper = wrapperRef.current;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    // Reset transforms
+    tooltip.style.left = "50%";
+    tooltip.style.transform = "translateX(-50%)";
+    tooltip.style.bottom = "";
+    tooltip.style.top = "";
+
+    // Check if tooltip overflows left
+    const tooltipLeft = wrapperRect.left + wrapperRect.width / 2 - tooltipRect.width / 2;
+    const tooltipRight = tooltipLeft + tooltipRect.width;
+
+    if (tooltipLeft < 8) {
+      // Shift right so tooltip starts at 8px from left edge
+      const shift = 8 - tooltipLeft;
+      tooltip.style.transform = `translateX(calc(-50% + ${shift}px))`;
+    } else if (tooltipRight > window.innerWidth - 8) {
+      // Shift left so tooltip ends 8px from right edge
+      const shift = tooltipRight - (window.innerWidth - 8);
+      tooltip.style.transform = `translateX(calc(-50% - ${shift}px))`;
+    }
+
+    // Check if tooltip overflows top — if so, show below instead
+    if (wrapperRect.top - tooltipRect.height - 8 < 0) {
+      tooltip.style.bottom = "auto";
+      tooltip.style.top = "100%";
+      tooltip.style.marginTop = "8px";
+      tooltip.style.marginBottom = "0";
+    }
+  }, [open, loading, verseText]);
+
+  // Close on outside tap (mobile)
+  useEffect(() => {
+    if (!open) return;
+    function handleTouchOutside(e: TouchEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("touchstart", handleTouchOutside);
+    return () => document.removeEventListener("touchstart", handleTouchOutside);
+  }, [open]);
+
   return (
     <span
+      ref={wrapperRef}
       className="relative inline"
       onMouseEnter={show}
       onMouseLeave={hide}
@@ -54,8 +145,9 @@ export function BibleReferenceTooltip({
       </span>
       {open && (
         <span
+          ref={tooltipRef}
           role="tooltip"
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 max-w-xs rounded-sm border border-border bg-surface shadow-lg px-3 py-2.5 text-xs leading-relaxed text-foreground"
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 max-w-[calc(100vw-16px)] rounded-sm border border-border bg-surface shadow-lg px-3 py-2.5 text-xs leading-relaxed text-foreground"
           onMouseEnter={show}
           onMouseLeave={hide}
         >
@@ -66,7 +158,14 @@ export function BibleReferenceTooltip({
           >
             {rawText}
           </span>
-          {verseText ? (
+          {loading ? (
+            <span
+              className="block text-muted text-[11px]"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              Wird geladen...
+            </span>
+          ) : verseText ? (
             <>
               <span
                 className="block italic text-[0.8125rem] leading-relaxed"

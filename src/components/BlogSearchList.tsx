@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, formatDate } from "@/lib/utils";
+import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug, formatDate } from "@/lib/utils";
 import { Search, X } from "lucide-react";
 
 interface BlogSearchListProps {
@@ -140,7 +140,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
           const category = article.category as Record<string, unknown> | null;
           const categoryTitle = getLocalizedCategoryTitle(category, locale);
           const categorySlug = (category?.slug as { current: string })?.current;
-          const slug = (article.slug as { current: string })?.current;
+          const slug = getLocalizedSlug(article, locale);
           const publishedAt = article.publishedAt as string | undefined;
           const articleHref = `/${locale}/blog/${slug}`;
           const isFirst = i === 0 && !query && !refFilter;

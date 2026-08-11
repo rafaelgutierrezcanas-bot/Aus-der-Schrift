@@ -6,6 +6,7 @@ export const allArticlesQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     publishedAt,
     excerptDe,
     excerptEn,
@@ -22,7 +23,7 @@ export const allArticlesQuery = groq`
 `;
 
 export const articleBySlugQuery = groq`
-  *[_type == "article" && slug.current == $slug && (status == "published" || !defined(status))][0] {
+  *[_type == "article" && (slug.current == $slug || slugEn.current == $slug) && (status == "published" || !defined(status))][0] {
     _id,
     _updatedAt,
     titleDe,
@@ -30,6 +31,7 @@ export const articleBySlugQuery = groq`
     seoTitleDe,
     seoTitleEn,
     slug,
+    slugEn,
     publishedAt,
     bodyDe,
     bodyEn,
@@ -58,6 +60,7 @@ export const articlesByCategoryQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     publishedAt,
     excerptDe,
     excerptEn,
@@ -79,6 +82,7 @@ export const relatedArticlesQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     publishedAt,
     excerptDe,
     excerptEn,
@@ -104,7 +108,7 @@ export const allCategoriesQuery = groq`
 `;
 
 export const allArticleSlugsQuery = groq`
-  *[_type == "article" && (status == "published" || !defined(status))] { "slug": slug.current, publishedAt, _updatedAt }
+  *[_type == "article" && (status == "published" || !defined(status))] { "slug": slug.current, "slugEn": slugEn.current, publishedAt, _updatedAt }
 `;
 
 export const recommendedArticlesQuery = groq`
@@ -113,6 +117,7 @@ export const recommendedArticlesQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     publishedAt,
     excerptDe,
     excerptEn,
@@ -134,6 +139,7 @@ export const latestArticlesQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     publishedAt,
     excerptDe,
     excerptEn,
@@ -167,6 +173,7 @@ export const projectBySlugQuery = groq`
       titleDe,
       titleEn,
       slug,
+      slugEn,
       publishedAt,
       excerptDe,
       excerptEn,
@@ -206,6 +213,7 @@ export const seriesArticlesQuery = groq`
     titleDe,
     titleEn,
     slug,
+    slugEn,
     seriesOrder
   }
 `;
@@ -217,7 +225,7 @@ export const backlinksQuery = groq`
       count(bodyEn[_type == "block"][count(markDefs[_type == "internalLink" && slug == $slug]) > 0]) > 0
     )
   ] | order(publishedAt desc) [0..9] {
-    _id, titleDe, titleEn, slug, publishedAt
+    _id, titleDe, titleEn, slug, slugEn, publishedAt
   }
 `;
 
