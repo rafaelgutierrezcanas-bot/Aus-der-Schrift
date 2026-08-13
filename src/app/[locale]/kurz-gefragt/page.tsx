@@ -150,7 +150,7 @@ export default async function KurzGefragtIndexPage({
                 </div>
                 {shortAnswer && (
                   <p
-                    className="text-sm text-muted leading-relaxed mb-3 line-clamp-2"
+                    className="text-sm text-muted leading-relaxed mb-3"
                     style={{ fontFamily: "var(--font-body-serif)" }}
                   >
                     {shortAnswer}
