@@ -1,53 +1,53 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { client } from "@/sanity/client";
 
-interface PageItem {
-  _id: string;
-  slug: string;
-  titleDe: string;
-  titleEn?: string;
-}
-
-export default function SeitenPage() {
-  const [pages, setPages] = useState<PageItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/admin/pages")
-      .then((r) => r.json())
-      .then((data) => {
-        setPages(data);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <p className="text-sm text-[var(--color-muted)]" style={{ fontFamily: "var(--font-sans)" }}>Lädt...</p>;
+export default async function SeitenListPage() {
+  const items = await client.fetch(`
+    *[_type == "page"] | order(_updatedAt desc) {
+      _id, titleDe, slug, _updatedAt
+    }
+  `);
 
   return (
-    <div className="max-w-xl" style={{ fontFamily: "var(--font-sans)" }}>
-      <h1 className="font-serif text-2xl text-[var(--color-foreground)] mb-6">Seiten</h1>
-      <p className="text-sm text-[var(--color-muted)] mb-6">
-        Statische Seiten wie Impressum, Über mich, etc. — Inhalte hier bearbeiten.
-      </p>
-      <div className="space-y-2">
-        {pages.map((page) => (
+    <div className="space-y-6" style={{ fontFamily: "var(--font-sans)" }}>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Seiten</h1>
+          <p className="text-xs text-[var(--color-muted)] mt-1">{(items as unknown[]).length} Seiten</p>
+        </div>
+        <Link
+          href="/admin/seiten/neu"
+          className="text-xs px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity font-medium"
+        >
+          + Neue Seite
+        </Link>
+      </div>
+
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+        {(items as unknown[]).length === 0 && (
+          <div className="px-4 py-8 text-center text-sm text-[var(--color-muted)]">
+            Noch keine Seiten vorhanden.
+          </div>
+        )}
+        {(items as Array<Record<string, unknown>>).map((item) => (
           <Link
-            key={page._id}
-            href={`/admin/seiten/${page._id}`}
-            className="flex items-center justify-between p-4 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors"
+            key={item._id as string}
+            href={`/admin/seiten/${item._id}`}
+            className="flex items-center gap-3 px-4 py-3 border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-background)] transition-colors group"
           >
-            <div>
-              <p className="text-sm font-medium text-[var(--color-foreground)]">{page.titleDe}</p>
-              <p className="text-xs text-[var(--color-muted)] mt-0.5">/{page.slug}</p>
-            </div>
-            <span className="text-xs text-[var(--color-muted)]">Bearbeiten →</span>
+            <span className="text-sm text-[var(--color-foreground)] font-medium truncate flex-1 group-hover:text-[var(--color-accent)] transition-colors">
+              {(item.titleDe as string) || "Ohne Titel"}
+            </span>
+            <span className="text-xs text-[var(--color-muted)] shrink-0">
+              /{(item.slug as { current?: string })?.current ?? ""}
+            </span>
+            <span className="text-xs text-[var(--color-muted)] shrink-0 tabular-nums">
+              {item._updatedAt
+                ? new Date(item._updatedAt as string).toLocaleDateString("de-DE", { day: "numeric", month: "short" })
+                : ""}
+            </span>
           </Link>
         ))}
-        {pages.length === 0 && (
-          <p className="text-sm text-[var(--color-muted)]">Keine Seiten vorhanden.</p>
-        )}
       </div>
     </div>
   );

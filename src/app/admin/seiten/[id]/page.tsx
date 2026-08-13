@@ -1,296 +1,175 @@
 "use client";
-
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Placeholder from "@tiptap/extension-placeholder";
-import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
+import dynamic from "next/dynamic";
 import { tiptapToPortableText } from "@/lib/tiptapToPortableText";
+import { portableTextToTiptap } from "@/lib/portableTextToTiptap";
 
-const inputClass =
-  "w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-foreground)] placeholder:text-[var(--color-muted)] outline-none focus:border-[var(--color-accent)]";
-
-type Lang = "de" | "en";
+const TiptapEditor = dynamic(() => import("@/components/admin/TiptapEditor"), { ssr: false });
 
 export default function EditPagePage() {
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
-  const { id } = useParams<{ id: string }>();
+
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [autoSaved, setAutoSaved] = useState<"saved" | "saving" | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasLoadedRef = useRef(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const [titleDe, setTitleDe] = useState("");
   const [titleEn, setTitleEn] = useState("");
   const [slug, setSlug] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [activeLang, setActiveLang] = useState<Lang>("de");
-
-  // Store Portable Text bodies
-  const [bodyDe, setBodyDe] = useState<unknown[] | null>(null);
-  const [bodyEn, setBodyEn] = useState<unknown[] | null>(null);
-
-  const editorDe = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({ placeholder: "Seiteninhalt (DE)..." }),
-    ],
-    editorProps: {
-      attributes: {
-        class:
-          "prose prose-sm max-w-none min-h-[300px] px-4 py-3 outline-none text-[var(--color-foreground)]",
-        style: "font-family: var(--font-body-serif)",
-      },
-    },
-    onUpdate({ editor }) {
-      setBodyDe(tiptapToPortableText(editor.getJSON()));
-      setSaved(false);
-    },
-  });
-
-  const editorEn = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({ placeholder: "Page content (EN)..." }),
-    ],
-    editorProps: {
-      attributes: {
-        class:
-          "prose prose-sm max-w-none min-h-[300px] px-4 py-3 outline-none text-[var(--color-foreground)]",
-        style: "font-family: var(--font-body-serif)",
-      },
-    },
-    onUpdate({ editor }) {
-      setBodyEn(tiptapToPortableText(editor.getJSON()));
-      setSaved(false);
-    },
-  });
+  const [bodyDe, setBodyDe] = useState<object | null>(null);
+  const [bodyEn, setBodyEn] = useState<object | null>(null);
 
   useEffect(() => {
-    fetch(`/api/admin/pages/${id}`)
+    fetch(`/api/admin/seiten/${id}`)
       .then((r) => r.json())
-      .then((page) => {
-        setTitleDe(page.titleDe ?? "");
-        setTitleEn(page.titleEn ?? "");
-        setSlug(page.slug ?? "");
-        if (page.bodyDe && editorDe) {
-          const tiptap = portableTextToTiptap(page.bodyDe);
-          editorDe.commands.setContent(tiptap as Parameters<typeof editorDe.commands.setContent>[0]);
-          setBodyDe(page.bodyDe);
-        }
-        if (page.bodyEn && editorEn) {
-          const tiptap = portableTextToTiptap(page.bodyEn);
-          editorEn.commands.setContent(tiptap as Parameters<typeof editorEn.commands.setContent>[0]);
-          setBodyEn(page.bodyEn);
-        }
-        setLoading(false);
+      .then((item) => {
+        setTitleDe(item.titleDe ?? "");
+        setTitleEn(item.titleEn ?? "");
+        setSlug(item.slug?.current ?? "");
+        if (item.bodyDe) setBodyDe(portableTextToTiptap(item.bodyDe));
+        if (item.bodyEn) setBodyEn(portableTextToTiptap(item.bodyEn));
+        setLoaded(true);
       });
-  }, [id, editorDe, editorEn]);
+  }, [id]);
 
-  const save = useCallback(async () => {
+  useEffect(() => {
+    if (loaded) {
+      const t = setTimeout(() => { hasLoadedRef.current = true; }, 200);
+      return () => clearTimeout(t);
+    }
+  }, [loaded]);
+
+  // Auto-save
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    setAutoSaved(null);
+    autoSaveTimer.current = setTimeout(async () => {
+      setAutoSaved("saving");
+      try {
+        const patch = buildPatch();
+        await fetch(`/api/admin/seiten/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        });
+        setAutoSaved("saved");
+      } catch {
+        setAutoSaved(null);
+      }
+    }, 2000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [titleDe, titleEn, bodyDe, bodyEn]);
+
+  function buildPatch() {
+    const convertedDe = bodyDe ? tiptapToPortableText(bodyDe as Parameters<typeof tiptapToPortableText>[0]) : undefined;
+    const convertedEn = bodyEn ? tiptapToPortableText(bodyEn as Parameters<typeof tiptapToPortableText>[0]) : undefined;
+    const patch: Record<string, unknown> = {
+      titleDe,
+      titleEn: titleEn || null,
+      slug: { _type: "slug", current: slug },
+      bodyDe: Array.isArray(convertedDe) && convertedDe.length > 0 ? convertedDe : undefined,
+      bodyEn: Array.isArray(convertedEn) && convertedEn.length > 0 ? convertedEn : undefined,
+    };
+    return patch;
+  }
+
+  async function handleSave() {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     setSaving(true);
-    await fetch(`/api/admin/pages/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        titleDe: titleDe.trim(),
-        titleEn: titleEn.trim(),
-        bodyDe,
-        bodyEn,
-      }),
-    });
-    setSaving(false);
-    setSaved(true);
-  }, [id, titleDe, titleEn, bodyDe, bodyEn]);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/seiten/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildPatch()),
+      });
+      if (!res.ok) throw new Error("Speichern fehlgeschlagen");
+      router.push("/admin/seiten");
+    } catch {
+      setError("Fehler beim Speichern. Bitte erneut versuchen.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
-  if (loading)
-    return (
-      <p
-        className="text-sm text-[var(--color-muted)]"
-        style={{ fontFamily: "var(--font-sans)" }}
-      >
-        Lädt...
-      </p>
-    );
+  async function handleDelete() {
+    try {
+      const res = await fetch(`/api/admin/seiten/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Löschen fehlgeschlagen");
+      router.push("/admin/seiten");
+    } catch {
+      setError("Fehler beim Löschen.");
+      setShowDeleteConfirm(false);
+    }
+  }
 
-  const activeEditor = activeLang === "de" ? editorDe : editorEn;
+  const inputClass = "w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-[var(--color-foreground)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-sm";
+  const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-1.5";
+
+  if (!loaded) return <div className="text-[var(--color-muted)] py-12 text-center text-sm" style={{ fontFamily: "var(--font-sans)" }}>Lädt...</div>;
 
   return (
-    <div className="max-w-3xl" style={{ fontFamily: "var(--font-sans)" }}>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">
-            Seite bearbeiten
-          </h1>
-          <p className="text-xs text-[var(--color-muted)] mt-1">/{slug}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {saved && (
-            <span className="text-xs text-green-600">Gespeichert</span>
+    <div className="space-y-6" style={{ fontFamily: "var(--font-sans)" }}>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="font-serif text-2xl text-[var(--color-foreground)] truncate flex-1">
+          {titleDe || "Seite bearbeiten"}
+        </h1>
+        <div className="flex items-center gap-2 shrink-0">
+          {autoSaved === "saving" && <span className="text-xs text-[var(--color-muted)]">Speichert...</span>}
+          {autoSaved === "saved" && <span className="text-xs text-green-600">Gespeichert</span>}
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-red-700 font-medium">Löschen?</span>
+              <button onClick={handleDelete} className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Ja</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">Nein</button>
+            </div>
+          ) : (
+            <button onClick={() => setShowDeleteConfirm(true)} className="text-xs px-3 py-1.5 rounded-lg text-[var(--color-muted)] hover:text-red-600 transition-colors">
+              Löschen
+            </button>
           )}
-          <button
-            onClick={save}
-            disabled={saving}
-            className="px-6 py-2.5 rounded-lg bg-[var(--color-accent)] text-white text-sm hover:opacity-90 disabled:opacity-50"
-          >
-            {saving ? "Speichern..." : "Speichern"}
-          </button>
-          <button
-            onClick={() => router.push("/admin/seiten")}
-            className="px-6 py-2.5 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
-          >
-            Zurück
+          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity font-medium">
+            {saving ? "Speichert..." : "Speichern"}
           </button>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">
-              Titel (DE)
-            </label>
-            <input
-              type="text"
-              value={titleDe}
-              onChange={(e) => {
-                setTitleDe(e.target.value);
-                setSaved(false);
-              }}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">
-              Title (EN)
-            </label>
-            <input
-              type="text"
-              value={titleEn}
-              onChange={(e) => {
-                setTitleEn(e.target.value);
-                setSaved(false);
-              }}
-              className={inputClass}
-            />
-          </div>
-        </div>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        {/* Language tabs */}
-        <div className="flex gap-1 border-b border-[var(--color-border)]">
-          {(["de", "en"] as const).map((lang) => (
-            <button
-              key={lang}
-              onClick={() => setActiveLang(lang)}
-              className={`px-4 py-2 text-sm transition-colors border-b-2 -mb-px ${
-                activeLang === lang
-                  ? "border-[var(--color-accent)] text-[var(--color-accent)] font-medium"
-                  : "border-transparent text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-              }`}
-            >
-              {lang === "de" ? "Inhalt (DE)" : "Content (EN)"}
-            </button>
-          ))}
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <label className={labelClass}>Titel (DE)</label>
+          <input value={titleDe} onChange={(e) => setTitleDe(e.target.value)} className={inputClass} />
         </div>
-
-        {/* Editor */}
-        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]/40 overflow-hidden">
-          {/* Mini toolbar */}
-          <div className="flex items-center gap-1 px-3 py-2 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-            <ToolbarButton
-              label="B"
-              active={activeEditor?.isActive("bold") ?? false}
-              onClick={() => activeEditor?.chain().focus().toggleBold().run()}
-              bold
-            />
-            <ToolbarButton
-              label="I"
-              active={activeEditor?.isActive("italic") ?? false}
-              onClick={() => activeEditor?.chain().focus().toggleItalic().run()}
-              italic
-            />
-            <span className="w-px h-4 bg-[var(--color-border)] mx-1" />
-            <ToolbarButton
-              label="H2"
-              active={activeEditor?.isActive("heading", { level: 2 }) ?? false}
-              onClick={() =>
-                activeEditor
-                  ?.chain()
-                  .focus()
-                  .toggleHeading({ level: 2 })
-                  .run()
-              }
-            />
-            <ToolbarButton
-              label="H3"
-              active={activeEditor?.isActive("heading", { level: 3 }) ?? false}
-              onClick={() =>
-                activeEditor
-                  ?.chain()
-                  .focus()
-                  .toggleHeading({ level: 3 })
-                  .run()
-              }
-            />
-            <span className="w-px h-4 bg-[var(--color-border)] mx-1" />
-            <ToolbarButton
-              label="•"
-              active={activeEditor?.isActive("bulletList") ?? false}
-              onClick={() =>
-                activeEditor?.chain().focus().toggleBulletList().run()
-              }
-            />
-            <ToolbarButton
-              label="1."
-              active={activeEditor?.isActive("orderedList") ?? false}
-              onClick={() =>
-                activeEditor?.chain().focus().toggleOrderedList().run()
-              }
-            />
-            <ToolbarButton
-              label="❝"
-              active={activeEditor?.isActive("blockquote") ?? false}
-              onClick={() =>
-                activeEditor?.chain().focus().toggleBlockquote().run()
-              }
-            />
-          </div>
-
-          {/* DE editor (shown/hidden) */}
-          <div className={activeLang === "de" ? "" : "hidden"}>
-            <EditorContent editor={editorDe} />
-          </div>
-          <div className={activeLang === "en" ? "" : "hidden"}>
-            <EditorContent editor={editorEn} />
-          </div>
+        <div className="col-span-2">
+          <label className={labelClass}>Title (EN)</label>
+          <input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} className={inputClass} />
         </div>
+        <div className="col-span-2">
+          <label className={labelClass}>Slug</label>
+          <input value={slug} readOnly className={`${inputClass} opacity-60 cursor-not-allowed`} />
+        </div>
+      </div>
+
+      <div>
+        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Inhalt (DE)</h2>
+        <TiptapEditor content={bodyDe} onChange={setBodyDe} placeholder="Seiteninhalt auf Deutsch..." />
+      </div>
+
+      <div>
+        <h2 className="font-serif text-base text-[var(--color-foreground)] mb-3">Content (EN)</h2>
+        <TiptapEditor content={bodyEn} onChange={setBodyEn} placeholder="Page content in English..." />
       </div>
     </div>
-  );
-}
-
-function ToolbarButton({
-  label,
-  active,
-  onClick,
-  bold,
-  italic,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  bold?: boolean;
-  italic?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-2 py-1 rounded text-xs transition-colors ${
-        active
-          ? "bg-[var(--color-accent)] text-white"
-          : "text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-surface)]"
-      } ${bold ? "font-bold" : ""} ${italic ? "italic" : ""}`}
-    >
-      {label}
-    </button>
   );
 }

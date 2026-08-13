@@ -1,5 +1,5 @@
 import { client } from "@/sanity/client";
-import { allKurzGefragtQuery } from "@/sanity/queries";
+import { allKurzGefragtQuery, pageBySlugQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { getLocalizedCategoryTitle, getLocalizedQuestion, formatDate } from "@/lib/utils";
@@ -7,6 +7,7 @@ import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
+import { PortableTextRenderer } from "@/components/PortableTextRenderer";
 
 export const revalidate = 600;
 
@@ -51,6 +52,21 @@ export default async function KurzGefragtIndexPage({
     // empty state
   }
 
+  let pageDoc: Record<string, unknown> | null = null;
+  try {
+    pageDoc = await client.fetch(pageBySlugQuery, { slug: "kurz-gefragt" }, { next: { tags: ["pages"], revalidate: 60 } });
+  } catch {
+    // fallback to translation string
+  }
+
+  const pageBody = pageDoc
+    ? (locale === "en" && Array.isArray(pageDoc.bodyEn) && pageDoc.bodyEn.length > 0
+        ? pageDoc.bodyEn
+        : Array.isArray(pageDoc.bodyDe) && pageDoc.bodyDe.length > 0
+          ? pageDoc.bodyDe
+          : null)
+    : null;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -76,12 +92,18 @@ export default async function KurzGefragtIndexPage({
         >
           {t("title")}
         </h1>
-        <p
-          className="mt-3 text-muted leading-relaxed max-w-2xl"
-          style={{ fontFamily: "var(--font-body-serif)" }}
-        >
-          {t("subtitle")}
-        </p>
+        {pageBody ? (
+          <div className="mt-3 text-muted leading-relaxed max-w-2xl" style={{ fontFamily: "var(--font-body-serif)" }}>
+            <PortableTextRenderer value={pageBody as unknown[]} locale={locale} />
+          </div>
+        ) : (
+          <p
+            className="mt-3 text-muted leading-relaxed max-w-2xl"
+            style={{ fontFamily: "var(--font-body-serif)" }}
+          >
+            {t("subtitle")}
+          </p>
+        )}
       </div>
 
       {/* Questions List */}

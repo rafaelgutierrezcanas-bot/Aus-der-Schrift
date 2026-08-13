@@ -256,6 +256,14 @@ export const allKurzGefragtSlugsQuery = groq`
   }
 `;
 
+// ── Pages ──────────────────────────────────────────────
+
+export const pageBySlugQuery = groq`
+  *[_type == "page" && slug.current == $slug][0] {
+    _id, titleDe, titleEn, bodyDe, bodyEn
+  }
+`;
+
 // ── Hermeneutik ──────────────────────────────────────────
 
 export const allHermeneutikStepsQuery = groq`
