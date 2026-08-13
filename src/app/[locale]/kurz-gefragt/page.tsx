@@ -1,8 +1,8 @@
 import { client } from "@/sanity/client";
-import { allKurzGefragtQuery, allCategoriesQuery } from "@/sanity/queries";
+import { allKurzGefragtQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getLocalizedCategoryTitle, getLocalizedQuestion, getLocalizedShortAnswer, formatDate } from "@/lib/utils";
+import { getLocalizedCategoryTitle, getLocalizedQuestion, formatDate } from "@/lib/utils";
 import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
@@ -38,32 +38,18 @@ export async function generateMetadata({
 
 export default async function KurzGefragtIndexPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ kategorie?: string }>;
 }) {
   const { locale } = await params;
-  const { kategorie } = await searchParams;
   const t = await getTranslations("kurzGefragt");
 
-  let allQuestions: Record<string, unknown>[] = [];
-  let categories: Record<string, unknown>[] = [];
+  let questions: Record<string, unknown>[] = [];
   try {
-    [allQuestions, categories] = await Promise.all([
-      client.fetch(allKurzGefragtQuery, {}, { next: { tags: ["kurzGefragt"], revalidate: 60 } }),
-      client.fetch(allCategoriesQuery, {}, { next: { tags: ["categories"], revalidate: 3600 } }),
-    ]);
+    questions = await client.fetch(allKurzGefragtQuery, {}, { next: { tags: ["kurzGefragt"], revalidate: 60 } });
   } catch {
     // empty state
   }
-
-  const questions = kategorie
-    ? allQuestions.filter((q) => {
-        const cat = q.category as Record<string, unknown> | null;
-        return (cat?.slug as { current: string })?.current === kategorie;
-      })
-    : allQuestions;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -82,7 +68,7 @@ export default async function KurzGefragtIndexPage({
       />
 
       {/* Header */}
-      <div className="mb-10">
+      <div className="mb-12">
         <div className="w-8 h-0.5 bg-accent mb-4" />
         <h1
           className="text-4xl md:text-5xl font-bold leading-tight"
@@ -98,46 +84,13 @@ export default async function KurzGefragtIndexPage({
         </p>
       </div>
 
-      {/* Category Filter Chips */}
-      <div className="overflow-x-auto mb-12 pb-5 border-b border-border">
-        <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-sans)" }}>
-          <Link
-            href={`/${locale}/kurz-gefragt`}
-            className={`text-xs font-semibold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
-              !kategorie
-                ? "bg-accent text-white"
-                : "border border-border text-muted hover:text-foreground"
-            }`}
-          >
-            {t("alleKategorien")}
-          </Link>
-          {categories.map((cat) => {
-            const catSlug = (cat.slug as { current: string })?.current;
-            const isActive = kategorie === catSlug;
-            return (
-              <Link
-                key={cat._id as string}
-                href={`/${locale}/kurz-gefragt?kategorie=${catSlug}`}
-                className={`text-xs font-semibold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors ${
-                  isActive
-                    ? "bg-accent text-white"
-                    : "border border-border text-muted hover:text-foreground"
-                }`}
-              >
-                {getLocalizedCategoryTitle(cat, locale)}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Questions Grid */}
+      {/* Questions List */}
       {questions.length === 0 ? (
         <p className="text-muted text-center py-12" style={{ fontFamily: "var(--font-body-serif)" }}>
-          {kategorie ? t("keineFragenKategorie") : t("keineFragenNoch")}
+          {t("keineFragenNoch")}
         </p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-0 border-t border-border">
           {questions.map((q) => {
             const question = getLocalizedQuestion(q, locale);
             const qSlug = locale === "en" && (q.slugEn as { current: string })?.current
@@ -147,28 +100,41 @@ export default async function KurzGefragtIndexPage({
             const cat = q.category as Record<string, unknown> | null;
             const catTitle = getLocalizedCategoryTitle(cat, locale);
             const publishedAt = q.publishedAt as string | undefined;
+            const shortAnswer = locale === "en"
+              ? (q.shortAnswerEn as string | undefined) || (q.shortAnswerDe as string | undefined)
+              : (q.shortAnswerDe as string | undefined);
 
             return (
               <Link
                 key={q._id as string}
                 href={`/${locale}/kurz-gefragt/${qSlug}`}
-                className="group block border border-border rounded-sm p-5 hover:border-accent/40 transition-colors bg-surface/40"
+                className="group block border-b border-border py-6 hover:bg-surface/40 transition-colors -mx-4 px-4 rounded-sm"
               >
-                <h2
-                  className="font-semibold leading-snug mb-3 group-hover:text-accent transition-colors"
-                  style={{ fontFamily: "var(--font-serif)" }}
-                >
-                  {question}
-                </h2>
-                <div className="flex items-center flex-wrap gap-2">
+                <div className="flex items-start gap-3 mb-2">
                   {verdict && verdictLabels[verdict] && (
                     <span
-                      className="bg-navy text-background text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm"
+                      className="bg-navy text-background text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm mt-1 shrink-0"
                       style={{ fontFamily: "var(--font-sans)" }}
                     >
                       {locale === "en" ? verdictLabels[verdict].en : verdictLabels[verdict].de}
                     </span>
                   )}
+                  <h2
+                    className="text-lg font-semibold leading-snug group-hover:text-accent transition-colors"
+                    style={{ fontFamily: "var(--font-serif)" }}
+                  >
+                    {question}
+                  </h2>
+                </div>
+                {shortAnswer && (
+                  <p
+                    className="text-sm text-muted leading-relaxed mb-3 line-clamp-2"
+                    style={{ fontFamily: "var(--font-body-serif)" }}
+                  >
+                    {shortAnswer}
+                  </p>
+                )}
+                <div className="flex items-center gap-3">
                   {catTitle && (
                     <span
                       className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent"
@@ -188,6 +154,31 @@ export default async function KurzGefragtIndexPage({
           })}
         </div>
       )}
+
+      {/* CTA: Submit a question */}
+      <div className="mt-16 border border-border rounded-sm p-8 text-center bg-surface/40">
+        <p
+          className="text-lg font-semibold mb-2"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {locale === "de" ? "Hast du eine Frage?" : "Do you have a question?"}
+        </p>
+        <p
+          className="text-sm text-muted mb-5 max-w-md mx-auto leading-relaxed"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          {locale === "de"
+            ? "Du hast eine Frage zur Bibel oder Theologie, die dich beschäftigt? Schreib mir – vielleicht wird sie hier beantwortet."
+            : "Have a question about the Bible or theology? Reach out — it might be answered here."}
+        </p>
+        <Link
+          href={`/${locale}/zu-meiner-person`}
+          className="inline-block text-xs font-semibold uppercase tracking-[0.12em] px-5 py-2.5 rounded-sm bg-accent text-white hover:opacity-90 transition-opacity"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          {locale === "de" ? "Kontakt aufnehmen" : "Get in touch"}
+        </Link>
+      </div>
     </div>
   );
 }
