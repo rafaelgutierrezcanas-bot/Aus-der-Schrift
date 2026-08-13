@@ -2,23 +2,70 @@
 
 import { useState } from "react";
 
+type Status = "idle" | "sending" | "sent" | "error";
+
 export function ContactForm({ locale }: { locale: string }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
   const isDE = locale === "de";
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setStatus("sending");
 
-    const mailBody = `${body}\n\n---\n${name}\n${email}`;
-    const mailtoUrl = `mailto:info@theologik.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
-    window.location.href = mailtoUrl;
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, subject, message: body }),
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      setStatus("sent");
+      setName("");
+      setEmail("");
+      setSubject("");
+      setBody("");
+    } catch {
+      setStatus("error");
+    }
   }
 
   const inputClass =
     "w-full px-4 py-2.5 border border-border rounded-sm bg-surface/40 text-foreground text-sm focus:outline-none focus:border-accent transition-colors";
+
+  if (status === "sent") {
+    return (
+      <div className="border border-accent/30 bg-surface/40 rounded-sm px-6 py-8 text-center">
+        <p
+          className="text-lg font-semibold mb-2"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {isDE ? "Nachricht gesendet!" : "Message sent!"}
+        </p>
+        <p
+          className="text-sm text-muted"
+          style={{ fontFamily: "var(--font-body-serif)" }}
+        >
+          {isDE
+            ? "Vielen Dank für deine Nachricht. Ich melde mich so bald wie möglich."
+            : "Thank you for your message. I'll get back to you as soon as possible."}
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="mt-4 text-xs text-accent hover:underline"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          {isDE ? "Weitere Nachricht senden" : "Send another message"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -98,12 +145,23 @@ export function ContactForm({ locale }: { locale: string }) {
         />
       </div>
 
+      {status === "error" && (
+        <p className="text-sm text-red-600">
+          {isDE
+            ? "Nachricht konnte nicht gesendet werden. Bitte versuche es erneut."
+            : "Message could not be sent. Please try again."}
+        </p>
+      )}
+
       <button
         type="submit"
-        className="px-6 py-2.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition-colors text-xs"
+        disabled={status === "sending"}
+        className="px-6 py-2.5 rounded-full border border-accent text-accent hover:bg-accent hover:text-white transition-colors text-xs disabled:opacity-50"
         style={{ fontFamily: "var(--font-sans)" }}
       >
-        {isDE ? "Nachricht senden" : "Send message"}
+        {status === "sending"
+          ? (isDE ? "Wird gesendet…" : "Sending…")
+          : (isDE ? "Nachricht senden" : "Send message")}
       </button>
     </form>
   );
