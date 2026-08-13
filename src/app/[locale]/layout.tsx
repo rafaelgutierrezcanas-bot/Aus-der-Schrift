@@ -76,6 +76,7 @@ export default async function LocaleLayout({
           { label: locale === "de" ? "Startseite" : "Home", href: `/${locale}` },
           { label: locale === "de" ? "Alle Artikel" : "All Articles", href: `/${locale}/blog` },
           { label: locale === "de" ? "Kurz gefragt" : "Quick Answers", href: `/${locale}/kurz-gefragt` },
+          { label: locale === "de" ? "Ressourcen" : "Resources", href: `/${locale}/ressourcen` },
           { label: locale === "de" ? "Über mich" : "About", href: `/${locale}/zu-meiner-person` },
           { label: locale === "de" ? "Datenschutz" : "Privacy Policy", href: `/${locale}/datenschutz` },
           { label: locale === "de" ? "Impressum" : "Legal Notice", href: `/${locale}/impressum` },
