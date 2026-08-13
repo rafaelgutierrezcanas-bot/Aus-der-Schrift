@@ -20,6 +20,11 @@ export function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Skip API routes — let them pass through without i18n
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
   // Admin auth: skip login page and auth API
   if (pathname.startsWith("/admin")) {
     const requestHeaders = new Headers(request.headers);
