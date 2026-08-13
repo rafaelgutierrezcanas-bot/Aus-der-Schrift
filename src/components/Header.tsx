@@ -103,21 +103,23 @@ export function Header({ locale }: HeaderProps) {
                 <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-            <div className="absolute top-[calc(100%+6px)] left-0 hidden group-hover:block bg-background border border-border rounded-lg shadow-lg py-1 min-w-[170px] z-50">
-              <Link
-                href={`/${locale}/zu-meiner-person`}
-                className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                {locale === "de" ? "Zu meiner Person" : "About me"}
-              </Link>
-              <Link
-                href={`/${locale}/impressum`}
-                className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
-                {locale === "de" ? "Impressum" : "Legal Notice"}
-              </Link>
+            <div className="absolute top-full left-0 hidden group-hover:block pt-1.5 z-50">
+              <div className="bg-background border border-border rounded-lg shadow-lg py-1 min-w-[170px]">
+                <Link
+                  href={`/${locale}/zu-meiner-person`}
+                  className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  {locale === "de" ? "Zu meiner Person" : "About me"}
+                </Link>
+                <Link
+                  href={`/${locale}/impressum`}
+                  className="block px-4 py-2 text-xs text-muted hover:text-foreground hover:bg-surface transition-colors"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  {locale === "de" ? "Impressum" : "Legal Notice"}
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -137,7 +139,8 @@ export function Header({ locale }: HeaderProps) {
                 <path d="M1 1l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-            <div className="absolute top-[calc(100%+6px)] left-0 hidden group-hover:block bg-background border border-border rounded-lg shadow-lg py-1 min-w-[170px] z-50">
+            <div className="absolute top-full left-0 hidden group-hover:block pt-1.5 z-50">
+              <div className="bg-background border border-border rounded-lg shadow-lg py-1 min-w-[170px]">
               {(themen[locale] ?? themen.de).map((t) => (
                 <Link
                   key={t.slug}
@@ -148,6 +151,7 @@ export function Header({ locale }: HeaderProps) {
                   {locale === "de" ? t.de : t.en}
                 </Link>
               ))}
+              </div>
             </div>
           </div>
 
