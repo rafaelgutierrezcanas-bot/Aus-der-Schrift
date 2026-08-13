@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useDeferredValue, useMemo } from "react";
 import Link from "next/link";
 import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug, formatDate } from "@/lib/utils";
 import { Search, X } from "lucide-react";
@@ -17,42 +17,50 @@ interface BlogSearchListProps {
 export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps) {
   const [query, setQuery] = useState("");
   const [refFilter, setRefFilter] = useState<string | null>(null);
+  const deferredQuery = useDeferredValue(query);
+  const deferredRefFilter = useDeferredValue(refFilter);
 
-  const allBibleRefs = Array.from(
-    new Set(
-      articles.flatMap((a) => (a.bibleReferences as string[] | undefined) ?? [])
-    )
-  ).sort();
+  const allBibleRefs = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          articles.flatMap((a) => (a.bibleReferences as string[] | undefined) ?? [])
+        )
+      ).sort(),
+    [articles]
+  );
 
-  const filtered = articles.filter((article) => {
-    if (refFilter) {
-      const refs = (article.bibleReferences as string[] | undefined) ?? [];
-      if (!refs.includes(refFilter)) return false;
-    }
-
-    if (query.trim().length >= 2) {
-      const q = query.toLowerCase();
-      const title = getLocalizedTitle(article, locale).toLowerCase();
-      const excerpt = getLocalizedExcerpt(article, locale).toLowerCase();
-      const category = getLocalizedCategoryTitle(
-        article.category as Record<string, unknown> | null,
-        locale
-      ).toLowerCase();
-      const refs = ((article.bibleReferences as string[] | undefined) ?? [])
-        .join(" ")
-        .toLowerCase();
-      if (
-        !title.includes(q) &&
-        !excerpt.includes(q) &&
-        !category.includes(q) &&
-        !refs.includes(q)
-      ) {
-        return false;
+  const filtered = useMemo(() => {
+    return articles.filter((article) => {
+      if (deferredRefFilter) {
+        const refs = (article.bibleReferences as string[] | undefined) ?? [];
+        if (!refs.includes(deferredRefFilter)) return false;
       }
-    }
 
-    return true;
-  });
+      if (deferredQuery.trim().length >= 2) {
+        const q = deferredQuery.toLowerCase();
+        const title = getLocalizedTitle(article, locale).toLowerCase();
+        const excerpt = getLocalizedExcerpt(article, locale).toLowerCase();
+        const category = getLocalizedCategoryTitle(
+          article.category as Record<string, unknown> | null,
+          locale
+        ).toLowerCase();
+        const refs = ((article.bibleReferences as string[] | undefined) ?? [])
+          .join(" ")
+          .toLowerCase();
+        if (
+          !title.includes(q) &&
+          !excerpt.includes(q) &&
+          !category.includes(q) &&
+          !refs.includes(q)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [articles, deferredQuery, deferredRefFilter, locale]);
 
   if (articles.length === 0) {
     return (

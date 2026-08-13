@@ -1,21 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export function ReadingProgressBar() {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let rafId = 0;
+
     function onScroll() {
-      const scrollable =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
-      setProgress(Math.min(100, Math.max(0, pct)));
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        if (!barRef.current) return;
+        const scrollable =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const pct =
+          scrollable > 0
+            ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100))
+            : 0;
+        barRef.current.style.width = `${pct}%`;
+      });
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll(); // initialise on mount
-    return () => window.removeEventListener("scroll", onScroll);
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
@@ -32,9 +45,10 @@ export function ReadingProgressBar() {
       }}
     >
       <div
+        ref={barRef}
         style={{
           height: "100%",
-          width: `${progress}%`,
+          width: "0%",
           background: "var(--color-accent)",
           transition: "width 0.05s linear",
         }}

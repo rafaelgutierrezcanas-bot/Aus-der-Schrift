@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { extractHeadings, type PortableTextBlock } from "@/lib/tableOfContents";
 
 export function MobileTableOfContents({
@@ -13,14 +13,27 @@ export function MobileTableOfContents({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
+    let rafId = 0;
     function onScroll() {
-      setVisible(window.scrollY > 400);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        const isVisible = window.scrollY > 400;
+        if (visibleRef.current !== isVisible) {
+          visibleRef.current = isVisible;
+          setVisible(isVisible);
+        }
+      });
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {

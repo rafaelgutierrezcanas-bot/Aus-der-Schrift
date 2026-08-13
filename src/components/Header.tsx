@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageToggle } from "./LanguageToggle";
@@ -35,13 +35,26 @@ export function Header({ locale }: HeaderProps) {
   const pathname = usePathname();
   const isHomepage = pathname === `/${locale}` || pathname === `/${locale}/`;
 
+  const scrolledRef = useRef(false);
   useEffect(() => {
+    let rafId = 0;
     function onScroll() {
-      setScrolled(window.scrollY > 10);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        const isScrolled = window.scrollY > 10;
+        if (scrolledRef.current !== isScrolled) {
+          scrolledRef.current = isScrolled;
+          setScrolled(isScrolled);
+        }
+      });
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Transparent only on homepage when not yet scrolled
