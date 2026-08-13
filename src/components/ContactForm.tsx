@@ -17,15 +17,19 @@ export function ContactForm({ locale }: { locale: string }) {
     e.preventDefault();
     setStatus("sending");
 
-    const result = await sendContactEmail({ name, email, subject, message: body });
+    try {
+      const result = await sendContactEmail({ name, email, subject, message: body });
 
-    if (result.success) {
-      setStatus("sent");
-      setName("");
-      setEmail("");
-      setSubject("");
-      setBody("");
-    } else {
+      if (result.success) {
+        setStatus("sent");
+        setName("");
+        setEmail("");
+        setSubject("");
+        setBody("");
+      } else {
+        setStatus("error");
+      }
+    } catch {
       setStatus("error");
     }
   }
