@@ -194,7 +194,7 @@ export default async function KurzGefragtIndexPage({
             : "Have a question about the Bible or theology? Reach out — it might be answered here."}
         </p>
         <Link
-          href={`/${locale}/zu-meiner-person`}
+          href={`/${locale}/kontakt`}
           className="inline-block text-xs font-semibold uppercase tracking-[0.12em] px-5 py-2.5 rounded-sm bg-accent text-white hover:opacity-90 transition-opacity"
           style={{ fontFamily: "var(--font-sans)" }}
         >
