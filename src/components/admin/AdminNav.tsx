@@ -103,10 +103,20 @@ function PageIcon() {
     </svg>
   );
 }
+function HelpCircleIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="7.5" cy="7.5" r="6"/>
+      <path d="M5.5 5.5a2 2 0 013.5 1.5c0 1-1.5 1.5-1.5 1.5"/>
+      <circle cx="7.5" cy="11" r="0.5" fill="currentColor"/>
+    </svg>
+  );
+}
 
 const navItems = [
   { href: "/admin", label: "Dashboard", Icon: GridIcon, exact: true },
   { href: "/admin/artikel", label: "Artikel", Icon: PenIcon },
+  { href: "/admin/kurz-gefragt", label: "Kurz gefragt", Icon: HelpCircleIcon },
   { href: "/admin/empfohlen", label: "Empfohlen", Icon: StarIcon },
   { href: "/admin/quellen", label: "Quellen", Icon: BookIcon },
   { href: "/admin/ideen", label: "Ideen", Icon: BulbIcon },

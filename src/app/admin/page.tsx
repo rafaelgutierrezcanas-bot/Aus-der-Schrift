@@ -13,6 +13,7 @@ async function getDashboardData() {
     projects,
     pendingComments,
     recentArticles,
+    kurzGefragt,
   ] = await Promise.all([
     client.fetch(`count(*[_type == "article"])`),
     client.fetch(`count(*[_type == "article" && status in ["idea", "draft", "ready"]])`),
@@ -26,8 +27,9 @@ async function getDashboardData() {
     client.fetch(`*[_type == "article" && status in ["idea", "draft", "ready", "published"]] | order(_updatedAt desc)[0...5] {
       _id, titleDe, slug, status, _updatedAt, category->{ titleDe }
     }`),
+    client.fetch(`count(*[_type == "kurzGefragt"])`),
   ]);
-  return { articles, drafts, sources, ideas, books, quotes, papers, projects, pendingComments, recentArticles };
+  return { articles, drafts, sources, ideas, books, quotes, papers, projects, pendingComments, recentArticles, kurzGefragt };
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -51,6 +53,15 @@ const SECTIONS = [
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Kurz gefragt",
+    href: "/admin/kurz-gefragt",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
       </svg>
     ),
   },
@@ -126,6 +137,7 @@ export default async function AdminDashboard() {
 
   const counts: Record<string, number> = {
     Artikel: data.articles,
+    "Kurz gefragt": data.kurzGefragt,
     Quellen: data.sources,
     Ideen: data.ideas,
     Projekte: data.projects,
@@ -256,6 +268,12 @@ export default async function AdminDashboard() {
           className="text-xs px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
         >
           + Neues Projekt
+        </Link>
+        <Link
+          href="/admin/kurz-gefragt/neu"
+          className="text-xs px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
+        >
+          + Neue Frage
         </Link>
         <Link
           href="/admin/buecher/neu"
