@@ -14,7 +14,7 @@ import { absoluteUrl, localePath, SITE_NAME } from "@/lib/site";
 import { injectBibleReferences } from "@/lib/injectBibleReferences";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AuthorCard } from "@/components/AuthorCard";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
+
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -410,7 +410,6 @@ export default async function KurzGefragtDetailPage({
         </div>
       </div>
 
-      <NewsletterSignup locale={locale} />
       <AuthorCard locale={locale} />
     </div>
   );
