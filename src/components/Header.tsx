@@ -166,6 +166,20 @@ export function Header({ locale }: HeaderProps) {
             {locale === "de" ? "Ressourcen" : "Resources"}
           </Link>
 
+          <span className={`w-px h-3 shrink-0 transition-colors duration-300 ${atTop ? "bg-white/20" : "bg-border"}`} />
+
+          {/* Kurz gefragt */}
+          <Link
+            href={`/${locale}/kurz-gefragt`}
+            className={`text-xs px-4 py-1.5 rounded-full transition-colors whitespace-nowrap ${atTop ? "hover:bg-white/10" : "hover:bg-surface"}`}
+            style={{
+              fontFamily: "var(--font-sans)",
+              color: atTop ? CREAM : "var(--color-muted)",
+            }}
+          >
+            {locale === "de" ? "Kurz gefragt" : "Quick Answers"}
+          </Link>
+
         </nav>
 
         {/* Right side */}
@@ -257,6 +271,13 @@ export function Header({ locale }: HeaderProps) {
               onClick={() => setMobileOpen(false)}
             >
               {locale === "de" ? "Ressourcen" : "Resources"}
+            </Link>
+            <Link
+              href={`/${locale}/kurz-gefragt`}
+              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {locale === "de" ? "Kurz gefragt" : "Quick Answers"}
             </Link>
             <Link
               href={`/${locale}/zu-meiner-person`}

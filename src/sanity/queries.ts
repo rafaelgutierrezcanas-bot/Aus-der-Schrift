@@ -229,6 +229,33 @@ export const backlinksQuery = groq`
   }
 `;
 
+// ── Kurz gefragt ────────────────────────────────────────
+
+export const allKurzGefragtQuery = groq`
+  *[_type == "kurzGefragt" && (status == "published" || !defined(status))]
+    | order(publishedAt desc) {
+    _id, questionDe, questionEn, slug, slugEn, verdict, shortAnswerDe, shortAnswerEn,
+    publishedAt, category->{ titleDe, titleEn, slug }
+  }
+`;
+
+export const kurzGefragtBySlugQuery = groq`
+  *[_type == "kurzGefragt"
+    && (slug.current == $slug || slugEn.current == $slug)
+    && (status == "published" || !defined(status))][0] {
+    ...,
+    category->{ titleDe, titleEn, slug },
+    relatedArticles[]->{ _id, titleDe, titleEn, slug, slugEn, publishedAt, category->{ titleDe, titleEn, slug }, excerptDe, excerptEn, featuredImage, difficulty },
+    relatedQuestions[]->{ _id, questionDe, questionEn, slug, slugEn, verdict, category->{ titleDe, titleEn } }
+  }
+`;
+
+export const allKurzGefragtSlugsQuery = groq`
+  *[_type == "kurzGefragt" && (status == "published" || !defined(status))] {
+    "slug": slug.current, "slugEn": slugEn.current, publishedAt, _updatedAt
+  }
+`;
+
 // ── Hermeneutik ──────────────────────────────────────────
 
 export const allHermeneutikStepsQuery = groq`

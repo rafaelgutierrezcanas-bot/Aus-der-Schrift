@@ -5,23 +5,42 @@ import { absoluteUrl, SITE_NAME } from "@/lib/site";
 export const revalidate = 3600;
 
 interface FeedArticle {
-  titleEn: string;
-  titleDe: string;
+  _type: string;
+  titleEn?: string;
+  titleDe?: string;
+  questionEn?: string;
+  questionDe?: string;
   slug: { current: string };
   slugEn?: { current: string };
   excerptEn?: string;
   excerptDe?: string;
+  shortAnswerEn?: string;
+  shortAnswerDe?: string;
   publishedAt: string;
 }
 
 const feedArticlesQuery = groq`
   *[_type == "article" && (status == "published" || !defined(status))] | order(publishedAt desc) [0...20] {
+    _type,
     titleEn,
     titleDe,
     slug,
     slugEn,
     excerptEn,
     excerptDe,
+    publishedAt
+  }
+`;
+
+const feedKurzGefragtQuery = groq`
+  *[_type == "kurzGefragt" && (status == "published" || !defined(status))] | order(publishedAt desc) [0...10] {
+    _type,
+    questionEn,
+    questionDe,
+    slug,
+    slugEn,
+    shortAnswerEn,
+    shortAnswerDe,
     publishedAt
   }
 `;
@@ -36,20 +55,32 @@ function escapeXml(str: string): string {
 }
 
 export async function GET() {
-  const articles = await client.fetch<FeedArticle[]>(feedArticlesQuery);
+  const [articles, kurzGefragt] = await Promise.all([
+    client.fetch<FeedArticle[]>(feedArticlesQuery),
+    client.fetch<FeedArticle[]>(feedKurzGefragtQuery),
+  ]);
+
+  const allItems = [...articles, ...kurzGefragt].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
 
   const siteUrl = absoluteUrl();
   const feedUrl = absoluteUrl("/feed-en.xml");
 
-  const items = articles
-    .map((article) => {
-      const enSlug = article.slugEn?.current || article.slug.current;
-      const link = `${siteUrl}/en/blog/${enSlug}`;
-      const pubDate = new Date(article.publishedAt).toUTCString();
-      const title = escapeXml(article.titleEn || article.titleDe || "");
-      const description = article.excerptEn || article.excerptDe
-        ? escapeXml(article.excerptEn || article.excerptDe || "")
-        : "";
+  const items = allItems
+    .map((item) => {
+      const isKG = item._type === "kurzGefragt";
+      const enSlug = item.slugEn?.current || item.slug.current;
+      const link = `${siteUrl}/en/${isKG ? "kurz-gefragt" : "blog"}/${enSlug}`;
+      const pubDate = new Date(item.publishedAt).toUTCString();
+      const title = escapeXml(
+        isKG
+          ? (item.questionEn || item.questionDe || "")
+          : (item.titleEn || item.titleDe || "")
+      );
+      const description = isKG
+        ? (item.shortAnswerEn || item.shortAnswerDe ? escapeXml(item.shortAnswerEn || item.shortAnswerDe || "") : "")
+        : (item.excerptEn || item.excerptDe ? escapeXml(item.excerptEn || item.excerptDe || "") : "");
 
       return `
     <item>

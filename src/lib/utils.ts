@@ -34,6 +34,16 @@ export function getLocalizedCategoryTitle(
   return (category.titleDe || "") as string;
 }
 
+export function getLocalizedQuestion(item: Record<string, unknown>, locale: string): string {
+  if (locale === "en" && item.questionEn) return item.questionEn as string;
+  return (item.questionDe || item.questionEn || "") as string;
+}
+
+export function getLocalizedShortAnswer(item: Record<string, unknown>, locale: string): string {
+  if (locale === "en" && item.shortAnswerEn) return item.shortAnswerEn as string;
+  return (item.shortAnswerDe || item.shortAnswerEn || "") as string;
+}
+
 /**
  * Returns the appropriate article slug for the given locale.
  * Uses slugEn for English if available, otherwise falls back to the DE slug.

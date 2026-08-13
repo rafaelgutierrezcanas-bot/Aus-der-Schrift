@@ -12,6 +12,7 @@ import ausarbeitung from "./ausarbeitung";
 import infografik from "./infografik";
 import comment from "./comment";
 import page from "./page";
+import kurzGefragt from "./kurzGefragt";
 
 export const schemaTypes = [
   article, category, author, source, idea, project,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   ausarbeitung, infografik,
   comment,
   page,
+  kurzGefragt,
 ];

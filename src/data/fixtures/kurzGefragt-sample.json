@@ -1,0 +1,14 @@
+{
+  "_type": "kurzGefragt",
+  "questionDe": "War das Nadelöhr ein Tor in Jerusalem?",
+  "questionEn": "Was the Eye of the Needle a Gate in Jerusalem?",
+  "slug": { "_type": "slug", "current": "nadeloehr-tor-jerusalem" },
+  "slugEn": { "_type": "slug", "current": "eye-of-the-needle-gate-jerusalem" },
+  "verdict": "nein",
+  "shortAnswerDe": "[PLATZHALTER – Inhalt folgt]",
+  "shortAnswerEn": "[PLACEHOLDER – Content to follow]",
+  "bodyDe": [{ "_type": "block", "children": [{ "_type": "span", "text": "[PLATZHALTER – Inhalt folgt]" }], "markDefs": [] }],
+  "bodyEn": [{ "_type": "block", "children": [{ "_type": "span", "text": "[PLACEHOLDER – Content to follow]" }], "markDefs": [] }],
+  "publishedAt": "2026-08-13T12:00:00Z",
+  "status": "published"
+}

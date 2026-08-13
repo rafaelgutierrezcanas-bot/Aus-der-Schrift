@@ -5,17 +5,31 @@ import { absoluteUrl, SITE_NAME } from "@/lib/site";
 export const revalidate = 3600;
 
 interface FeedArticle {
-  titleDe: string;
+  _type: string;
+  titleDe?: string;
+  questionDe?: string;
   slug: { current: string };
   excerptDe?: string;
+  shortAnswerDe?: string;
   publishedAt: string;
 }
 
 const feedArticlesQuery = groq`
   *[_type == "article" && status == "published"] | order(publishedAt desc) [0...20] {
+    _type,
     titleDe,
     slug,
     excerptDe,
+    publishedAt
+  }
+`;
+
+const feedKurzGefragtQuery = groq`
+  *[_type == "kurzGefragt" && (status == "published" || !defined(status))] | order(publishedAt desc) [0...10] {
+    _type,
+    questionDe,
+    slug,
+    shortAnswerDe,
     publishedAt
   }
 `;
@@ -30,19 +44,27 @@ function escapeXml(str: string): string {
 }
 
 export async function GET() {
-  const articles = await client.fetch<FeedArticle[]>(feedArticlesQuery);
+  const [articles, kurzGefragt] = await Promise.all([
+    client.fetch<FeedArticle[]>(feedArticlesQuery),
+    client.fetch<FeedArticle[]>(feedKurzGefragtQuery),
+  ]);
+
+  const allItems = [...articles, ...kurzGefragt].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
 
   const siteUrl = absoluteUrl();
   const feedUrl = absoluteUrl("/feed.xml");
 
-  const items = articles
-    .map((article) => {
-      const link = `${siteUrl}/de/blog/${article.slug.current}`;
-      const pubDate = new Date(article.publishedAt).toUTCString();
-      const title = escapeXml(article.titleDe ?? "");
-      const description = article.excerptDe
-        ? escapeXml(article.excerptDe)
-        : "";
+  const items = allItems
+    .map((item) => {
+      const isKG = item._type === "kurzGefragt";
+      const link = `${siteUrl}/de/${isKG ? "kurz-gefragt" : "blog"}/${item.slug.current}`;
+      const pubDate = new Date(item.publishedAt).toUTCString();
+      const title = escapeXml(isKG ? (item.questionDe ?? "") : (item.titleDe ?? ""));
+      const description = isKG
+        ? (item.shortAnswerDe ? escapeXml(item.shortAnswerDe) : "")
+        : (item.excerptDe ? escapeXml(item.excerptDe) : "");
 
       return `
     <item>

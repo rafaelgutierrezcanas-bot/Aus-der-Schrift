@@ -27,6 +27,16 @@
   "meta": {
     "siteName": "Aus der Schrift"
   },
+  "kurzGefragt": {
+    "title": "Kurz gefragt",
+    "subtitle": "Kurze, fundierte Antworten auf häufige Fragen zur Bibel und Theologie – mit Belegen.",
+    "kurzGesagt": "Kurz gesagt",
+    "zurVertiefung": "Zur Vertiefung",
+    "weitereFragen": "Weitere Fragen",
+    "keineFragenKategorie": "Keine Fragen in dieser Kategorie.",
+    "keineFragenNoch": "Noch keine Fragen veröffentlicht.",
+    "alleKategorien": "Alle"
+  },
   "hermeneutik": {
     "title": "Hermeneutik lernen",
     "subtitle": "Lerne biblische Texte methodisch zu analysieren",

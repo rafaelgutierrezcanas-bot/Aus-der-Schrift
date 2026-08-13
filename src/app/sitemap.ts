@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/client";
-import { allArticleSlugsQuery, allCategoriesQuery, allProjectSlugsQuery } from "@/sanity/queries";
+import { allArticleSlugsQuery, allCategoriesQuery, allProjectSlugsQuery, allKurzGefragtSlugsQuery } from "@/sanity/queries";
 import { absoluteUrl, SUPPORTED_LOCALES } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = [
     "",
     "/blog",
+    "/kurz-gefragt",
     "/projekte",
     "/zu-meiner-person",
     "/ressourcen",
@@ -37,13 +38,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let categoryEntries: MetadataRoute.Sitemap = [];
   let projectEntries: MetadataRoute.Sitemap = [];
   let infografikEntries: MetadataRoute.Sitemap = [];
+  let kurzGefragtEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const [articles, categories, projects, infografiken] = await Promise.all([
+    const [articles, categories, projects, infografiken, kurzGefragt] = await Promise.all([
       client.fetch(allArticleSlugsQuery),
       client.fetch<Array<{ slug: { current: string }; _updatedAt?: string }>>(`*[_type == "category"]{ slug, _updatedAt }`),
       client.fetch<Array<{ slug: string; _updatedAt?: string }>>(`*[_type == "project" && isPublic != false]{ "slug": slug.current, _updatedAt }`),
       client.fetch<Array<{ slug: string; publishedAt?: string }>>(`*[_type == "infografik" && defined(slug.current)]{ "slug": slug.current, publishedAt }`),
+      client.fetch(allKurzGefragtSlugsQuery),
     ]);
 
     articleEntries = SUPPORTED_LOCALES.flatMap((locale) =>
@@ -109,9 +112,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       }))
     );
+    kurzGefragtEntries = SUPPORTED_LOCALES.flatMap((locale) =>
+      (kurzGefragt as Array<{ slug: string; slugEn?: string; publishedAt?: string; _updatedAt?: string }>).map(({ slug, slugEn, publishedAt, _updatedAt }): MetadataRoute.Sitemap[number] => {
+        const deSlug = slug;
+        const enSlug = slugEn || slug;
+        return {
+          url: absoluteUrl(`/${locale}/kurz-gefragt/${locale === "en" ? enSlug : deSlug}`),
+          lastModified: _updatedAt ? new Date(_updatedAt) : publishedAt ? new Date(publishedAt) : new Date(),
+          changeFrequency: "weekly",
+          priority: 0.75,
+          alternates: {
+            languages: {
+              de: absoluteUrl(`/de/kurz-gefragt/${deSlug}`),
+              en: absoluteUrl(`/en/kurz-gefragt/${enSlug}`),
+            },
+          },
+        };
+      })
+    );
   } catch {
     return staticEntries;
   }
 
-  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries, ...infografikEntries];
+  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries, ...infografikEntries, ...kurzGefragtEntries];
 }

@@ -27,6 +27,16 @@
   "meta": {
     "siteName": "Aus der Schrift"
   },
+  "kurzGefragt": {
+    "title": "Quick Answers",
+    "subtitle": "Short, well-researched answers to common questions about the Bible and theology — with sources.",
+    "kurzGesagt": "In short",
+    "zurVertiefung": "Further reading",
+    "weitereFragen": "Related questions",
+    "keineFragenKategorie": "No questions in this category.",
+    "keineFragenNoch": "No questions published yet.",
+    "alleKategorien": "All"
+  },
   "hermeneutik": {
     "title": "Learn Hermeneutics",
     "subtitle": "Learn to analyze biblical texts methodically",
