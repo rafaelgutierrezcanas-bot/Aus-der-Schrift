@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sendContactEmail } from "@/app/actions/contact";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -16,21 +17,15 @@ export function ContactForm({ locale }: { locale: string }) {
     e.preventDefault();
     setStatus("sending");
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message: body }),
-      });
+    const result = await sendContactEmail({ name, email, subject, message: body });
 
-      if (!res.ok) throw new Error("Failed");
-
+    if (result.success) {
       setStatus("sent");
       setName("");
       setEmail("");
       setSubject("");
       setBody("");
-    } catch {
+    } else {
       setStatus("error");
     }
   }
