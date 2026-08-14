@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageToggle } from "./LanguageToggle";
@@ -34,33 +34,29 @@ export function Header({ locale }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === `/${locale}` || pathname === `/${locale}/`;
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const scrolledRef = useRef(false);
+  // Use IntersectionObserver instead of scroll listener — no main-thread work per frame
   useEffect(() => {
-    let rafId = 0;
-    function onScroll() {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        const isScrolled = window.scrollY > 10;
-        if (scrolledRef.current !== isScrolled) {
-          scrolledRef.current = isScrolled;
-          setScrolled(isScrolled);
-        }
-      });
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, []);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   // Transparent only on homepage when not yet scrolled
   const atTop = isHomepage && !scrolled;
 
   return (
+    <>
+    {/* Invisible sentinel at top of page — IntersectionObserver watches this */}
+    <div ref={sentinelRef} className="absolute top-0 left-0 w-full h-[10px] pointer-events-none" aria-hidden />
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         atTop
@@ -225,73 +221,74 @@ export function Header({ locale }: HeaderProps) {
 
       </div>
 
-      {/* Mobile menu — always solid */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-40 px-6 py-5 space-y-5"
-          style={{ fontFamily: "var(--font-sans)" }}
-        >
-          {/* Themen */}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">
-              {locale === "de" ? "Themen" : "Topics"}
-            </p>
-            <div className="grid grid-cols-2 gap-1">
-              {(themen[locale] ?? themen.de).map((t) => (
-                <Link
-                  key={t.slug}
-                  href={`/${locale}/kategorien/${t.slug}`}
-                  className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {locale === "de" ? t.de : t.en}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* Navigation */}
-          <div className="flex flex-col gap-0.5">
-            <Link
-              href={`/${locale}/blog`}
-              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {locale === "de" ? "Alle Artikel" : "All Articles"}
-            </Link>
-            <Link
-              href={`/${locale}/kurz-gefragt`}
-              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {locale === "de" ? "Kurz gefragt" : "Quick Answers"}
-            </Link>
-            <Link
-              href={`/${locale}/zu-meiner-person`}
-              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {locale === "de" ? "Über mich" : "About me"}
-            </Link>
-            <Link
-              href={`/${locale}/ressourcen`}
-              className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {locale === "de" ? "Ressourcen" : "Resources"}
-            </Link>
-            <Link
-              href={`/${locale}/kontakt`}
-              className="px-3 py-2 text-sm text-accent font-medium hover:bg-surface rounded transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {locale === "de" ? "Kontakt" : "Contact"}
-            </Link>
+      {/* Mobile menu — CSS transition instead of mount/unmount to avoid layout thrashing */}
+      <div
+        className={`lg:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-40 px-6 space-y-5 overflow-hidden transition-[max-height,opacity,padding] duration-200 ${
+          mobileOpen ? "max-h-[500px] opacity-100 py-5" : "max-h-0 opacity-0 py-0 border-transparent"
+        }`}
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        {/* Themen */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">
+            {locale === "de" ? "Themen" : "Topics"}
+          </p>
+          <div className="grid grid-cols-2 gap-1">
+            {(themen[locale] ?? themen.de).map((t) => (
+              <Link
+                key={t.slug}
+                href={`/${locale}/kategorien/${t.slug}`}
+                className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+                onClick={closeMobile}
+              >
+                {locale === "de" ? t.de : t.en}
+              </Link>
+            ))}
           </div>
         </div>
-      )}
+
+        <div className="h-px bg-border" />
+
+        {/* Navigation */}
+        <div className="flex flex-col gap-0.5">
+          <Link
+            href={`/${locale}/blog`}
+            className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+            onClick={closeMobile}
+          >
+            {locale === "de" ? "Alle Artikel" : "All Articles"}
+          </Link>
+          <Link
+            href={`/${locale}/kurz-gefragt`}
+            className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+            onClick={closeMobile}
+          >
+            {locale === "de" ? "Kurz gefragt" : "Quick Answers"}
+          </Link>
+          <Link
+            href={`/${locale}/zu-meiner-person`}
+            className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+            onClick={closeMobile}
+          >
+            {locale === "de" ? "Über mich" : "About me"}
+          </Link>
+          <Link
+            href={`/${locale}/ressourcen`}
+            className="px-3 py-2 text-sm text-foreground hover:bg-surface rounded transition-colors"
+            onClick={closeMobile}
+          >
+            {locale === "de" ? "Ressourcen" : "Resources"}
+          </Link>
+          <Link
+            href={`/${locale}/kontakt`}
+            className="px-3 py-2 text-sm text-accent font-medium hover:bg-surface rounded transition-colors"
+            onClick={closeMobile}
+          >
+            {locale === "de" ? "Kontakt" : "Contact"}
+          </Link>
+        </div>
+      </div>
     </header>
+    </>
   );
 }

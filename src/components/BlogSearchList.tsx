@@ -1,5 +1,5 @@
 "use client";
-import { useState, useDeferredValue, useMemo } from "react";
+import { useState, useDeferredValue, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug, formatDate } from "@/lib/utils";
 import { Search, X } from "lucide-react";
@@ -17,6 +17,7 @@ interface BlogSearchListProps {
 export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps) {
   const [query, setQuery] = useState("");
   const [refFilter, setRefFilter] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
   const deferredQuery = useDeferredValue(query);
   const deferredRefFilter = useDeferredValue(refFilter);
 
@@ -83,7 +84,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
           </p>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setRefFilter(null)}
+              onClick={() => startTransition(() => setRefFilter(null))}
               className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                 refFilter === null
                   ? "border-accent bg-accent text-white"
@@ -96,7 +97,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
             {allBibleRefs.map((ref) => (
               <button
                 key={ref}
-                onClick={() => setRefFilter(refFilter === ref ? null : ref)}
+                onClick={() => startTransition(() => setRefFilter(refFilter === ref ? null : ref))}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                   refFilter === ref
                     ? "border-accent bg-accent text-white"
