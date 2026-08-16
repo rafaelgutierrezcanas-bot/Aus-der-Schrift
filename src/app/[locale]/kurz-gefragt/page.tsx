@@ -31,9 +31,9 @@ export async function generateMetadata({
     deTitle: "Kurz gefragt – Häufige Fragen zu Bibel und Theologie",
     enTitle: "Quick Answers – Common Questions about Bible and Theology",
     deDescription:
-      "Kurze, fundierte Antworten auf häufige Fragen zur Bibel und Theologie – mit Belegen.",
+      "Kurze, fundierte Antworten auf häufige Fragen zur Bibel und Theologie.",
     enDescription:
-      "Short, well-researched answers to common questions about the Bible and theology — with sources.",
+      "Short, well-researched answers to common questions about the Bible and theology.",
   });
 }
 
