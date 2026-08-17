@@ -4,6 +4,13 @@ import Link from "next/link";
 import { getLocalizedTitle, getLocalizedExcerpt, getLocalizedCategoryTitle, getLocalizedSlug, formatDate } from "@/lib/utils";
 import { Search, X } from "lucide-react";
 
+interface ProjectInfo {
+  _id: string;
+  title: string;
+  titleEn?: string;
+  slug: { current: string };
+}
+
 interface BlogSearchListProps {
   articles: Record<string, unknown>[];
   locale: string;
@@ -17,9 +24,11 @@ interface BlogSearchListProps {
 export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps) {
   const [query, setQuery] = useState("");
   const [refFilter, setRefFilter] = useState<string | null>(null);
+  const [seriesFilter, setSeriesFilter] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const deferredQuery = useDeferredValue(query);
   const deferredRefFilter = useDeferredValue(refFilter);
+  const deferredSeriesFilter = useDeferredValue(seriesFilter);
 
   const allBibleRefs = useMemo(
     () =>
@@ -31,8 +40,39 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
     [articles]
   );
 
+  // Extract unique projects and compute article counts per project
+  const allProjects = useMemo(() => {
+    const projectMap = new Map<string, { project: ProjectInfo; count: number }>();
+    for (const a of articles) {
+      const p = a.project as ProjectInfo | null;
+      if (p?._id) {
+        const existing = projectMap.get(p._id);
+        if (existing) {
+          existing.count++;
+        } else {
+          projectMap.set(p._id, { project: p, count: 1 });
+        }
+      }
+    }
+    return Array.from(projectMap.values());
+  }, [articles]);
+
+  // Map of project _id → total article count in that series
+  const projectArticleCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const { project, count } of allProjects) {
+      counts.set(project._id, count);
+    }
+    return counts;
+  }, [allProjects]);
+
   const filtered = useMemo(() => {
-    return articles.filter((article) => {
+    let result = articles.filter((article) => {
+      if (deferredSeriesFilter) {
+        const p = article.project as ProjectInfo | null;
+        if (p?._id !== deferredSeriesFilter) return false;
+      }
+
       if (deferredRefFilter) {
         const refs = (article.bibleReferences as string[] | undefined) ?? [];
         if (!refs.includes(deferredRefFilter)) return false;
@@ -61,7 +101,18 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
 
       return true;
     });
-  }, [articles, deferredQuery, deferredRefFilter, locale]);
+
+    // Sort by seriesOrder when a series filter is active
+    if (deferredSeriesFilter) {
+      result = [...result].sort((a, b) => {
+        const orderA = (a.seriesOrder as number | undefined) ?? 999;
+        const orderB = (b.seriesOrder as number | undefined) ?? 999;
+        return orderA - orderB;
+      });
+    }
+
+    return result;
+  }, [articles, deferredQuery, deferredRefFilter, deferredSeriesFilter, locale]);
 
   if (articles.length === 0) {
     return (
@@ -73,6 +124,48 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
 
   return (
     <div>
+      {/* Series filter chips */}
+      {allProjects.length > 0 && (
+        <div className="mb-6">
+          <p
+            className="text-[10px] uppercase tracking-widest text-muted mb-2"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {locale === "de" ? "Reihe" : "Series"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => startTransition(() => setSeriesFilter(null))}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                seriesFilter === null
+                  ? "border-accent bg-accent text-white"
+                  : "border-border text-muted hover:border-accent hover:text-foreground"
+              }`}
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              {locale === "de" ? "Alle" : "All"}
+            </button>
+            {allProjects.map(({ project, count }) => {
+              const projectTitle = locale === "en" && project.titleEn ? project.titleEn : project.title;
+              return (
+                <button
+                  key={project._id}
+                  onClick={() => startTransition(() => setSeriesFilter(seriesFilter === project._id ? null : project._id))}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    seriesFilter === project._id
+                      ? "border-accent bg-accent text-white"
+                      : "border-border text-muted hover:border-accent hover:text-foreground"
+                  }`}
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  {projectTitle} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Bible reference filter chips */}
       {allBibleRefs.length > 0 && (
         <div className="mb-6">
@@ -137,7 +230,7 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
 
       {filtered.length === 0 && (
         <p className="text-muted text-center py-10 text-sm" style={{ fontFamily: "var(--font-sans)" }}>
-          {labels.noResults} „{query || refFilter}"
+          {labels.noResults} &bdquo;{query || refFilter || (allProjects.find(p => p.project._id === seriesFilter)?.project.title ?? "")}&ldquo;
         </p>
       )}
 
@@ -152,7 +245,11 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
           const slug = getLocalizedSlug(article, locale);
           const publishedAt = article.publishedAt as string | undefined;
           const articleHref = `/${locale}/blog/${slug}`;
-          const isFirst = i === 0 && !query && !refFilter;
+          const isFirst = i === 0 && !query && !refFilter && !seriesFilter;
+
+          const project = article.project as ProjectInfo | null;
+          const seriesOrder = article.seriesOrder as number | undefined;
+          const seriesTotal = project ? projectArticleCounts.get(project._id) : undefined;
 
           return (
             <article
@@ -177,7 +274,15 @@ export function BlogSearchList({ articles, locale, labels }: BlogSearchListProps
                 )}
                 {publishedAt && (
                   <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                    <span className="md:hidden">· </span>{formatDate(publishedAt, locale)}
+                    <span className="md:hidden">&middot; </span>{formatDate(publishedAt, locale)}
+                  </span>
+                )}
+                {project && seriesOrder && (
+                  <span
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full border text-indigo-700 bg-indigo-50 border-indigo-200"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  >
+                    {locale === "en" && project.titleEn ? project.titleEn : project.title} &middot; {locale === "en" ? "Part" : "Teil"} {seriesOrder}{seriesTotal ? ` ${locale === "en" ? "of" : "von"} ${seriesTotal}` : ""}
                   </span>
                 )}
               </div>

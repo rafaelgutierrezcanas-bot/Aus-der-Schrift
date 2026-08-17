@@ -17,6 +17,8 @@ export const allArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
+    "project": project->{ _id, title, titleEn, slug },
+    seriesOrder,
     bodyDe[] { _type, children[] { text } },
     bodyEn[] { _type, children[] { text } }
   }
@@ -91,6 +93,8 @@ export const articlesByCategoryQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
+    "project": project->{ _id, title, titleEn, slug },
+    seriesOrder,
     bodyDe[] { _type, children[] { text } },
     bodyEn[] { _type, children[] { text } }
   }
@@ -148,6 +152,8 @@ export const recommendedArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
+    "project": project->{ _id, title, titleEn, slug },
+    seriesOrder,
     bodyDe[] { _type, children[] { text } },
     bodyEn[] { _type, children[] { text } }
   }
@@ -170,6 +176,8 @@ export const latestArticlesQuery = groq`
     "featuredImage": featuredImage { ..., "asset": asset-> },
     "category": category->{ titleDe, titleEn, slug },
     "author": author->{ name },
+    "project": project->{ _id, title, titleEn, slug },
+    seriesOrder,
     bodyDe[] { _type, children[] { text } },
     bodyEn[] { _type, children[] { text } }
   }

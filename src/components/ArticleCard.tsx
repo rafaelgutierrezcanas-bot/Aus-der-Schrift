@@ -19,6 +19,9 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
   const categoryTitle = getLocalizedCategoryTitle(category, locale);
   const categorySlug = (category?.slug as { current: string })?.current;
   const difficulty = article.difficulty as string | undefined;
+  const project = article.project as { _id: string; title: string; titleEn?: string; slug: { current: string } } | null;
+  const seriesOrder = article.seriesOrder as number | undefined;
+  const seriesTotal = article.seriesTotal as number | undefined;
   const slug = getLocalizedSlug(article, locale);
   const publishedAt = article.publishedAt as string | undefined;
   const body = (locale === "en" && (article.bodyEn as unknown[])?.length
@@ -45,6 +48,22 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         style={{ fontFamily: "var(--font-sans)" }}
       >
         {label}
+      </span>
+    );
+  };
+
+  const SeriesBadge = () => {
+    if (!project || !seriesOrder) return null;
+    const projectTitle = locale === "en" && project.titleEn ? project.titleEn : project.title;
+    const partLabel = locale === "en" ? "Part" : "Teil";
+    const ofLabel = locale === "en" ? "of" : "von";
+    const totalStr = seriesTotal ? ` ${ofLabel} ${seriesTotal}` : "";
+    return (
+      <span
+        className="text-[10px] font-medium px-2 py-0.5 rounded-full border text-indigo-700 bg-indigo-50 border-indigo-200"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        {projectTitle} · {partLabel} {seriesOrder}{totalStr}
       </span>
     );
   };
@@ -84,9 +103,10 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
           </Link>
         )}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center flex-wrap gap-3 mb-2">
             <CategoryLabel />
             <DifficultyBadge />
+            <SeriesBadge />
             {publishedAt && (
               <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
                 {formatDate(publishedAt, locale)}
@@ -124,9 +144,10 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
             </div>
           </Link>
         )}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center flex-wrap gap-3 mb-3">
           <CategoryLabel />
           <DifficultyBadge />
+          <SeriesBadge />
           {publishedAt && (
             <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
@@ -172,6 +193,7 @@ export function ArticleCard({ article, featured = false, horizontal = false }: A
         <div className="flex items-center flex-wrap gap-3 mb-3">
           <CategoryLabel />
           <DifficultyBadge />
+          <SeriesBadge />
           {publishedAt && (
             <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
               {formatDate(publishedAt, locale)}
