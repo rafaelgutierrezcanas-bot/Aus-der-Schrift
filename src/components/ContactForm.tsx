@@ -144,6 +144,18 @@ export function ContactForm({ locale }: { locale: string }) {
         />
       </div>
 
+      <p className="text-[11px] text-muted leading-relaxed" style={{ fontFamily: "var(--font-sans)" }}>
+        {isDE ? (
+          <>Deine Daten werden nur zur Bearbeitung deiner Anfrage verwendet. Mehr dazu in der{" "}
+            <a href={`/${locale}/datenschutz`} target="_blank" rel="noopener" className="underline hover:text-accent transition-colors">Datenschutzerklärung</a>.
+          </>
+        ) : (
+          <>Your data will only be used to process your inquiry. See our{" "}
+            <a href={`/${locale}/datenschutz`} target="_blank" rel="noopener" className="underline hover:text-accent transition-colors">privacy policy</a>.
+          </>
+        )}
+      </p>
+
       {status === "error" && (
         <p className="text-sm text-red-600">
           {isDE
