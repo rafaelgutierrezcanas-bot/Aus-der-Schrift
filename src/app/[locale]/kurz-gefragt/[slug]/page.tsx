@@ -299,7 +299,7 @@ export default async function KurzGefragtDetailPage({
         </p>
         {verdict && verdictLabels[verdict] && (
           <span
-            className="inline-block bg-navy text-background text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm mb-3"
+            className={`inline-block text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm mb-3 ${verdict === "teilweise" || verdict === "umstritten" ? "bg-accent text-white" : "bg-navy text-background"}`}
             style={{ fontFamily: "var(--font-sans)" }}
           >
             {locale === "en" ? verdictLabels[verdict].en : verdictLabels[verdict].de}
@@ -384,7 +384,7 @@ export default async function KurzGefragtDetailPage({
                     </Link>
                     {qVerdict && verdictLabels[qVerdict] && (
                       <span
-                        className="shrink-0 bg-navy text-background text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm"
+                        className={`shrink-0 text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm ${qVerdict === "teilweise" || qVerdict === "umstritten" ? "bg-accent text-white" : "bg-navy text-background"}`}
                         style={{ fontFamily: "var(--font-sans)" }}
                       >
                         {locale === "en" ? verdictLabels[qVerdict].en : verdictLabels[qVerdict].de}

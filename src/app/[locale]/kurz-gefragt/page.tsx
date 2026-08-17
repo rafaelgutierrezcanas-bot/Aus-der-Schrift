@@ -2,12 +2,12 @@ import { client } from "@/sanity/client";
 import { allKurzGefragtQuery, pageBySlugQuery } from "@/sanity/queries";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getLocalizedCategoryTitle, getLocalizedQuestion, formatDate } from "@/lib/utils";
 import Script from "next/script";
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/site";
 import { buildLocalizedMetadata } from "@/lib/seo";
 import { PortableTextRenderer } from "@/components/PortableTextRenderer";
+import { KurzGefragtList } from "@/components/KurzGefragtList";
 
 export const revalidate = 600;
 
@@ -107,75 +107,12 @@ export default async function KurzGefragtIndexPage({
       </div>
 
       {/* Questions List */}
-      {questions.length === 0 ? (
-        <p className="text-muted text-center py-12" style={{ fontFamily: "var(--font-body-serif)" }}>
-          {t("keineFragenNoch")}
-        </p>
-      ) : (
-        <div className="space-y-0 border-t border-border">
-          {questions.map((q) => {
-            const question = getLocalizedQuestion(q, locale);
-            const qSlug = locale === "en" && (q.slugEn as { current: string })?.current
-              ? (q.slugEn as { current: string }).current
-              : (q.slug as { current: string })?.current;
-            const verdict = q.verdict as string | undefined;
-            const cat = q.category as Record<string, unknown> | null;
-            const catTitle = getLocalizedCategoryTitle(cat, locale);
-            const publishedAt = q.publishedAt as string | undefined;
-            const shortAnswer = locale === "en"
-              ? (q.shortAnswerEn as string | undefined) || (q.shortAnswerDe as string | undefined)
-              : (q.shortAnswerDe as string | undefined);
-
-            return (
-              <Link
-                key={q._id as string}
-                href={`/${locale}/kurz-gefragt/${qSlug}`}
-                className="group block border-b border-border py-6 hover:bg-surface/40 transition-colors -mx-4 px-4 rounded-sm"
-              >
-                <div className="flex items-start gap-3 mb-2">
-                  {verdict && verdictLabels[verdict] && (
-                    <span
-                      className="bg-navy text-background text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-sm mt-1 shrink-0"
-                      style={{ fontFamily: "var(--font-sans)" }}
-                    >
-                      {locale === "en" ? verdictLabels[verdict].en : verdictLabels[verdict].de}
-                    </span>
-                  )}
-                  <h2
-                    className="text-lg font-semibold leading-snug group-hover:text-accent transition-colors"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {question}
-                  </h2>
-                </div>
-                {shortAnswer && (
-                  <p
-                    className="text-sm text-muted leading-relaxed mb-3"
-                    style={{ fontFamily: "var(--font-body-serif)" }}
-                  >
-                    {shortAnswer}
-                  </p>
-                )}
-                <div className="flex items-center gap-3">
-                  {catTitle && (
-                    <span
-                      className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent"
-                      style={{ fontFamily: "var(--font-sans)" }}
-                    >
-                      {catTitle}
-                    </span>
-                  )}
-                  {publishedAt && (
-                    <span className="text-[11px] text-muted" style={{ fontFamily: "var(--font-sans)" }}>
-                      {formatDate(publishedAt, locale)}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      <KurzGefragtList
+        questions={questions}
+        locale={locale}
+        verdictLabels={verdictLabels}
+        noQuestionsLabel={t("keineFragenNoch")}
+      />
 
       {/* CTA: Submit a question */}
       <div className="mt-16 border border-border rounded-sm p-8 text-center bg-surface/40">
