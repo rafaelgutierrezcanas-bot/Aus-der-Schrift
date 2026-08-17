@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { linkAnnotations } from "./fields";
 
 export default defineType({
   name: "page",
@@ -18,13 +19,13 @@ export default defineType({
       name: "bodyDe",
       title: "Inhalt (DE)",
       type: "array",
-      of: [{ type: "block" }],
+      of: [{ type: "block", marks: { annotations: linkAnnotations } }],
     }),
     defineField({
       name: "bodyEn",
       title: "Content (EN)",
       type: "array",
-      of: [{ type: "block" }],
+      of: [{ type: "block", marks: { annotations: linkAnnotations } }],
     }),
   ],
   preview: {

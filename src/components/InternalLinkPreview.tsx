@@ -6,6 +6,7 @@ import { getLocalizedTitle, getLocalizedExcerpt } from "@/lib/utils";
 
 interface InternalLinkPreviewProps {
   slug: string;
+  basePath?: string;
   children: React.ReactNode;
 }
 
@@ -16,7 +17,7 @@ interface PreviewData {
   excerptEn?: string;
 }
 
-export function InternalLinkPreview({ slug, children }: InternalLinkPreviewProps) {
+export function InternalLinkPreview({ slug, basePath = "blog", children }: InternalLinkPreviewProps) {
   const locale = useLocale();
   const [data, setData] = useState<PreviewData | null>(null);
   const [open, setOpen] = useState(false);
@@ -53,7 +54,7 @@ export function InternalLinkPreview({ slug, children }: InternalLinkPreviewProps
   return (
     <span className="relative inline" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
       <Link
-        href={`/${locale}/blog/${slug}`}
+        href={`/${locale}/${basePath}/${slug}`}
         className="text-accent underline underline-offset-2 hover:opacity-75 transition-opacity"
       >
         {children}

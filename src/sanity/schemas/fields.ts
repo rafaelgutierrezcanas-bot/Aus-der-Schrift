@@ -1,4 +1,46 @@
 import { defineField } from "sanity";
+import { LinkIcon } from "@sanity/icons";
+
+export const linkAnnotations = [
+  {
+    name: "link",
+    type: "object" as const,
+    title: "Externer Link",
+    fields: [
+      defineField({
+        name: "href",
+        type: "url",
+        title: "URL",
+        validation: (r) =>
+          r.required().uri({
+            allowRelative: true,
+            scheme: ["http", "https", "mailto", "tel"],
+          }),
+      }),
+    ],
+  },
+  {
+    name: "internalLink",
+    type: "object" as const,
+    title: "Interner Link",
+    icon: LinkIcon,
+    fields: [
+      defineField({
+        name: "reference",
+        type: "reference",
+        title: "Artikel oder Frage",
+        to: [{ type: "article" }, { type: "kurzGefragt" }],
+      }),
+    ],
+  },
+];
+
+const richBlock = {
+  type: "block" as const,
+  marks: {
+    annotations: linkAnnotations,
+  },
+};
 
 export const bodyField = (name: string, title: string) =>
   defineField({
@@ -6,7 +48,7 @@ export const bodyField = (name: string, title: string) =>
     title,
     type: "array",
     of: [
-      { type: "block" },
+      richBlock,
       {
         type: "image",
         options: { hotspot: true },
@@ -37,7 +79,7 @@ export const bodyField = (name: string, title: string) =>
             name: "content",
             title: "Inhalt",
             type: "array",
-            of: [{ type: "block" }],
+            of: [richBlock],
           },
         ],
         preview: {

@@ -33,8 +33,28 @@ export const articleBySlugQuery = groq`
     slug,
     slugEn,
     publishedAt,
-    bodyDe,
-    bodyEn,
+    bodyDe[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    },
+    bodyEn[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    },
     excerptDe,
     excerptEn,
     language,
@@ -221,8 +241,8 @@ export const seriesArticlesQuery = groq`
 export const backlinksQuery = groq`
   *[_type == "article" && (status == "published" || !defined(status)) && slug.current != $slug &&
     (
-      count(bodyDe[_type == "block"][count(markDefs[_type == "internalLink" && slug == $slug]) > 0]) > 0 ||
-      count(bodyEn[_type == "block"][count(markDefs[_type == "internalLink" && slug == $slug]) > 0]) > 0
+      count(bodyDe[_type == "block"][count(markDefs[_type == "internalLink" && (slug == $slug || reference->slug.current == $slug)]) > 0]) > 0 ||
+      count(bodyEn[_type == "block"][count(markDefs[_type == "internalLink" && (slug == $slug || reference->slug.current == $slug)]) > 0]) > 0
     )
   ] | order(publishedAt desc) [0..9] {
     _id, titleDe, titleEn, slug, slugEn, publishedAt
@@ -244,6 +264,28 @@ export const kurzGefragtBySlugQuery = groq`
     && (slug.current == $slug || slugEn.current == $slug)
     && (status == "published" || !defined(status))][0] {
     ...,
+    bodyDe[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    },
+    bodyEn[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    },
     category->{ titleDe, titleEn, slug },
     relatedArticles[]->{ _id, titleDe, titleEn, slug, slugEn, publishedAt, category->{ titleDe, titleEn, slug }, excerptDe, excerptEn, featuredImage, difficulty },
     relatedQuestions[]->{ _id, questionDe, questionEn, slug, slugEn, verdict, category->{ titleDe, titleEn } }
@@ -260,7 +302,29 @@ export const allKurzGefragtSlugsQuery = groq`
 
 export const pageBySlugQuery = groq`
   *[_type == "page" && slug.current == $slug][0] {
-    _id, titleDe, titleEn, bodyDe, bodyEn
+    _id, titleDe, titleEn,
+    bodyDe[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    },
+    bodyEn[] {
+      ...,
+      markDefs[] {
+        ...,
+        _type == "internalLink" => {
+          ...,
+          "slug": reference->slug.current,
+          "docType": reference->_type
+        }
+      }
+    }
   }
 `;
 

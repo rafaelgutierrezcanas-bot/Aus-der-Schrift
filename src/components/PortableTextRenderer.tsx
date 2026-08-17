@@ -18,15 +18,31 @@ function firstSpanText(value: unknown): string {
 function buildComponents(locale: string, footnotesMap?: Map<number, string>): PortableTextComponents {
   return {
   marks: {
+    link: ({ children, value }) => {
+      const href = (value as Record<string, unknown>).href as string ?? "";
+      return (
+        <a
+          href={href}
+          target={href.startsWith("http") ? "_blank" : undefined}
+          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+          className="text-accent underline underline-offset-2 hover:opacity-75 transition-opacity"
+        >
+          {children}
+        </a>
+      );
+    },
     infocard: ({ children, value }) => (
       <InfoCardPopover explanation={(value as Record<string, unknown>).explanation as string ?? ""}>
         {children}
       </InfoCardPopover>
     ),
     internalLink: ({ children, value }) => {
-      const slug = (value as Record<string, unknown>).slug as string ?? "";
+      const v = value as Record<string, unknown>;
+      const slug = v.slug as string ?? "";
+      const docType = v.docType as string | undefined;
+      const basePath = docType === "kurzGefragt" ? "kurz-gefragt" : "blog";
       return (
-        <InternalLinkPreview slug={slug}>
+        <InternalLinkPreview slug={slug} basePath={basePath}>
           {children}
         </InternalLinkPreview>
       );
