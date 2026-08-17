@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { client } from "@/sanity/client";
-import { allArticleSlugsQuery, allCategoriesQuery, allProjectSlugsQuery, allKurzGefragtSlugsQuery } from "@/sanity/queries";
+import { allArticleSlugsQuery, allKurzGefragtSlugsQuery } from "@/sanity/queries";
 import { absoluteUrl, SUPPORTED_LOCALES } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -8,7 +8,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/blog",
     "/kurz-gefragt",
-    "/projekte",
     "/zu-meiner-person",
     "/ressourcen",
     "/kontakt",
@@ -36,15 +35,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articleEntries: MetadataRoute.Sitemap = [];
   let categoryEntries: MetadataRoute.Sitemap = [];
-  let projectEntries: MetadataRoute.Sitemap = [];
   let infografikEntries: MetadataRoute.Sitemap = [];
   let kurzGefragtEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const [articles, categories, projects, infografiken, kurzGefragt] = await Promise.all([
+    const [articles, categories, infografiken, kurzGefragt] = await Promise.all([
       client.fetch(allArticleSlugsQuery),
       client.fetch<Array<{ slug: { current: string }; _updatedAt?: string }>>(`*[_type == "category"]{ slug, _updatedAt }`),
-      client.fetch<Array<{ slug: string; _updatedAt?: string }>>(`*[_type == "project" && isPublic != false]{ "slug": slug.current, _updatedAt }`),
       client.fetch<Array<{ slug: string; publishedAt?: string }>>(`*[_type == "infografik" && defined(slug.current)]{ "slug": slug.current, publishedAt }`),
       client.fetch(allKurzGefragtSlugsQuery),
     ]);
@@ -86,19 +83,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       }))
     );
-    projectEntries = SUPPORTED_LOCALES.flatMap((locale) =>
-      (projects as Array<{ slug: string; _updatedAt?: string }>).map(({ slug, _updatedAt }): MetadataRoute.Sitemap[number] => ({
-        url: absoluteUrl(`/${locale}/projekte/${slug}`),
-        lastModified: _updatedAt ? new Date(_updatedAt) : staticLastMod,
-        changeFrequency: "monthly",
-        priority: 0.7,
-        alternates: {
-          languages: Object.fromEntries(
-            SUPPORTED_LOCALES.map((l) => [l, absoluteUrl(`/${l}/projekte/${slug}`)])
-          ),
-        },
-      }))
-    );
     infografikEntries = SUPPORTED_LOCALES.flatMap((locale) =>
       infografiken.map(({ slug, publishedAt }): MetadataRoute.Sitemap[number] => ({
         url: absoluteUrl(`/${locale}/infografiken/${slug}`),
@@ -134,5 +118,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticEntries;
   }
 
-  return [...staticEntries, ...categoryEntries, ...articleEntries, ...projectEntries, ...infografikEntries, ...kurzGefragtEntries];
+  return [...staticEntries, ...categoryEntries, ...articleEntries, ...infografikEntries, ...kurzGefragtEntries];
 }

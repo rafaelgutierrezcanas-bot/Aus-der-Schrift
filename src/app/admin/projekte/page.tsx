@@ -8,7 +8,7 @@ interface Project {
   articleCount: number;
 }
 
-export default async function ProjektePage() {
+export default async function ReihenPage() {
   const projects: Project[] = await client.fetch(`
     *[_type == "project"] | order(title asc) {
       _id, title, description,
@@ -20,9 +20,9 @@ export default async function ProjektePage() {
     <div>
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Projekte</h1>
+          <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Reihen</h1>
           <p className="text-sm text-[var(--color-muted)] mt-1" style={{ fontFamily: "var(--font-sans)" }}>
-            Themenreihen und Forschungsprojekte, die mehrere Artikel umfassen.
+            Themenreihen, die mehrere Artikel umfassen.
           </p>
         </div>
         <Link
@@ -30,13 +30,13 @@ export default async function ProjektePage() {
           className="text-sm px-4 py-2 rounded-lg bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity"
           style={{ fontFamily: "var(--font-sans)" }}
         >
-          + Neues Projekt
+          + Neue Reihe
         </Link>
       </div>
 
       {projects.length === 0 && (
         <p className="text-[var(--color-muted)] text-sm" style={{ fontFamily: "var(--font-sans)" }}>
-          Noch keine Projekte vorhanden.
+          Noch keine Reihen vorhanden.
         </p>
       )}
 
@@ -58,7 +58,7 @@ export default async function ProjektePage() {
               )}
             </div>
             <span className="text-xs text-[var(--color-muted)] shrink-0 ml-4" style={{ fontFamily: "var(--font-sans)" }}>
-              {p.articleCount} {p.articleCount === 1 ? "Artikel" : "Artikel"}
+              {p.articleCount} Artikel
             </span>
           </Link>
         ))}

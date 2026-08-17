@@ -85,7 +85,7 @@ const SECTIONS = [
     ),
   },
   {
-    label: "Projekte",
+    label: "Reihen",
     href: "/admin/projekte",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -140,7 +140,7 @@ export default async function AdminDashboard() {
     "Kurz gefragt": data.kurzGefragt,
     Quellen: data.sources,
     Ideen: data.ideas,
-    Projekte: data.projects,
+    Reihen: data.projects,
     "Bücher": data.books,
     Zitate: data.quotes,
     Ausarbeitungen: data.papers,
@@ -267,7 +267,7 @@ export default async function AdminDashboard() {
           href="/admin/projekte/neu"
           className="text-xs px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-foreground)] hover:border-[var(--color-foreground)] transition-colors"
         >
-          + Neues Projekt
+          + Neue Reihe
         </Link>
         <Link
           href="/admin/kurz-gefragt/neu"

@@ -121,7 +121,7 @@ export default defineType({
     }),
     defineField({
       name: "project",
-      title: "Projekt / Reihe",
+      title: "Reihe",
       type: "reference",
       to: [{ type: "project" }],
     }),
@@ -129,7 +129,7 @@ export default defineType({
       name: "seriesOrder",
       title: "Position in der Reihe",
       type: "number",
-      description: "Reihenfolge innerhalb des Projekts/der Reihe (z.B. 1, 2, 3)",
+      description: "Reihenfolge innerhalb der Reihe (z.B. 1, 2, 3)",
       hidden: ({ document }) => !document?.project,
     }),
     defineField({

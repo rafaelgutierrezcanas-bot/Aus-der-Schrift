@@ -50,7 +50,7 @@ const navItems = [
   { href: "/admin/empfohlen", label: "Empfohlen", Icon: StarIcon },
   { href: "/admin/quellen", label: "Quellen", Icon: BookIcon },
   { href: "/admin/ideen", label: "Ideen", Icon: BulbIcon },
-  { href: "/admin/projekte", label: "Projekte", Icon: FolderIcon },
+  { href: "/admin/projekte", label: "Reihen", Icon: FolderIcon },
   { href: "/admin/buecher", label: "Bücher", Icon: LibraryIcon },
   { href: "/admin/zitate", label: "Zitate", Icon: QuoteIcon },
   { href: "/admin/ausarbeitungen", label: "Ausarbeitungen", Icon: FileTextIcon },

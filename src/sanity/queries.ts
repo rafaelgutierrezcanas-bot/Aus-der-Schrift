@@ -183,54 +183,14 @@ export const latestArticlesQuery = groq`
   }
 `;
 
-export const projectBySlugQuery = groq`
-  *[_type == "project" && slug.current == $slug][0] {
-    _id,
-    title,
-    titleEn,
-    slug,
-    status,
-    startedAt,
-    description,
-    descriptionEn,
-    researchQuestionDe,
-    researchQuestionEn,
-    plannedOutput,
-    "articles": *[_type == "article" && references(^._id) && (status == "published" || !defined(status))] | order(publishedAt desc) {
-      _id,
-      titleDe,
-      titleEn,
-      slug,
-      slugEn,
-      publishedAt,
-      excerptDe,
-      excerptEn,
-      language,
-      difficulty,
-      "featuredImage": featuredImage { ..., "asset": asset-> },
-      "category": category->{ titleDe, titleEn, slug },
-      "author": author->{ name }
-    }
-  }
-`;
-
-export const allProjectSlugsQuery = groq`
-  *[_type == "project" && isPublic != false] { "slug": slug.current }
-`;
-
 export const allProjectsQuery = groq`
-  *[_type == "project" && isPublic != false] | order(startedAt desc) {
+  *[_type == "project"] | order(title asc) {
     _id,
     title,
     titleEn,
     slug,
-    status,
-    startedAt,
     description,
     descriptionEn,
-    researchQuestionDe,
-    researchQuestionEn,
-    plannedOutput,
     "articleCount": count(*[_type == "article" && references(^._id) && (status == "published" || !defined(status))])
   }
 `;

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function NeuesProjektPage() {
+export default function NeueReihePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -39,7 +39,7 @@ export default function NeuesProjektPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Neues Projekt</h1>
+        <h1 className="font-serif text-2xl text-[var(--color-foreground)]">Neue Reihe</h1>
         <button
           onClick={handleSave}
           disabled={saving || !title.trim()}
@@ -60,7 +60,7 @@ export default function NeuesProjektPage() {
             onChange={(e) => setTitle(e.target.value)}
             className={inputClass}
             style={{ fontFamily: "var(--font-sans)" }}
-            placeholder="z.B. Paulinische Briefe"
+            placeholder="z.B. Christologie im Johannesevangelium"
             autoFocus
           />
         </div>
