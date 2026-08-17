@@ -10,6 +10,7 @@ import { ImageBlockExtension } from "./ImageBlock";
 import { InfoCardExtension } from "./InfoCardExtension";
 import { InternalLinkExtension } from "./InternalLinkExtension";
 import { ExcursusExtension } from "./ExcursusBlock";
+import { ApplicationExtension } from "./ApplicationBlock";
 import LektoratPanel, { type LektoratChange } from "./LektoratPanel";
 import EntwurfSidebar, { type EntwurfThema } from "./EntwurfSidebar";
 export type { EntwurfThema } from "./EntwurfSidebar";
@@ -122,6 +123,7 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
       InfoCardExtension,
       InternalLinkExtension,
       ExcursusExtension,
+      ApplicationExtension,
       Placeholder.configure({ placeholder: placeholder ?? "Schreibe hier..." }),
     ],
     immediatelyRender: false,
@@ -258,9 +260,9 @@ export default function TiptapEditor({ content, onChange, onEditorReady, placeho
   });
 
   let text = editor.getText();
-  // Include excursus titles (stored as node attributes, not in getText())
+  // Include excursus/application titles (stored as node attributes, not in getText())
   editor.state.doc.descendants((node) => {
-    if (node.type.name === "excursus" && node.attrs.title) {
+    if ((node.type.name === "excursus" || node.type.name === "application") && node.attrs.title) {
       text += " " + node.attrs.title;
     }
     return true;

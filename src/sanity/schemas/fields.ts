@@ -91,6 +91,31 @@ export const bodyField = (name: string, title: string) =>
       },
       {
         type: "object",
+        name: "application",
+        title: "Anwendung",
+        fields: [
+          {
+            name: "title",
+            title: "Titel (optional)",
+            type: "string",
+            description: 'z.B. "Was bedeutet das für uns heute?"',
+          },
+          {
+            name: "content",
+            title: "Inhalt",
+            type: "array",
+            of: [richBlock],
+          },
+        ],
+        preview: {
+          select: { title: "title" },
+          prepare({ title }: { title?: string }) {
+            return { title: `Anwendung: ${title ?? "(ohne Titel)"}` };
+          },
+        },
+      },
+      {
+        type: "object",
         name: "bibleVerse",
         title: "Bible Verse",
         fields: [

@@ -6,6 +6,7 @@ import { FootnoteTooltip } from "./FootnoteTooltip";
 import { InternalLinkPreview } from "./InternalLinkPreview";
 import { BibleReferenceTooltip } from "./BibleReferenceTooltip";
 import { Excursus } from "./Excursus";
+import { Application } from "./Application";
 import { lookupVerse } from "@/lib/bibleVerseLookup";
 import type { BibleRef } from "@/lib/bibleReferences";
 import Image from "next/image";
@@ -182,6 +183,23 @@ function buildComponents(locale: string, footnotesMap?: Map<number, string>): Po
             />
           ) : null}
         </Excursus>
+      );
+    },
+    application: ({
+      value,
+    }: {
+      value: { title?: string; content?: unknown[] };
+    }) => {
+      const components = buildComponents(locale, footnotesMap);
+      return (
+        <Application title={value.title} locale={locale}>
+          {value.content ? (
+            <PortableText
+              value={value.content as Parameters<typeof PortableText>[0]["value"]}
+              components={components}
+            />
+          ) : null}
+        </Application>
       );
     },
   },

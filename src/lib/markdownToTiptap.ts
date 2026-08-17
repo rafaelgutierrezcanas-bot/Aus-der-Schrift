@@ -69,6 +69,27 @@ export function markdownToTiptap(markdown: string, parentFootnotes?: Map<number,
       continue;
     }
 
+    // Application block: <!-- application title="..." --> ... <!-- /application -->
+    const applicationMatch = line.match(/^<!--\s*application\s+title="([^"]*)"\s*-->$/);
+    if (applicationMatch) {
+      const appTitle = unescapeAttr(applicationMatch[1]);
+      const innerLines: string[] = [];
+      i++;
+      while (i < lines.length && !lines[i].match(/^<!--\s*\/application\s*-->$/)) {
+        innerLines.push(lines[i]);
+        i++;
+      }
+      i++; // skip closing tag
+      const innerMd = innerLines.join("\n");
+      const innerDoc = markdownToTiptap(innerMd, footnotes);
+      content.push({
+        type: "application",
+        attrs: { title: appTitle },
+        content: innerDoc.content.length > 0 ? innerDoc.content : [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
+      });
+      continue;
+    }
+
     // Image comment: <!-- img ref="..." alt="..." caption="..." layout="..." -->
     const imgMatch = line.match(/^<!--\s*img\s+ref="([^"]*)"\s+alt="([^"]*)"\s+caption="([^"]*)"\s+layout="([^"]*)"\s*-->$/);
     if (imgMatch) {
@@ -186,7 +207,9 @@ export function markdownToTiptap(markdown: string, parentFootnotes?: Map<number,
       !/^---+$/.test(lines[i].trim()) &&
       !/^<!--\s*img\s/.test(lines[i]) &&
       !/^<!--\s*excursus\s/.test(lines[i]) &&
-      !/^<!--\s*\/excursus\s*-->/.test(lines[i])
+      !/^<!--\s*\/excursus\s*-->/.test(lines[i]) &&
+      !/^<!--\s*application\s/.test(lines[i]) &&
+      !/^<!--\s*\/application\s*-->/.test(lines[i])
     ) {
       paraLines.push(lines[i]);
       i++;

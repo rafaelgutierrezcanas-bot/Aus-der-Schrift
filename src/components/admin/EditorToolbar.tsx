@@ -183,6 +183,14 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
     }).run();
   }
 
+  function addApplication() {
+    editor.chain().focus().insertContent({
+      type: "application",
+      attrs: { title: "" },
+      content: [{ type: "paragraph" }],
+    }).run();
+  }
+
   /* ── InfoCard handlers ──────────────────────────────── */
   function openInfoCardPicker() {
     if (infoCardButtonRef.current) {
@@ -323,6 +331,7 @@ export default function EditorToolbar({ editor, sources = [], onLektorat, lektor
                   { label: "Erklärung", fn: addExplanationBox },
                   { label: "Frage", fn: addQuestionBox },
                   { label: "Exkurs", fn: addExcursus },
+                  { label: "Anwendung", fn: addApplication },
                   { label: "Bild", fn: addImage },
                 ].map((item) => (
                   <button

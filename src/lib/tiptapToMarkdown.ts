@@ -123,6 +123,16 @@ export function tiptapToMarkdown(
         return `<!-- excursus title="${excTitle}" -->\n${innerBlocks.join("\n\n")}\n<!-- /excursus -->`;
       }
 
+      case "application": {
+        const appTitle = escapeAttr((node.attrs?.title as string) ?? "");
+        const innerBlocks: string[] = [];
+        for (const child of node.content ?? []) {
+          const md = processBlock(child);
+          if (md !== undefined) innerBlocks.push(md);
+        }
+        return `<!-- application title="${appTitle}" -->\n${innerBlocks.join("\n\n")}\n<!-- /application -->`;
+      }
+
       case "imageBlock": {
         const ref = escapeAttr((node.attrs?.src as string) ?? "");
         const alt = escapeAttr((node.attrs?.alt as string) ?? "");
